@@ -1,0 +1,125 @@
+Product Requirements Document: Tango!
+Version: 1.1
+Date: August 31, 2025
+
+1. Introduction & Vision
+
+1.1 Core Concept
+Tango is a mobile application for iOS and Android that offers hundreds of fun, simple mini-games designed to be played with household items. The app aims to facilitate real-world connections and create memorable experiences by removing the complexity of traditional board games.
+
+1.2 Vision
+Fast & Simple: Allow users to learn any game in under two minutes and start playing immediately.
+Play Your Way: Offer multiple game modes, including competitive duels (1 vs 1), team play (2 vs 2), cooperative challenges, and tournaments.
+Connecting People: Foster genuine interaction and shared laughter, whether players are in the same room or connecting remotely.
+
+2. Target Audience & User Personas
+The primary target audience for Tango consists of young couples and families looking for easy and engaging ways to connect and have fun together.
+Persona 1: The Couple (Chloe & Ben, ages 28-35)
+Goal: Find fun, spontaneous activities to do on a weeknight that don't involve screen time. They enjoy friendly competition.
+Pain Point: They are often too tired after work for complex board games and find themselves defaulting to watching TV.
+How Tango Helps: Provides quick, low-effort games that spark laughter and connection. The "1 vs 1" Tango mode is perfect for their competitive dynamic.
+Persona 2: The Family (The Miller Family, parents ages 35-45 with kids ages 6-12)
+Goal: Find an activity that everyone in the family can enjoy together, regardless of age.
+Pain Point: It's difficult to find games that are simple enough for the youngest child but still engaging for the parents and older sibling.
+How Tango Helps: Offers a wide variety of games, and modes like "Co-Op" and "Tournament" are perfect for family game nights, ensuring everyone can participate.
+
+3. Features & Functionality
+
+3.1 Game Library
+Description: A central repository of all mini-games available in the app.
+User Stories:
+As a user, I want to browse a vast library of games.
+As a user, I want to filter games by category (e.g., Creative, Physical, Foodie), theme (e.g., Christmas, Halloween), and available household items.
+As a user, I want to view clear, step-by-step instructions, a list of required items, and a "How to Play" video for each game.
+As a user, I want to have a built-in timer for games that require one.
+
+3.2 "Tango" Feature (1 vs 1 Duels)
+Description: A competitive mode where two players compete in a best-of-five mini-game series.
+User Stories:
+As a player, I want to challenge a friend to a "Tango."
+As a player, I want the app to randomly select five games from the library based on the items we both have.
+As a player, I want the first person to win three rounds to be declared the winner.
+As a player, I want a handicap system to be automatically applied if one player gains a two-game lead to keep the match balanced.
+As a player, I want to agree on a fun "punishment" for the loser, chosen from a pre-written list provided by the app, before the Tango begins.
+
+3.3 Game Modes
+The app will support the following game modes, accessible from the home screen:
+1 vs 1: The core "Tango" duel experience.
+2 vs 2: Team-based competition. Gameplay mechanics (e.g., simultaneous or turn-based) will vary depending on the specific game being played.
+Co-Op: Collaborative challenges where players work together. The objective (e.g., achieving a high score, completing a task) will be game-dependent.
+Tournament: Bracket-style competition for larger groups.
+
+3.4 Tournament Feature (Premium)
+Description: Allows a host to organize a tournament for a large group of friends or family.
+User Stories:
+As a host, I want to set up a tournament bracket for solo players or teams.
+As a host, I want the app to manage pairings, track wins, and automatically update the bracket.
+
+3.5 Replay & Photo Library
+Description: A place for users to save and view memories captured during gameplay.
+User Stories:
+As a user, I want the option to record my gameplay attempts using my phone's camera.
+As a user, I want to save photos and videos of my games to a personal in-app library.
+As a user, I want to easily access and view my saved replays from the main navigation menu.
+
+3.6 User Generated Content (UGC)
+Description: A system for users to submit their own game ideas.
+User Stories:
+As a user, I want to be able to submit a new game idea to the Tango team via external channels (e.g., social media, website).
+As a user, I want to receive a reward (e.g., a free premium subscription) if my game is added to the app.
+As a user, I want to be credited in the game's description if my submission is chosen.
+
+3.7 V2 Feature: Video Call Integration
+Description: Allows remote players to see each other during gameplay.
+User Stories:
+As a user, I want to initiate a video call with my opponent before starting a remote 1 vs 1 Tango.
+As a user, I want the video feed to appear as a small, movable window during gameplay.
+As a user, I want to be able to toggle the video between a small window and a full-screen view.
+
+4. Technical Specifications & Non-Functional Requirements
+
+4.1 Technical Stack
+Frontend: Expo React Native with Tailwind CSS
+Backend & Database: Supabase
+Target Platforms: iOS (iPhone) and Android (specifically Samsung devices, with general Android compatibility)
+Development Environment: Cursor AI Code Editor
+
+4.2 Non-Functional Requirements
+Offline Capability: The core gameplay experience (browsing and playing downloaded games) must be available without an active internet connection. Game assets (videos, instructions) will need to be bundled with the app or downloaded ahead of time.
+Performance: The app must be responsive and smooth, with minimal loading times, especially during game countdowns and transitions.
+Usability: The interface must be intuitive and easy to navigate for non-technical users of all ages.
+
+5. User Flow: 1 vs 1 Tango
+Player Selection: User taps "1 vs 1," enters Player 2's name, or connects to a friend's profile.
+Punishment Selection: Both players agree on a randomly generated punishment or opt out.
+Item Gathering: After the opponent is selected, a screen lists the household items needed for a set of random games. A button labeled "Items Gathered" with a checkbox signals readiness. If a user doesn't have an item, they can tap a button to remove it. The app will suggest alternatives or remove the item from the game selection pool.
+Game Selection: An animation plays, shuffling and randomly selecting a game.  The game chosen will only use the items players have confirmed they have.
+Instructions: The selected game's title appears along with a description of how to play the game.  Tapping the video button on this screen plays a short video tutorial on how to play the game.
+Gameplay: Tapping the "Tango!" button on the instructions screen starts a five-second countdown with sound effects. The gameplay screen displays the name of the game at the top in big text, below that in smaller text it will display whose turn it is.  Middle of the screen will have a big timer and below the timer there will be a pause timer and reset timer button. A sound effect signals the end of the round / time is up.
+Scoring: A screen appears where the user selects the winner of the round. In games like marshmallow scoop where the users enter how many marshmallows are in the bowl after their turn, the app can determine the winner. A scoreboard in the bottom-right corner updates with the new score.  When the users are done reviewing their score, they can hit the ‘Round 2’ button.
+Next Round: The app shuffles to select the next game. If a player has a two-game lead, a handicap is applied to them for the next round.  The handicap is announced after the user with a 2 game lead clicks the tango button, a pop up card will pop up letting the user know they have a handicap and explaining the handicap to them.
+Conclusion: This flow repeats until a player wins three games. A final screen declares the winner with a celebratory confetti animation.  The loser is then prompted to complete the pre-selected punishment. A Punishment button will appear on the screen. When the user selects the Punishment button, a card will pop up explaining what the loser must do. For example, if a winner's speech was selected, the card would say: "<loser name> must read the Concession Speech below" Below this message, a pre-populated speech will be provided for the loser to read aloud. The speech will be about 30 seconds of humorous and over-the-top praise for the winner.  Users can then choose to "Play Again" or select a "Back to Home".
+
+6. Monetization
+Free Version: Access to all co-op games and a rotating selection of 10 free games.
+Paid Version ($3.99 One Time Purchase)
+Unlocks the entire game library.
+Unlocks the Tournament feature.
+Access to new monthly content and game packs.
+Expansion Packs ($2.99)
+Optional content packs that introduce new, themed games and items. These one-time purchases (e.g., a "Christmas Bundle" or "Summer Games Pack") provide a reason for users to re-engage with the app and create a sustainable, long-term revenue stream without the friction of a subscription.
+
+7. Metrics & Key Performance Indicators (KPIs)
+The success of the app will be measured by the following metrics:
+Engagement:
+Total number of games played.
+Daily/Monthly Active Users (DAU/MAU).
+Acquisition & Growth:
+Total number of downloads.
+Monetization:
+Number of app purchases.
+Conversion rate from free to paid.
+
+8. Future Considerations (Post V1 Launch)
+Video Call Integration: Full implementation of the video call feature for remote play.
+Enhanced Profiles: Deeper stat tracking and user profiles.
