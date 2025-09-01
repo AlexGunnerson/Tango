@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image } from 'react-native';
 import type { RootStackScreenProps } from '../navigation/types';
 
 type Props = RootStackScreenProps<'Home'>;
@@ -8,11 +8,12 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* App Title */}
-        <Text style={styles.title}>Tango!</Text>
-        <Text style={styles.subtitle}>
-          Fun mini-games with household items
-        </Text>
+        {/* App Logo */}
+        <Image 
+          source={require('../../assets/tango-logo.png')} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
         {/* Game Mode Buttons */}
         <View style={styles.buttonContainer}>
@@ -84,25 +85,19 @@ export default function HomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F5F5F5',
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 24,
+    paddingTop: 20,
   },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#6366f1',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 48,
+  logo: {
+    width: 135,
+    height: 62,
+    marginBottom: 16,
   },
   buttonContainer: {
     width: '100%',
