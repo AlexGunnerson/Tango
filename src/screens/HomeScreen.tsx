@@ -18,19 +18,24 @@ export default function HomeScreen({ navigation }: Props) {
         {/* Game Mode Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.button, styles.buttonIndigo]}
+            style={styles.button}
             onPress={() => navigation.navigate('PlayerSelection')}
           >
-            <Text style={styles.buttonText}>
-              1 vs 1 Tango
-            </Text>
-            <Text style={styles.buttonSubtext}>
-              Competitive duel for two players
-            </Text>
+            <Image 
+              source={require('../../assets/karate-yellow-1.png')} 
+              style={styles.karateImage}
+            />
+            <Image 
+              source={require('../../assets/karate-red-2.png')} 
+              style={styles.karateImage2}
+            />
+            <View style={styles.vsContainer}>
+              <Text style={styles.vsText}>VS</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.buttonGreen]}
+            style={styles.button}
             onPress={() => navigation.navigate('TeamSelection', { mode: '2v2' })}
           >
             <Text style={styles.buttonText}>
@@ -42,7 +47,7 @@ export default function HomeScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.buttonBlue]}
+            style={styles.button}
             onPress={() => navigation.navigate('TeamSelection', { mode: 'coop' })}
           >
             <Text style={styles.buttonText}>
@@ -54,7 +59,7 @@ export default function HomeScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.buttonPurple]}
+            style={styles.button}
             onPress={() => navigation.navigate('TournamentSetup')}
           >
             <Text style={styles.buttonText}>
@@ -65,17 +70,7 @@ export default function HomeScreen({ navigation }: Props) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, styles.buttonGray]}
-            onPress={() => navigation.navigate('GameLibrary')}
-          >
-            <Text style={styles.buttonText}>
-              Game Library
-            </Text>
-            <Text style={styles.buttonSubtext}>
-              Browse all available games
-            </Text>
-          </TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>
@@ -103,10 +98,11 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    width: 361,
+    height: 125,
     marginBottom: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -116,21 +112,36 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  buttonIndigo: {
-    backgroundColor: '#6366f1',
-  },
-  buttonGreen: {
-    backgroundColor: '#16a34a',
-  },
-  buttonBlue: {
-    backgroundColor: '#2563eb',
-  },
-  buttonPurple: {
-    backgroundColor: '#9333ea',
-  },
   buttonGray: {
-    backgroundColor: '#4b5563',
     marginTop: 32,
+  },
+  karateImage: {
+    position: 'absolute',
+    left: 56,
+    top: 29,
+    width: 67,
+    height: 71,
+  },
+  karateImage2: {
+    position: 'absolute',
+    left: 236,
+    top: 25,
+    width: 73,
+    height: 78,
+  },
+  vsContainer: {
+    position: 'absolute',
+    left: 146,
+    top: 67,
+    width: 70,
+    height: 27,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  vsText: {
+    color: '#B2282F',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   buttonText: {
     color: '#ffffff',
