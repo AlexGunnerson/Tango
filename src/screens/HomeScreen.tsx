@@ -44,6 +44,25 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.buttonSubtext}>
               Team-based competition
             </Text>
+            <Image 
+              source={require('../../assets/boxing-red.png')} 
+              style={styles.boxingRed1}
+            />
+            <Image 
+              source={require('../../assets/boxing-red.png')} 
+              style={styles.boxingRed2}
+            />
+            <Image 
+              source={require('../../assets/boxing-yellow.png')} 
+              style={styles.boxingYellow1}
+            />
+            <Image 
+              source={require('../../assets/boxing-yellow.png')} 
+              style={styles.boxingYellow2}
+            />
+            <View style={styles.vsContainer2}>
+              <Text style={styles.vsText}>VS</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -56,6 +75,13 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.buttonSubtext}>
               Work together as a team
             </Text>
+            <Image 
+              source={require('../../assets/acro-yoga.png')} 
+              style={styles.acroYoga}
+            />
+            <View style={styles.coopTextContainer}>
+              <Text style={styles.coopText}>Co-Op</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -68,6 +94,13 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.buttonSubtext}>
               Bracket-style competition
             </Text>
+            <Image 
+              source={require('../../assets/bracket.png')} 
+              style={styles.bracket}
+            />
+            <View style={styles.tournamentTextContainer}>
+              <Text style={styles.tournamentText}>Tournament</Text>
+            </View>
           </TouchableOpacity>
 
 
@@ -96,9 +129,10 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
+    alignItems: 'center',
   },
   button: {
-    width: 361,
+    width: 350,
     height: 125,
     marginBottom: 16,
     backgroundColor: '#ffffff',
@@ -141,6 +175,85 @@ const styles = StyleSheet.create({
   vsText: {
     color: '#B2282F',
     fontSize: 24,
+    fontWeight: 'bold',
+  },
+  boxingRed1: {
+    position: 'absolute',
+    left: 232,
+    top: 27,
+    width: 42,
+    height: 80,
+  },
+  boxingRed2: {
+    position: 'absolute',
+    left: 288,
+    top: 25,
+    width: 39,
+    height: 74,
+  },
+  boxingYellow1: {
+    position: 'absolute',
+    left: 41,
+    top: 25,
+    width: 39,
+    height: 74,
+  },
+  boxingYellow2: {
+    position: 'absolute',
+    left: 93,
+    top: 27,
+    width: 42,
+    height: 80,
+  },
+  vsContainer2: {
+    position: 'absolute',
+    left: 146,
+    top: 67,
+    width: 70,
+    height: 27,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  acroYoga: {
+    position: 'absolute',
+    left: 139,
+    top: 12,
+    width: 85,
+    height: 78,
+  },
+  coopTextContainer: {
+    position: 'absolute',
+    left: 142,
+    top: 90,
+    width: 80,
+    height: 27,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  coopText: {
+    color: '#B2282F',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  bracket: {
+    position: 'absolute',
+    left: 18,
+    top: 12,
+    width: 325,
+    height: 93,
+  },
+  tournamentTextContainer: {
+    position: 'absolute',
+    left: 113,
+    top: 90,
+    width: 140,
+    height: 27,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tournamentText: {
+    color: '#B2282F',
+    fontSize: 20,
     fontWeight: 'bold',
   },
   buttonText: {
