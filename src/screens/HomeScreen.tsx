@@ -7,8 +7,14 @@ type Props = RootStackScreenProps<'Home'>;
 export default function HomeScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
+      {/* Menu Icon */}
+      <Image 
+        source={require('../../assets/menu-red.png')} 
+        style={styles.menuIcon}
+      />
+
+      {/* Logo */}
       <View style={styles.content}>
-        {/* App Logo */}
         <Image 
           source={require('../../assets/tango-logo.png')} 
           style={styles.logo}
@@ -133,7 +139,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: 350,
-    height: 125,
+    height: 145,
     marginBottom: 16,
     backgroundColor: '#ffffff',
     borderRadius: 10,
@@ -266,5 +272,12 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     marginTop: 4,
+  },
+  menuIcon: {
+    position: 'absolute',
+    left: 14,
+    top: 83,
+    width: 35,
+    height: 27,
   },
 });
