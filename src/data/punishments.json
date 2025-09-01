@@ -1,0 +1,162 @@
+[
+  {
+    "id": "punishment-001",
+    "title": "Victory Speech",
+    "description": "Read the winner's concession speech praising their incredible skills",
+    "category": "speech",
+    "duration": 30,
+    "isActive": true
+  },
+  {
+    "id": "punishment-002",
+    "title": "Dramatic Bow",
+    "description": "Perform an overly dramatic bow while declaring the winner as your superior",
+    "category": "performance",
+    "duration": 15,
+    "isActive": true
+  },
+  {
+    "id": "punishment-003",
+    "title": "Victory Dance",
+    "description": "Perform a 30-second victory dance for the winner",
+    "category": "performance",
+    "duration": 30,
+    "isActive": true
+  },
+  {
+    "id": "punishment-004",
+    "title": "Compliment Marathon",
+    "description": "Give the winner 5 genuine compliments about their gaming skills",
+    "category": "speech",
+    "duration": 45,
+    "isActive": true
+  },
+  {
+    "id": "punishment-005",
+    "title": "Royal Treatment",
+    "description": "Address the winner as 'Your Majesty' for the next 5 minutes",
+    "category": "speech",
+    "duration": 300,
+    "isActive": true
+  },
+  {
+    "id": "punishment-006",
+    "title": "Silly Walk",
+    "description": "Walk like a penguin for 30 seconds",
+    "category": "silly",
+    "duration": 30,
+    "isActive": true
+  },
+  {
+    "id": "punishment-007",
+    "title": "Song Serenade",
+    "description": "Sing 'Happy Birthday' to the winner (even if it's not their birthday)",
+    "category": "performance",
+    "duration": 20,
+    "isActive": true
+  },
+  {
+    "id": "punishment-008",
+    "title": "Magic Trick",
+    "description": "Attempt to perform a magic trick using household items",
+    "category": "performance",
+    "duration": 60,
+    "isActive": true
+  },
+  {
+    "id": "punishment-009",
+    "title": "Snack Fetcher",
+    "description": "Get the winner their favorite snack or drink",
+    "category": "task",
+    "duration": null,
+    "isActive": true
+  },
+  {
+    "id": "punishment-010",
+    "title": "Joke Time",
+    "description": "Tell your best (or worst) joke to make the winner laugh",
+    "category": "performance",
+    "duration": 30,
+    "isActive": true
+  },
+  {
+    "id": "punishment-011",
+    "title": "Superhero Pose",
+    "description": "Strike and hold a superhero pose while the winner takes a photo",
+    "category": "silly",
+    "duration": 15,
+    "isActive": true
+  },
+  {
+    "id": "punishment-012",
+    "title": "Poetry Recital",
+    "description": "Compose and recite a short poem about the winner's victory",
+    "category": "speech",
+    "duration": 60,
+    "isActive": true
+  },
+  {
+    "id": "punishment-013",
+    "title": "Animal Sounds",
+    "description": "Make animal sounds for 20 seconds (winner chooses the animal)",
+    "category": "silly",
+    "duration": 20,
+    "isActive": true
+  },
+  {
+    "id": "punishment-014",
+    "title": "Victory Crown",
+    "description": "Create a 'crown' from household items and place it on the winner's head",
+    "category": "task",
+    "duration": null,
+    "isActive": true
+  },
+  {
+    "id": "punishment-015",
+    "title": "Accent Challenge",
+    "description": "Speak in a funny accent for the next 2 minutes",
+    "category": "speech",
+    "duration": 120,
+    "isActive": true
+  },
+  {
+    "id": "punishment-016",
+    "title": "Victory Lap",
+    "description": "Do a victory lap around the room while cheering for the winner",
+    "category": "silly",
+    "duration": 30,
+    "isActive": true
+  },
+  {
+    "id": "punishment-017",
+    "title": "Talent Show",
+    "description": "Perform your hidden talent (or make one up) for everyone",
+    "category": "performance",
+    "duration": 45,
+    "isActive": true
+  },
+  {
+    "id": "punishment-018",
+    "title": "Photo Booth",
+    "description": "Take 5 silly photos with the winner making funny faces",
+    "category": "silly",
+    "duration": 60,
+    "isActive": true
+  },
+  {
+    "id": "punishment-019",
+    "title": "Victory Chant",
+    "description": "Create and perform a chant celebrating the winner's success",
+    "category": "performance",
+    "duration": 30,
+    "isActive": true
+  },
+  {
+    "id": "punishment-020",
+    "title": "Cleanup Duty",
+    "description": "Clean up any mess from the games while humming a happy tune",
+    "category": "task",
+    "duration": null,
+    "isActive": true
+  }
+]

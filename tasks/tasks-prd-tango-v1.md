@@ -45,15 +45,15 @@
 
 ## Tasks
 
-- [ ] 1.0 Project Setup & Core Infrastructure (Mock Data First)
-  - [ ] 1.1 Initialize Expo React Native project with TypeScript
-  - [ ] 1.2 Install and configure Tailwind CSS (NativeWind)
-  - [ ] 1.3 Set up project folder structure (components, screens, services, utils, types, data)
-  - [ ] 1.4 Configure Jest testing framework
-  - [ ] 1.5 Create TypeScript interfaces for core data types (Game, User, GameSession)
-  - [ ] 1.6 Create mock data files (games.json, punishments.json)
-  - [ ] 1.7 Set up basic navigation structure with React Navigation
-  - [ ] 1.8 Configure app icons, splash screen, and basic app metadata
+- [x] 1.0 Project Setup & Core Infrastructure (Mock Data First)
+  - [x] 1.1 Initialize Expo React Native project with TypeScript
+  - [x] 1.2 Install and configure Tailwind CSS (NativeWind)
+  - [x] 1.3 Set up project folder structure (components, screens, services, utils, types, data)
+  - [x] 1.4 Configure Jest testing framework
+  - [x] 1.5 Create TypeScript interfaces for core data types (Game, User, GameSession)
+  - [x] 1.6 Create mock data files (games.json, punishments.json)
+  - [x] 1.7 Set up basic navigation structure with React Navigation
+  - [x] 1.8 Configure app icons, splash screen, and basic app metadata
 
 - [ ] 2.0 Home Screen & Navigation
   - [ ] 2.1 Create main HomeScreen component with game mode selection
