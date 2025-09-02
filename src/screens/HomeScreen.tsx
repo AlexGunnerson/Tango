@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable, TextInput } from 'react-native';
 import type { RootStackScreenProps } from '../navigation/types';
 
 type Props = RootStackScreenProps<'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   const [isOneVOneCardVisible, setIsOneVOneCardVisible] = useState(false);
+  const [player2Name, setPlayer2Name] = useState('');
+  const [isTextInputFocused, setIsTextInputFocused] = useState(false);
+  const textInputRef = useRef<TextInput>(null);
   return (
     <SafeAreaView style={styles.container}>
       {/* Menu Icon */}
@@ -139,9 +142,32 @@ export default function HomeScreen({ navigation }: Props) {
               style={styles.cardKarateRight}
               resizeMode="contain"
             />
-            <View style={styles.cardNameBoxRight}>
-              <Text style={styles.cardNameRightText}>Player Name</Text>
-            </View>
+            <TouchableOpacity 
+              style={styles.cardNameBoxRight}
+              activeOpacity={1}
+              onPress={() => textInputRef.current?.focus()}
+            >
+              <TextInput
+                ref={textInputRef}
+                style={[
+                  styles.cardNameRightTextInput,
+                  { color: player2Name ? '#D84B15' : '#D84B15' }
+                ]}
+                value={player2Name}
+                onChangeText={setPlayer2Name}
+                placeholder={isTextInputFocused ? "" : "Player 2..."}
+                placeholderTextColor="#B0B0B0"
+                multiline={false}
+                maxLength={20}
+                textAlign="center"
+                autoFocus={false}
+                selectionColor="#D84B15"
+                cursorColor="#D84B15"
+                clearTextOnFocus={false}
+                onFocus={() => setIsTextInputFocused(true)}
+                onBlur={() => setIsTextInputFocused(false)}
+              />
+            </TouchableOpacity>
           </Pressable>
         </Pressable>
       </Modal>
@@ -366,21 +392,19 @@ const styles = StyleSheet.create({
   },
   cardNameBoxRight: {
     position: 'absolute',
-    right: 14,
+    right: 20,
     top: 140,
-    width: 140,
+    width: 120,
     height: 28,
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-    borderRadius: 6,
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardNameRightText: {
-    color: '#D84B15',
-    fontSize: 14,
-    fontWeight: '600',
+  cardNameRightTextInput: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    flex: 1,
+    paddingHorizontal: 8,
   },
   buttonText: {
     color: '#ffffff',
