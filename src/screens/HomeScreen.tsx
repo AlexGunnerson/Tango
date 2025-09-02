@@ -6,6 +6,7 @@ type Props = RootStackScreenProps<'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   const [isOneVOneCardVisible, setIsOneVOneCardVisible] = useState(false);
+  const [isPunishmentCardVisible, setIsPunishmentCardVisible] = useState(false);
   const [player2Name, setPlayer2Name] = useState('');
   const [isTextInputFocused, setIsTextInputFocused] = useState(false);
   const textInputRef = useRef<TextInput>(null);
@@ -167,6 +168,61 @@ export default function HomeScreen({ navigation }: Props) {
                 onFocus={() => setIsTextInputFocused(true)}
                 onBlur={() => setIsTextInputFocused(false)}
               />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.cardArrowButton}
+              onPress={() => {
+                setIsOneVOneCardVisible(false);
+                setIsPunishmentCardVisible(true);
+              }}
+            >
+              <Text style={styles.cardArrowText}>→</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Punishment Selection Modal */}
+      <Modal
+        visible={isPunishmentCardVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsPunishmentCardVisible(false)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setIsPunishmentCardVisible(false)}>
+          <Pressable style={styles.punishmentContainer} onPress={(e) => e.stopPropagation()}>
+            <TouchableOpacity 
+              style={styles.backButton} 
+              onPress={() => {
+                setIsPunishmentCardVisible(false);
+                setIsOneVOneCardVisible(true);
+              }}
+            >
+              <Text style={styles.backArrowText}>←</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cardCloseButton} onPress={() => setIsPunishmentCardVisible(false)}>
+              <Text style={styles.cardCloseText}>×</Text>
+            </TouchableOpacity>
+            
+            <Text style={styles.punishmentTitle}>Select a Punishment</Text>
+            
+            <TouchableOpacity style={styles.punishmentOption}>
+              <Text style={styles.punishmentName1}>The Human Butler</Text>
+              <Text style={styles.punishmentDescription}>The loser must receive a snack or drink of the winner's choice.</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.punishmentOption}>
+              <Text style={styles.punishmentName2}>The Dramatic Defeat</Text>
+              <Text style={styles.punishmentDescription}>The loser must lie on the floor dramatically with their tongue out for 30 seconds.</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.punishmentOption}>
+              <Text style={styles.punishmentName3}>Concession Speech</Text>
+              <Text style={styles.punishmentDescription}>The loser must deliver a pre-written speech praising the winner's skills and declaring their defeat.</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.punishmentOptionShort}>
+              <Text style={styles.punishmentNameNone}>No Punishment</Text>
             </TouchableOpacity>
           </Pressable>
         </Pressable>
@@ -330,7 +386,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: 330,
-    height: 190,
+    height: 270,
     backgroundColor: '#ffffff',
     borderRadius: 12,
     shadowColor: '#000',
@@ -359,16 +415,16 @@ const styles = StyleSheet.create({
   cardKarateLeft: {
     position: 'absolute',
     left: 40,
-    top: 55,
+    top: 85,
     width: 80,
     height: 80,
   },
   cardKarateRight: {
     position: 'absolute',
-    right: 40,
-    top: 55,
+    right: 45,
+    top: 80,
     width: 80,
-    height: 80,
+    height: 86,
   },
   cardVsText: {
     color: '#B2282F',
@@ -378,7 +434,7 @@ const styles = StyleSheet.create({
   cardNameBoxLeft: {
     position: 'absolute',
     left: 20,
-    top: 140,
+    top: 165,
     width: 120,
     height: 28,
     backgroundColor: '#FFFFFF',
@@ -393,7 +449,7 @@ const styles = StyleSheet.create({
   cardNameBoxRight: {
     position: 'absolute',
     right: 20,
-    top: 140,
+    top: 165,
     width: 120,
     height: 28,
     backgroundColor: '#FFFFFF',
@@ -405,6 +461,108 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     flex: 1,
     paddingHorizontal: 8,
+  },
+  cardArrowButton: {
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
+    width: 30,
+    height: 30,
+    backgroundColor: '#B2282F',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardArrowText: {
+    color: '#ffffff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  punishmentContainer: {
+    width: 350,
+    maxHeight: '80%',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+  },
+  punishmentTitle: {
+    fontSize: 20,
+    fontWeight: 'semibold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333333',
+  },
+  punishmentOption: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  punishmentName1: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#F2B624',
+    marginBottom: 8,
+  },
+  punishmentName2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E76B28',
+    marginBottom: 8,
+  },
+  punishmentName3: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#B45200',
+    marginBottom: 8,
+  },
+  punishmentOptionShort: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    alignItems: 'center',
+  },
+  punishmentNameNone: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#AA5003',
+  },
+  backButton: {
+    position: 'absolute',
+    left: 10,
+    top: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backArrowText: {
+    fontSize: 24,
+    color: '#888',
+    lineHeight: 24,
+  },
+  punishmentDescription: {
+    fontSize: 14,
+    color: '#666666',
+    lineHeight: 20,
   },
   buttonText: {
     color: '#ffffff',
