@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../navigation/types';
 
 type Props = RootStackScreenProps<'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
+  const [isOneVOneCardVisible, setIsOneVOneCardVisible] = useState(false);
   return (
     <SafeAreaView style={styles.container}>
       {/* Menu Icon */}
@@ -25,7 +26,7 @@ export default function HomeScreen({ navigation }: Props) {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('PlayerSelection')}
+            onPress={() => setIsOneVOneCardVisible(true)}
           >
             <Image 
               source={require('../../assets/karate-yellow-1.png')} 
@@ -112,6 +113,38 @@ export default function HomeScreen({ navigation }: Props) {
 
         </View>
       </View>
+      {/* 1v1 Card Modal */}
+      <Modal
+        visible={isOneVOneCardVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOneVOneCardVisible(false)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setIsOneVOneCardVisible(false)}>
+          <Pressable style={styles.cardContainer} onPress={(e) => e.stopPropagation()}>
+            <TouchableOpacity style={styles.cardCloseButton} onPress={() => setIsOneVOneCardVisible(false)}>
+              <Text style={styles.cardCloseText}>×</Text>
+            </TouchableOpacity>
+            <Image 
+              source={require('../../assets/karate-yellow-1.png')}
+              style={styles.cardKarateLeft}
+              resizeMode="contain"
+            />
+            <View style={styles.cardNameBoxLeft}>
+              <Text style={styles.cardNameLeftText}>Alex</Text>
+            </View>
+            <Text style={styles.cardVsText}>VS</Text>
+            <Image 
+              source={require('../../assets/karate-red-2.png')}
+              style={styles.cardKarateRight}
+              resizeMode="contain"
+            />
+            <View style={styles.cardNameBoxRight}>
+              <Text style={styles.cardNameRightText}>Player Name</Text>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -261,6 +294,93 @@ const styles = StyleSheet.create({
     color: '#B2282F',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  cardContainer: {
+    width: 330,
+    height: 190,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardCloseButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardCloseText: {
+    fontSize: 24,
+    color: '#888',
+    lineHeight: 24,
+  },
+  cardKarateLeft: {
+    position: 'absolute',
+    left: 40,
+    top: 55,
+    width: 80,
+    height: 80,
+  },
+  cardKarateRight: {
+    position: 'absolute',
+    right: 40,
+    top: 55,
+    width: 80,
+    height: 80,
+  },
+  cardVsText: {
+    color: '#B2282F',
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  cardNameBoxLeft: {
+    position: 'absolute',
+    left: 20,
+    top: 140,
+    width: 120,
+    height: 28,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardNameLeftText: {
+    color: '#d99816',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  cardNameBoxRight: {
+    position: 'absolute',
+    right: 14,
+    top: 140,
+    width: 140,
+    height: 28,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardNameRightText: {
+    color: '#D84B15',
+    fontSize: 14,
+    fontWeight: '600',
   },
   buttonText: {
     color: '#ffffff',
