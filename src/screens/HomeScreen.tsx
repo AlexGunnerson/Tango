@@ -418,6 +418,7 @@ const styles = StyleSheet.create({
     top: 85,
     width: 80,
     height: 80,
+    zIndex: 2,
   },
   cardKarateRight: {
     position: 'absolute',
@@ -425,6 +426,7 @@ const styles = StyleSheet.create({
     top: 80,
     width: 80,
     height: 86,
+    zIndex: 2,
   },
   cardVsText: {
     color: '#B2282F',
