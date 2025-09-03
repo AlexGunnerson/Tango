@@ -25,12 +25,14 @@ export default function RootNavigator() {
         initialRouteName="Home"
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#6366f1', // Indigo color
+            backgroundColor: '#F5F5F5', // Same as main screen background
           },
-          headerTintColor: '#fff',
+          headerTintColor: '#000', // Black back button
           headerTitleStyle: {
             fontWeight: 'bold',
+            color: '#333333',
           },
+          headerShadowVisible: false, // Remove dividing line
         }}
       >
         {/* Main screens */}
@@ -62,7 +64,10 @@ export default function RootNavigator() {
         <Stack.Screen 
           name="ItemGathering" 
           component={ItemGatheringScreen}
-          options={{ title: '1v1 Tango - Items' }}
+          options={{ 
+            title: '',
+            headerBackTitle: 'Back'
+          }}
         />
         <Stack.Screen 
           name="GameInstructions" 

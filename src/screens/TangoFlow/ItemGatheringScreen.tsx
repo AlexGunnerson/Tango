@@ -18,8 +18,8 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
     { id: '1', name: 'Something to write with', icon: '✏️', checked: true },
     { id: '2', name: 'Paper', icon: '📄', checked: true },
     { id: '3', name: 'Large Bowl', icon: '🥣', checked: true },
-    { id: '4', name: 'Spatula', icon: '🥄', checked: false },
-    { id: '5', name: 'Paper Plate', icon: '🍽️', checked: true },
+    { id: '4', name: 'Spatula', icon: 'icon-spatula', checked: false },
+    { id: '5', name: 'Paper Plate', icon: 'icon-plate', checked: true },
   ]);
 
   const toggleItem = (id: string) => {
@@ -44,7 +44,21 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
               onPress={() => toggleItem(item.id)}
             >
               <View style={styles.itemContent}>
-                <Text style={styles.itemIcon}>{item.icon}</Text>
+                {item.icon === 'icon-spatula' ? (
+                  <Image 
+                    source={require('../../../assets/icon-spatula.png')} 
+                    style={styles.itemIconImage}
+                    resizeMode="contain"
+                  />
+                ) : item.icon === 'icon-plate' ? (
+                  <Image 
+                    source={require('../../../assets/icon-plate.png')} 
+                    style={styles.itemIconImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <Text style={styles.itemIcon}>{item.icon}</Text>
+                )}
                 <Text style={styles.itemName}>{item.name}</Text>
               </View>
               <View style={[styles.checkbox, item.checked && styles.checkboxChecked]}>
@@ -134,6 +148,11 @@ const styles = StyleSheet.create({
   },
   itemIcon: {
     fontSize: 24,
+    marginRight: 16,
+  },
+  itemIconImage: {
+    width: 24,
+    height: 24,
     marginRight: 16,
   },
   itemName: {
