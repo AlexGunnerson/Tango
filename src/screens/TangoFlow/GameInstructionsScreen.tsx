@@ -1,11 +1,12 @@
-import React from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 type Props = RootStackScreenProps<'GameInstructions'>;
 
 export default function GameInstructionsScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems } = route.params;
+  const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,15 +38,7 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
         {/* Tango Button */}
         <TouchableOpacity 
           style={styles.tangoButton}
-          onPress={() => {
-            navigation.navigate('Gameplay', {
-              player1,
-              player2,
-              punishment,
-              availableItems,
-              gameTitle: 'The Blind March'
-            });
-          }}
+          onPress={() => setIsHandicapModalVisible(true)}
         >
           <Text style={styles.tangoButtonText}>Tango!</Text>
         </TouchableOpacity>
@@ -55,6 +48,40 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
           <Text style={styles.scoreText}>{player1}: 2 | {player2}: 0</Text>
         </View>
       </View>
+
+      {/* Handicap Modal */}
+      <Modal
+        visible={isHandicapModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsHandicapModalVisible(false)}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={() => setIsHandicapModalVisible(false)}>
+          <Pressable style={styles.handicapCard} onPress={(e) => e.stopPropagation()}>
+            <Text style={styles.handicapTitle}>Handicap for {player1}!</Text>
+            
+            <Text style={styles.handicapDescription}>
+              At 45 seconds, {player1} must do a full 360 degree turn without changing the speed of marching.
+            </Text>
+
+            <TouchableOpacity 
+              style={styles.handicapTangoButton}
+              onPress={() => {
+                setIsHandicapModalVisible(false);
+                navigation.navigate('Gameplay', {
+                  player1,
+                  player2,
+                  punishment,
+                  availableItems,
+                  gameTitle: 'The Blind March'
+                });
+              }}
+            >
+              <Text style={styles.handicapTangoButtonText}>Tango!</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -152,5 +179,58 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontFamily: 'Nunito',
     fontWeight: '500',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  handicapCard: {
+    width: '90%',
+    maxWidth: 350,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  handicapTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 20,
+    textAlign: 'center',
+    fontFamily: 'Nunito',
+  },
+  handicapDescription: {
+    fontSize: 16,
+    color: '#333333',
+    lineHeight: 24,
+    textAlign: 'center',
+    marginBottom: 30,
+    fontFamily: 'Nunito',
+  },
+  handicapTangoButton: {
+    backgroundColor: '#F66D3D',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  handicapTangoButtonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontFamily: 'Nunito',
   },
 });
