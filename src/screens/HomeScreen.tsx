@@ -338,9 +338,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   vsText: {
-    color: '#B2282F',
+    color: '#5A5A5A',
     fontSize: 24,
     fontWeight: 'bold',
+    fontFamily: 'Nunito',
   },
   boxingRed1: {
     position: 'absolute',
@@ -396,9 +397,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coopText: {
-    color: '#B2282F',
+    color: '#5A5A5A',
     fontSize: 24,
     fontWeight: 'bold',
+    fontFamily: 'Nunito',
   },
   bracket: {
     position: 'absolute',
@@ -417,9 +419,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tournamentText: {
-    color: '#B2282F',
+    color: '#5A5A5A',
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'Nunito',
   },
   modalBackdrop: {
     flex: 1,
@@ -494,7 +497,7 @@ const styles = StyleSheet.create({
   },
   cardNameBoxRight: {
     position: 'absolute',
-    right: 20,
+    right: 24,
     top: 165,
     width: 120,
     height: 28,

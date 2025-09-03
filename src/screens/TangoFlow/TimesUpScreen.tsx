@@ -99,9 +99,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   tangoButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
     backgroundColor: '#F66D3D',
     justifyContent: 'center',
     alignItems: 'center',
