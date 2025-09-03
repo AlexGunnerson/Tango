@@ -9,6 +9,7 @@ export default function GameplayScreen({ navigation, route }: Props) {
   const [timeRemaining, setTimeRemaining] = useState(90); // 90 seconds
   const [isRunning, setIsRunning] = useState(false);
 
+  // Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
@@ -17,16 +18,6 @@ export default function GameplayScreen({ navigation, route }: Props) {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             setIsRunning(false);
-            // Navigate to times up screen when timer ends
-            navigation.navigate('TimesUp', {
-              player1,
-              player2,
-              punishment,
-              availableItems,
-              gameTitle,
-              currentPlayer: player1,
-              nextPlayer: player2
-            });
             return 0;
           }
           return prev - 1;
@@ -35,7 +26,23 @@ export default function GameplayScreen({ navigation, route }: Props) {
     }
 
     return () => clearInterval(interval);
-  }, [isRunning, timeRemaining, navigation, player1, player2, punishment, availableItems, gameTitle]);
+  }, [isRunning, timeRemaining]);
+
+  // Navigation effect - separate from timer to avoid setState during render
+  useEffect(() => {
+    if (timeRemaining === 0 && !isRunning) {
+      // Navigate to times up screen when timer ends
+      navigation.navigate('TimesUp', {
+        player1,
+        player2,
+        punishment,
+        availableItems,
+        gameTitle,
+        currentPlayer: player1,
+        nextPlayer: player2
+      });
+    }
+  }, [timeRemaining, isRunning, navigation, player1, player2, punishment, availableItems, gameTitle]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
