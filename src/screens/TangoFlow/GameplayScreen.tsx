@@ -17,13 +17,15 @@ export default function GameplayScreen({ navigation, route }: Props) {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             setIsRunning(false);
-            // Navigate to scoring screen when timer ends
-            navigation.navigate('Scoring', {
+            // Navigate to times up screen when timer ends
+            navigation.navigate('TimesUp', {
               player1,
               player2,
               punishment,
               availableItems,
-              gameTitle
+              gameTitle,
+              currentPlayer: player1,
+              nextPlayer: player2
             });
             return 0;
           }

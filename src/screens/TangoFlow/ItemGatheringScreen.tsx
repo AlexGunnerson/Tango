@@ -256,4 +256,5 @@ const styles = StyleSheet.create({
     fontWeight: 'semibold',
     fontFamily: 'Nunito',
   },
+
 });

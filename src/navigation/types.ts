@@ -13,16 +13,33 @@ export type RootStackParamList = {
     punishment?: string 
   };
   GameInstructions: { 
-    gameId: string;
-    sessionData: any;
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
   };
   Gameplay: { 
-    gameId: string;
-    sessionData: any;
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+  };
+  TimesUp: {
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    currentPlayer: string;
+    nextPlayer: string;
   };
   Scoring: { 
-    gameId: string;
-    sessionData: any;
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
   };
   GameConclusion: { 
     sessionData: any;
