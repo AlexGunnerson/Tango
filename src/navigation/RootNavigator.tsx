@@ -72,7 +72,10 @@ export default function RootNavigator() {
         <Stack.Screen 
           name="GameInstructions" 
           component={GameInstructionsScreen}
-          options={{ title: 'Game Instructions' }}
+          options={{ 
+            title: '',
+            headerBackTitle: 'Back'
+          }}
         />
         <Stack.Screen 
           name="Gameplay" 

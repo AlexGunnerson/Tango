@@ -86,8 +86,8 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
       <TouchableOpacity 
         style={styles.itemsGatheredButton}
         onPress={() => {
-          // Navigate to next screen in the flow
-          navigation.navigate('GameSelection', {
+          // Navigate to game instructions screen
+          navigation.navigate('GameInstructions', {
             player1,
             player2,
             punishment,
