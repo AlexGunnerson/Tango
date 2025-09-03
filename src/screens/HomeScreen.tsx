@@ -206,22 +206,66 @@ export default function HomeScreen({ navigation }: Props) {
             
             <Text style={styles.punishmentTitle}>Select a Punishment</Text>
             
-            <TouchableOpacity style={styles.punishmentOption}>
+            <TouchableOpacity 
+              style={styles.punishmentOption}
+              onPress={() => {
+                setIsPunishmentCardVisible(false);
+                setIsOneVOneCardVisible(false);
+                navigation.navigate('ItemGathering', {
+                  player1: 'Alex',
+                  player2: player2Name || 'Player 2',
+                  punishment: 'The Human Butler'
+                });
+              }}
+            >
               <Text style={styles.punishmentName1}>The Human Butler</Text>
               <Text style={styles.punishmentDescription}>The loser must receive a snack or drink of the winner's choice.</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.punishmentOption}>
+            <TouchableOpacity 
+              style={styles.punishmentOption}
+              onPress={() => {
+                setIsPunishmentCardVisible(false);
+                setIsOneVOneCardVisible(false);
+                navigation.navigate('ItemGathering', {
+                  player1: 'Alex',
+                  player2: player2Name || 'Player 2',
+                  punishment: 'The Dramatic Defeat'
+                });
+              }}
+            >
               <Text style={styles.punishmentName2}>The Dramatic Defeat</Text>
               <Text style={styles.punishmentDescription}>The loser must lie on the floor dramatically with their tongue out for 30 seconds.</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.punishmentOption}>
+            <TouchableOpacity 
+              style={styles.punishmentOption}
+              onPress={() => {
+                setIsPunishmentCardVisible(false);
+                setIsOneVOneCardVisible(false);
+                navigation.navigate('ItemGathering', {
+                  player1: 'Alex',
+                  player2: player2Name || 'Player 2',
+                  punishment: 'Concession Speech'
+                });
+              }}
+            >
               <Text style={styles.punishmentName3}>Concession Speech</Text>
               <Text style={styles.punishmentDescription}>The loser must deliver a pre-written speech praising the winner's skills and declaring their defeat.</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.punishmentOptionShort}>
+            <TouchableOpacity 
+              style={styles.punishmentOptionShort}
+              onPress={() => {
+                setIsPunishmentCardVisible(false);
+                setIsOneVOneCardVisible(false);
+                navigation.navigate('ItemGathering', {
+                  player1: 'Alex',
+                  player2: player2Name || 'Player 2',
+                  punishment: undefined
+                });
+              }}
+            >
               <Text style={styles.punishmentNameNone}>No Punishment</Text>
             </TouchableOpacity>
           </Pressable>
