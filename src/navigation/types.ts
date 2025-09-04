@@ -62,6 +62,21 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
   };
+  Winner: {
+    winner: string;
+    finalPlayer1Score: number;
+    finalPlayer2Score: number;
+    player1Name: string;
+    player2Name: string;
+    punishment?: string;
+  };
+  GameComplete: {
+    winner: string;
+    finalPlayer1Score: number;
+    finalPlayer2Score: number;
+    player1Name: string;
+    player2Name: string;
+  };
   GameConclusion: { 
     sessionData: any;
   };

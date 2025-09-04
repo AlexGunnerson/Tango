@@ -13,6 +13,8 @@ import ItemGatheringScreen from '../screens/TangoFlow/ItemGatheringScreen';
 import GameInstructionsScreen from '../screens/TangoFlow/GameInstructionsScreen';
 import GameplayScreen from '../screens/TangoFlow/GameplayScreen';
 import ScoringScreen from '../screens/TangoFlow/ScoringScreen';
+import WinnerScreen from '../screens/TangoFlow/WinnerScreen';
+import GameCompleteScreen from '../screens/TangoFlow/GameCompleteScreen';
 import GameConclusionScreen from '../screens/TangoFlow/GameConclusionScreen';
 import TimesUpScreen from '../screens/TangoFlow/TimesUpScreen';
 import TeamSelectionScreen from '../screens/TeamSelectionScreen';
@@ -163,6 +165,26 @@ export default function RootNavigator() {
             title: 'Round Results',
             headerRight: createHomeButton(navigation, showMenu)
           })}
+        />
+        <Stack.Screen 
+          name="Winner" 
+          component={WinnerScreen}
+          options={{ 
+            title: '',
+            headerShown: false, // Hide header for full-screen celebration
+            headerLeft: () => null, // Prevent going back
+            gestureEnabled: false,
+          }}
+        />
+        <Stack.Screen 
+          name="GameComplete" 
+          component={GameCompleteScreen}
+          options={{ 
+            title: '',
+            headerShown: false, // Hide header for clean final screen
+            headerLeft: () => null, // Prevent going back
+            gestureEnabled: false,
+          }}
         />
         <Stack.Screen 
           name="GameConclusion" 

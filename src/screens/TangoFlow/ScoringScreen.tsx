@@ -18,17 +18,40 @@ export default function ScoringScreen({ navigation, route }: Props) {
     if (selectedWinner) return; // Prevent selection if already selected
     
     setSelectedWinner(winner);
-    // Increment the winner's score based on original player names
+    
+    // Calculate new scores
+    let newPlayer1Score = player1Score;
+    let newPlayer2Score = player2Score;
+    
     if (winner === displayPlayer1) {
-      setPlayer1Score(prev => prev + 1);
+      newPlayer1Score = player1Score + 1;
+      setPlayer1Score(newPlayer1Score);
     } else if (winner === displayPlayer2) {
-      setPlayer2Score(prev => prev + 1);
+      newPlayer2Score = player2Score + 1;
+      setPlayer2Score(newPlayer2Score);
+    }
+
+    // Check if someone reached 3 wins
+    if (newPlayer1Score >= 3 || newPlayer2Score >= 3) {
+      // Game is complete, navigate to winner screen
+      setTimeout(() => {
+        navigation.navigate('Winner', {
+          winner,
+          finalPlayer1Score: newPlayer1Score,
+          finalPlayer2Score: newPlayer2Score,
+          player1Name: displayPlayer1,
+          player2Name: displayPlayer2,
+          punishment
+        });
+      }, 1500); // Small delay to show the updated score before navigating
     }
   };
 
   const handleNextGame = () => {
-    // Navigate back to home or game setup
-    navigation.navigate('Home');
+    // Only allow next game if no one has reached 3 wins yet
+    if (player1Score < 3 && player2Score < 3) {
+      navigation.navigate('Home');
+    }
   };
 
   return (
@@ -91,20 +114,22 @@ export default function ScoringScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         </View>
 
-        {/* Next Game Button */}
-        <TouchableOpacity 
-          style={[
-            styles.nextGameButton,
-            selectedWinner && styles.nextGameButtonActive
-          ]}
-          onPress={handleNextGame}
-          disabled={!selectedWinner}
-        >
-          <Text style={[
-            styles.nextGameButtonText,
-            selectedWinner && styles.nextGameButtonTextActive
-          ]}>Next Game!</Text>
-        </TouchableOpacity>
+        {/* Next Game Button - Hidden when game is complete */}
+        {(player1Score < 3 && player2Score < 3) && (
+          <TouchableOpacity 
+            style={[
+              styles.nextGameButton,
+              selectedWinner && styles.nextGameButtonActive
+            ]}
+            onPress={handleNextGame}
+            disabled={!selectedWinner}
+          >
+            <Text style={[
+              styles.nextGameButtonText,
+              selectedWinner && styles.nextGameButtonTextActive
+            ]}>Next Game!</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
