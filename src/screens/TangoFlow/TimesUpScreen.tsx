@@ -36,7 +36,8 @@ export default function TimesUpScreen({ navigation, route }: Props) {
               player2: currentPlayer,
               punishment,
               availableItems,
-              gameTitle
+              gameTitle,
+              isSecondPlayerTurn: true // This is the second player's turn
             });
           }}
         >

@@ -24,6 +24,7 @@ export type RootStackParamList = {
     punishment?: string;
     availableItems: any[];
     gameTitle?: string;
+    isSecondPlayerTurn?: boolean;
   };
   TimesUp: {
     player1: string; 

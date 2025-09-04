@@ -5,13 +5,13 @@ import type { RootStackScreenProps } from '../../navigation/types';
 type Props = RootStackScreenProps<'Gameplay'>;
 
 export default function GameplayScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle } = route.params;
-  const [timeRemaining, setTimeRemaining] = useState(90); // 90 seconds
+  const { player1, player2, punishment, availableItems, gameTitle, isSecondPlayerTurn } = route.params;
+  const [timeRemaining, setTimeRemaining] = useState(3); // 3 seconds for testing
   const [isRunning, setIsRunning] = useState(false);
 
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     
     if (isRunning && timeRemaining > 0) {
       interval = setInterval(() => {
@@ -31,18 +31,29 @@ export default function GameplayScreen({ navigation, route }: Props) {
   // Navigation effect - separate from timer to avoid setState during render
   useEffect(() => {
     if (timeRemaining === 0 && !isRunning) {
-      // Navigate to times up screen when timer ends
-      navigation.navigate('TimesUp', {
-        player1,
-        player2,
-        punishment,
-        availableItems,
-        gameTitle,
-        currentPlayer: player1,
-        nextPlayer: player2
-      });
+      if (isSecondPlayerTurn) {
+        // Both players have played, navigate to winner selection
+        navigation.navigate('Scoring', {
+          player1,
+          player2,
+          punishment,
+          availableItems,
+          gameTitle
+        });
+      } else {
+        // First player finished, navigate to times up screen for second player
+        navigation.navigate('TimesUp', {
+          player1,
+          player2,
+          punishment,
+          availableItems,
+          gameTitle,
+          currentPlayer: player1,
+          nextPlayer: player2
+        });
+      }
     }
-  }, [timeRemaining, isRunning, navigation, player1, player2, punishment, availableItems, gameTitle]);
+  }, [timeRemaining, isRunning, navigation, player1, player2, punishment, availableItems, gameTitle, isSecondPlayerTurn]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -56,7 +67,7 @@ export default function GameplayScreen({ navigation, route }: Props) {
 
   const handleRestart = () => {
     setIsRunning(false);
-    setTimeRemaining(90);
+    setTimeRemaining(3);
   };
 
   return (
