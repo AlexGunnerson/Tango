@@ -10,13 +10,21 @@ export type RootStackParamList = {
   ItemGathering: { 
     player1: string; 
     player2: string; 
-    punishment?: string 
+    punishment?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
   };
   GameInstructions: { 
     player1: string; 
     player2: string; 
     punishment?: string;
     availableItems: any[];
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
   };
   Gameplay: { 
     player1: string; 
@@ -25,6 +33,10 @@ export type RootStackParamList = {
     availableItems: any[];
     gameTitle?: string;
     isSecondPlayerTurn?: boolean;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
   };
   TimesUp: {
     player1: string; 
@@ -34,6 +46,10 @@ export type RootStackParamList = {
     gameTitle?: string;
     currentPlayer: string;
     nextPlayer: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
   };
   Scoring: { 
     player1: string; 
@@ -41,6 +57,10 @@ export type RootStackParamList = {
     punishment?: string;
     availableItems: any[];
     gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
   };
   GameConclusion: { 
     sessionData: any;

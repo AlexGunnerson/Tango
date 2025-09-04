@@ -12,7 +12,7 @@ interface Item {
 }
 
 export default function ItemGatheringScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment } = route.params;
+  const { player1, player2, punishment, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   
   const [items, setItems] = useState<Item[]>([
     { id: '1', name: 'Something to write with', icon: '✏️', checked: true },
@@ -91,7 +91,11 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
             player1,
             player2,
             punishment,
-            availableItems: items.filter(item => item.checked)
+            availableItems: items.filter(item => item.checked),
+            originalPlayer1,
+            originalPlayer2,
+            player1Score,
+            player2Score
           });
         }}
       >

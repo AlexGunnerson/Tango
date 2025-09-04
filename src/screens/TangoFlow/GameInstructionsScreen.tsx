@@ -5,7 +5,7 @@ import type { RootStackScreenProps } from '../../navigation/types';
 type Props = RootStackScreenProps<'GameInstructions'>;
 
 export default function GameInstructionsScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems } = route.params;
+  const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
 
   return (
@@ -45,7 +45,7 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
-          <Text style={styles.scoreText}>{player1}: 2 | {player2}: 0</Text>
+          <Text style={styles.scoreText}>{originalPlayer1 || player1}: {player1Score || 2} | {originalPlayer2 || player2}: {player2Score || 0}</Text>
         </View>
       </View>
 
@@ -73,7 +73,11 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
                   player2,
                   punishment,
                   availableItems,
-                  gameTitle: 'The Blind March'
+                  gameTitle: 'The Blind March',
+                  originalPlayer1,
+                  originalPlayer2,
+                  player1Score,
+                  player2Score
                 });
               }}
             >

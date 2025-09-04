@@ -235,7 +235,11 @@ export default function HomeScreen({ navigation }: Props) {
                 navigation.navigate('ItemGathering', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
-                  punishment: 'The Human Butler'
+                  punishment: 'The Human Butler',
+                  originalPlayer1: 'Alex',
+                  originalPlayer2: player2Name || 'Player 2',
+                  player1Score: 2,
+                  player2Score: 0
                 });
               }}
             >
@@ -251,7 +255,11 @@ export default function HomeScreen({ navigation }: Props) {
                 navigation.navigate('ItemGathering', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
-                  punishment: 'The Dramatic Defeat'
+                  punishment: 'The Dramatic Defeat',
+                  originalPlayer1: 'Alex',
+                  originalPlayer2: player2Name || 'Player 2',
+                  player1Score: 2,
+                  player2Score: 0
                 });
               }}
             >
@@ -267,7 +275,11 @@ export default function HomeScreen({ navigation }: Props) {
                 navigation.navigate('ItemGathering', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
-                  punishment: 'Concession Speech'
+                  punishment: 'Concession Speech',
+                  originalPlayer1: 'Alex',
+                  originalPlayer2: player2Name || 'Player 2',
+                  player1Score: 2,
+                  player2Score: 0
                 });
               }}
             >
@@ -283,7 +295,11 @@ export default function HomeScreen({ navigation }: Props) {
                 navigation.navigate('ItemGathering', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
-                  punishment: undefined
+                  punishment: undefined,
+                  originalPlayer1: 'Alex',
+                  originalPlayer2: player2Name || 'Player 2',
+                  player1Score: 2,
+                  player2Score: 0
                 });
               }}
             >

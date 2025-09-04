@@ -5,7 +5,7 @@ import type { RootStackScreenProps } from '../../navigation/types';
 type Props = RootStackScreenProps<'TimesUp'>;
 
 export default function TimesUpScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,7 +37,11 @@ export default function TimesUpScreen({ navigation, route }: Props) {
               punishment,
               availableItems,
               gameTitle,
-              isSecondPlayerTurn: true // This is the second player's turn
+              isSecondPlayerTurn: true, // This is the second player's turn
+              originalPlayer1,
+              originalPlayer2,
+              player1Score,
+              player2Score
             });
           }}
         >
@@ -46,7 +50,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
-          <Text style={styles.scoreText}>{player1}: 2 | {player2}: 0</Text>
+          <Text style={styles.scoreText}>{originalPlayer1 || player1}: {player1Score || 2} | {originalPlayer2 || player2}: {player2Score || 0}</Text>
         </View>
       </View>
     </SafeAreaView>

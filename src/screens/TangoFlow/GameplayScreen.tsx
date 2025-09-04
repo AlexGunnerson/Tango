@@ -5,7 +5,7 @@ import type { RootStackScreenProps } from '../../navigation/types';
 type Props = RootStackScreenProps<'Gameplay'>;
 
 export default function GameplayScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, isSecondPlayerTurn } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, isSecondPlayerTurn, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [timeRemaining, setTimeRemaining] = useState(3); // 3 seconds for testing
   const [isRunning, setIsRunning] = useState(false);
 
@@ -38,7 +38,11 @@ export default function GameplayScreen({ navigation, route }: Props) {
           player2,
           punishment,
           availableItems,
-          gameTitle
+          gameTitle,
+          originalPlayer1,
+          originalPlayer2,
+          player1Score,
+          player2Score
         });
       } else {
         // First player finished, navigate to times up screen for second player
@@ -49,7 +53,11 @@ export default function GameplayScreen({ navigation, route }: Props) {
           availableItems,
           gameTitle,
           currentPlayer: player1,
-          nextPlayer: player2
+          nextPlayer: player2,
+          originalPlayer1,
+          originalPlayer2,
+          player1Score,
+          player2Score
         });
       }
     }
@@ -103,7 +111,7 @@ export default function GameplayScreen({ navigation, route }: Props) {
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
-          <Text style={styles.scoreText}>{player1}: 2 | {player2}: 0</Text>
+          <Text style={styles.scoreText}>{originalPlayer1 || player1}: {player1Score || 2} | {originalPlayer2 || player2}: {player2Score || 0}</Text>
         </View>
       </View>
     </SafeAreaView>

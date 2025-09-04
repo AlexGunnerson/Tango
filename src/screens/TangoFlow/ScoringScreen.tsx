@@ -5,19 +5,23 @@ import type { RootStackScreenProps } from '../../navigation/types';
 type Props = RootStackScreenProps<'Scoring'>;
 
 export default function ScoringScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score: initialPlayer1Score, player2Score: initialPlayer2Score } = route.params;
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
-  const [player1Score, setPlayer1Score] = useState(2);
-  const [player2Score, setPlayer2Score] = useState(0);
+  const [player1Score, setPlayer1Score] = useState(initialPlayer1Score || 2);
+  const [player2Score, setPlayer2Score] = useState(initialPlayer2Score || 0);
+
+  // Use original player names for consistent display
+  const displayPlayer1 = originalPlayer1 || player1;
+  const displayPlayer2 = originalPlayer2 || player2;
 
   const handleWinnerSelect = (winner: string) => {
     if (selectedWinner) return; // Prevent selection if already selected
     
     setSelectedWinner(winner);
-    // Increment the winner's score
-    if (winner === player1) {
+    // Increment the winner's score based on original player names
+    if (winner === displayPlayer1) {
       setPlayer1Score(prev => prev + 1);
-    } else {
+    } else if (winner === displayPlayer2) {
       setPlayer2Score(prev => prev + 1);
     }
   };
@@ -47,9 +51,9 @@ export default function ScoringScreen({ navigation, route }: Props) {
           <TouchableOpacity 
             style={[
               styles.winnerButton,
-              selectedWinner === player1 && styles.winnerButtonSelected
+              selectedWinner === displayPlayer1 && styles.winnerButtonSelected
             ]}
-            onPress={() => handleWinnerSelect(player1)}
+            onPress={() => handleWinnerSelect(displayPlayer1)}
             disabled={!!selectedWinner}
           >
             <View style={styles.winnerIcon}>
@@ -60,7 +64,7 @@ export default function ScoringScreen({ navigation, route }: Props) {
               />
             </View>
             <Text style={styles.winnerName}>
-              <Text style={styles.winnerNameText}>{player1}: </Text>
+              <Text style={styles.winnerNameText}>{displayPlayer1}: </Text>
               <Text style={styles.winnerScoreText}>{player1Score}</Text>
             </Text>
           </TouchableOpacity>
@@ -68,9 +72,9 @@ export default function ScoringScreen({ navigation, route }: Props) {
           <TouchableOpacity 
             style={[
               styles.winnerButton,
-              selectedWinner === player2 && styles.winnerButtonSelected
+              selectedWinner === displayPlayer2 && styles.winnerButtonSelected
             ]}
-            onPress={() => handleWinnerSelect(player2)}
+            onPress={() => handleWinnerSelect(displayPlayer2)}
             disabled={!!selectedWinner}
           >
             <View style={styles.winnerIcon}>
@@ -81,7 +85,7 @@ export default function ScoringScreen({ navigation, route }: Props) {
               />
             </View>
             <Text style={styles.winnerName}>
-              <Text style={styles.winnerNameText}>{player2}: </Text>
+              <Text style={styles.winnerNameText}>{displayPlayer2}: </Text>
               <Text style={styles.winnerScoreText}>{player2Score}</Text>
             </Text>
           </TouchableOpacity>
@@ -104,7 +108,7 @@ export default function ScoringScreen({ navigation, route }: Props) {
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
-          <Text style={styles.scoreText}>{player1}: {player1Score} | {player2}: {player2Score}</Text>
+          <Text style={styles.scoreText}>{displayPlayer1}: {player1Score} | {displayPlayer2}: {player2Score}</Text>
         </View>
       </View>
     </SafeAreaView>
