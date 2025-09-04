@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable, TextInput } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../navigation/types';
 
 type Props = RootStackScreenProps<'Home'>;
@@ -10,6 +11,26 @@ export default function HomeScreen({ navigation }: Props) {
   const [player2Name, setPlayer2Name] = useState('');
   const [isTextInputFocused, setIsTextInputFocused] = useState(false);
   const textInputRef = useRef<TextInput>(null);
+
+  // Reset player name when returning to home screen
+  useFocusEffect(
+    React.useCallback(() => {
+      setPlayer2Name('');
+      setIsTextInputFocused(false);
+    }, [])
+  );
+
+  const handleModalClose = () => {
+    setIsOneVOneCardVisible(false);
+    setPlayer2Name('');
+    setIsTextInputFocused(false);
+  };
+
+  const handlePunishmentModalClose = () => {
+    setIsPunishmentCardVisible(false);
+    setPlayer2Name('');
+    setIsTextInputFocused(false);
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Menu Icon */}
@@ -122,11 +143,11 @@ export default function HomeScreen({ navigation }: Props) {
         visible={isOneVOneCardVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsOneVOneCardVisible(false)}
+        onRequestClose={handleModalClose}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setIsOneVOneCardVisible(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={handleModalClose}>
           <Pressable style={styles.cardContainer} onPress={(e) => e.stopPropagation()}>
-            <TouchableOpacity style={styles.cardCloseButton} onPress={() => setIsOneVOneCardVisible(false)}>
+            <TouchableOpacity style={styles.cardCloseButton} onPress={handleModalClose}>
               <Text style={styles.cardCloseText}>×</Text>
             </TouchableOpacity>
             <Image 
@@ -187,9 +208,9 @@ export default function HomeScreen({ navigation }: Props) {
         visible={isPunishmentCardVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setIsPunishmentCardVisible(false)}
+        onRequestClose={handlePunishmentModalClose}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setIsPunishmentCardVisible(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={handlePunishmentModalClose}>
           <Pressable style={styles.punishmentContainer} onPress={(e) => e.stopPropagation()}>
             <TouchableOpacity 
               style={styles.backButton} 
@@ -200,7 +221,7 @@ export default function HomeScreen({ navigation }: Props) {
             >
               <Text style={styles.backArrowText}>←</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.cardCloseButton} onPress={() => setIsPunishmentCardVisible(false)}>
+            <TouchableOpacity style={styles.cardCloseButton} onPress={handlePunishmentModalClose}>
               <Text style={styles.cardCloseText}>×</Text>
             </TouchableOpacity>
             
