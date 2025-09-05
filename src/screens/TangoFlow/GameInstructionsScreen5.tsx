@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 
-type Props = RootStackScreenProps<'GameInstructions'>;
+type Props = RootStackScreenProps<'GameInstructionsScreen5'>;
 
-export default function GameInstructionsScreen({ navigation, route }: Props) {
+export default function GameInstructionsScreen5({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
   
@@ -19,6 +19,11 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>The Blind March</Text>
+        
+        {/* Game Number */}
+        <View style={styles.gameNumberSection}>
+          <Text style={styles.gameNumberText}>Game 5</Text>
+        </View>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -48,7 +53,7 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Navigate directly to gameplay if no handicap needed
+              // Navigate to legacy Gameplay for now (will be GameplayScreenGame5Player1 when created)
               navigation.navigate('Gameplay', {
                 player1,
                 player2,
@@ -129,7 +134,17 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 30,
+    marginBottom: 10,
+    fontFamily: 'Nunito',
+  },
+  gameNumberSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  gameNumberText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#F66D3D',
     fontFamily: 'Nunito',
   },
   howToPlaySection: {
@@ -262,5 +277,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Nunito',
   },
-
 });

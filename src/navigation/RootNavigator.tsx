@@ -3,8 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity, Text, Modal, View, Pressable, StyleSheet } from 'react-native';
 import { RootStackParamList } from './types';
+import DevNavigator from '../components/DevNavigator';
 
-// Import screens (we'll create placeholder screens for now)
+// Import screens
 import HomeScreen from '../screens/HomeScreen';
 import GameLibraryScreen from '../screens/GameLibraryScreen';
 import PlayerSelectionScreen from '../screens/TangoFlow/PlayerSelectionScreen';
@@ -19,6 +20,15 @@ import GameConclusionScreen from '../screens/TangoFlow/GameConclusionScreen';
 import TimesUpScreen from '../screens/TangoFlow/TimesUpScreen';
 import TeamSelectionScreen from '../screens/TeamSelectionScreen';
 import TournamentSetupScreen from '../screens/TournamentSetupScreen';
+
+// Game-specific screens
+import GameInstructionsScreen1 from '../screens/TangoFlow/GameInstructionsScreen1';
+import GameInstructionsScreen2 from '../screens/TangoFlow/GameInstructionsScreen2';
+import GameInstructionsScreen3 from '../screens/TangoFlow/GameInstructionsScreen3';
+import GameInstructionsScreen4 from '../screens/TangoFlow/GameInstructionsScreen4';
+import GameInstructionsScreen5 from '../screens/TangoFlow/GameInstructionsScreen5';
+import GameplayScreenGame1Player1 from '../screens/TangoFlow/GameplayScreenGame1Player1';
+import GameplayScreenGame1Player2 from '../screens/TangoFlow/GameplayScreenGame1Player2';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -75,13 +85,24 @@ const createHomeButton = (navigation: any, showModal: () => void) => () => (
 
 export default function RootNavigator() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [currentScreen, setCurrentScreen] = useState<string>('Home');
   const navigationRef = useRef<any>(null);
   
   const showMenu = () => setIsMenuVisible(true);
   const hideMenu = () => setIsMenuVisible(false);
   
+  // Track current screen for dev navigator
+  const onStateChange = (state: any) => {
+    if (state) {
+      const routeName = state.routes[state.index]?.name;
+      if (routeName) {
+        setCurrentScreen(routeName);
+      }
+    }
+  };
+  
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} onStateChange={onStateChange}>
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
@@ -207,6 +228,73 @@ export default function RootNavigator() {
           component={TournamentSetupScreen}
           options={{ title: 'Tournament Setup' }}
         />
+
+        {/* Game-specific instruction screens */}
+        <Stack.Screen 
+          name="GameInstructionsScreen1" 
+          component={GameInstructionsScreen1}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameInstructionsScreen2" 
+          component={GameInstructionsScreen2}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameInstructionsScreen3" 
+          component={GameInstructionsScreen3}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameInstructionsScreen4" 
+          component={GameInstructionsScreen4}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameInstructionsScreen5" 
+          component={GameInstructionsScreen5}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+
+        {/* Game-specific gameplay screens */}
+        <Stack.Screen 
+          name="GameplayScreenGame1Player1" 
+          component={GameplayScreenGame1Player1}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame1Player2" 
+          component={GameplayScreenGame1Player2}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
       </Stack.Navigator>
       
       <MenuModal 
@@ -214,6 +302,9 @@ export default function RootNavigator() {
         onClose={hideMenu} 
         navigation={navigationRef.current}
       />
+      
+      {/* Development Navigator - Only shows in development */}
+      <DevNavigator currentScreen={currentScreen} />
     </NavigationContainer>
   );
 }

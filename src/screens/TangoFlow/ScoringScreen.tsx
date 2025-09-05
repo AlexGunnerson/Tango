@@ -47,10 +47,38 @@ export default function ScoringScreen({ navigation, route }: Props) {
     }
   };
 
+  const getNextGameInstructionsScreen = (p1Score: number, p2Score: number) => {
+    const totalGamesPlayed = p1Score + p2Score;
+    
+    switch (totalGamesPlayed) {
+      case 1:
+        return 'GameInstructionsScreen2';
+      case 2:
+        return 'GameInstructionsScreen3';
+      case 3:
+        return 'GameInstructionsScreen4';
+      case 4:
+        return 'GameInstructionsScreen5';
+      default:
+        return 'GameInstructionsScreen1'; // Fallback, shouldn't happen
+    }
+  };
+
   const handleNextGame = () => {
     // Only allow next game if no one has reached 3 wins yet
     if (player1Score < 3 && player2Score < 3) {
-      navigation.navigate('Home');
+      const nextScreen = getNextGameInstructionsScreen(player1Score, player2Score);
+      
+      navigation.navigate(nextScreen as any, {
+        player1,
+        player2,
+        punishment,
+        availableItems,
+        originalPlayer1,
+        originalPlayer2,
+        player1Score,
+        player2Score
+      });
     }
   };
 

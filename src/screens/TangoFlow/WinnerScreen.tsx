@@ -53,6 +53,36 @@ export default function WinnerScreen({ navigation, route }: Props) {
     });
   };
 
+  // Get punishment content based on selected punishment
+  const getPunishmentContent = () => {
+    const loser = winner === player1Name ? player2Name : player1Name;
+    
+    switch (punishment) {
+      case 'The Human Butler':
+        return {
+          title: 'The Human Butler',
+          content: `Alright ${loser}, time to serve! You are now the official human butler for the next 10 minutes.\n\nYour duties include:\n• Fetch snacks or drinks for ${winner}\n• Respond with "Yes, your majesty" to any request\n• Bow slightly when serving\n• Ask "${winner}, is there anything else I can get for you?"\n\nEmbrace your temporary servitude with grace and dignity!`
+        };
+      case 'The Dramatic Defeat':
+        return {
+          title: 'The Dramatic Defeat',
+          content: `Time for your dramatic finale, ${loser}!\n\nYour performance requirements:\n• Lie on the floor dramatically\n• Stick your tongue out (like you've been defeated)\n• Hold this pose for 30 full seconds\n• Optional: Add dramatic sighs and "Oh, the humanity!" exclamations\n• ${winner} gets to judge your performance\n\nMake it theatrical! This is your moment to shine in defeat!`
+        };
+      case 'Concession Speech':
+        return {
+          title: 'Concession Speech',
+          content: `Well, folks, here we are. I stand before you, a shell of the person I was just five minutes ago. I came here tonight to play, to compete, to conquer. But instead, I witnessed a master at work. The way ${winner} maneuvered that blindfold, the way they scooped those marshmallows with the grace of a gazelle... it wasn't a game, it was a ballet. A beautiful, devastating ballet.\n\nI'm not even mad. How can you be mad at perfection? I've learned more about myself tonight than in my entire life, and that lesson is: I am not worthy. I concede. All hail the new champion, ${winner}! May your reign be glorious and your victories forever unmatched.\n\n*Bow to the winner`
+        };
+      default:
+        return {
+          title: 'Victory Celebration',
+          content: `Congratulations ${winner}! You are the champion!\n\nNo punishment was selected, so let's just celebrate this amazing victory. Well played!`
+        };
+    }
+  };
+
+  const punishmentContent = getPunishmentContent();
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -95,7 +125,7 @@ export default function WinnerScreen({ navigation, route }: Props) {
           >
             <Text style={styles.punishmentEmoji}>😱</Text>
             <Text style={styles.punishmentText}>
-              {punishment === 'The Human Butler' ? "Blade's Punishment" : punishment}
+              {(winner === player1Name ? player2Name : player1Name)}'s Punishment
             </Text>
             <Text style={styles.punishmentEmoji}>😱</Text>
           </TouchableOpacity>
@@ -121,15 +151,11 @@ export default function WinnerScreen({ navigation, route }: Props) {
           onPress={handleClosePunishmentModal}
         >
           <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.modalTitle}>Concession Speech</Text>
+            <Text style={styles.modalTitle}>{punishmentContent.title}</Text>
             
             <ScrollView style={styles.modalScrollView} showsVerticalScrollIndicator={false}>
               <Text style={styles.modalContent}>
-                Well, folks, here we are. I stand before you, a shell of the person I was just five minutes ago. I came here tonight to play, to compete, to conquer. But instead, I witnessed a master at work. The way {winner} maneuvered that blindfold, the way they scooped those marshmallows with the grace of a gazelle... it wasn't a game, it was a ballet. A beautiful, devastating ballet.
-                {'\n\n'}
-                I'm not even mad. How can you be mad at perfection? I've learned more about myself tonight than in my entire life, and that lesson is: I am not worthy. I concede. All hail the new champion, {winner}! May your reign be glorious and your victories forever unmatched.
-                {'\n\n'}
-                *Bow to the winner
+                {punishmentContent.content}
               </Text>
             </ScrollView>
             

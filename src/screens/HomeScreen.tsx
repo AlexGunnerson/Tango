@@ -164,6 +164,11 @@ export default function HomeScreen({ navigation }: Props) {
               style={styles.cardKarateRight}
               resizeMode="contain"
             />
+            <Image 
+              source={require('../../assets/icon-add-user.png')}
+              style={styles.cardAddUserIcon}
+              resizeMode="contain"
+            />
             <TouchableOpacity 
               style={styles.cardNameBoxRight}
               activeOpacity={1}
@@ -232,13 +237,18 @@ export default function HomeScreen({ navigation }: Props) {
               onPress={() => {
                 setIsPunishmentCardVisible(false);
                 setIsOneVOneCardVisible(false);
-                navigation.navigate('ItemGathering', {
+                navigation.navigate('GameInstructionsScreen1', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
                   punishment: 'The Human Butler',
+                  availableItems: [
+                    { id: 1, name: 'Spatula', selected: true },
+                    { id: 2, name: 'Paper Plate', selected: true },
+                    { id: 3, name: 'Marshmallows', selected: true }
+                  ],
                   originalPlayer1: 'Alex',
                   originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 2,
+                  player1Score: 0,
                   player2Score: 0
                 });
               }}
@@ -252,13 +262,18 @@ export default function HomeScreen({ navigation }: Props) {
               onPress={() => {
                 setIsPunishmentCardVisible(false);
                 setIsOneVOneCardVisible(false);
-                navigation.navigate('ItemGathering', {
+                navigation.navigate('GameInstructionsScreen1', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
                   punishment: 'The Dramatic Defeat',
+                  availableItems: [
+                    { id: 1, name: 'Spatula', selected: true },
+                    { id: 2, name: 'Paper Plate', selected: true },
+                    { id: 3, name: 'Marshmallows', selected: true }
+                  ],
                   originalPlayer1: 'Alex',
                   originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 2,
+                  player1Score: 0,
                   player2Score: 0
                 });
               }}
@@ -272,13 +287,18 @@ export default function HomeScreen({ navigation }: Props) {
               onPress={() => {
                 setIsPunishmentCardVisible(false);
                 setIsOneVOneCardVisible(false);
-                navigation.navigate('ItemGathering', {
+                navigation.navigate('GameInstructionsScreen1', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
                   punishment: 'Concession Speech',
+                  availableItems: [
+                    { id: 1, name: 'Spatula', selected: true },
+                    { id: 2, name: 'Paper Plate', selected: true },
+                    { id: 3, name: 'Marshmallows', selected: true }
+                  ],
                   originalPlayer1: 'Alex',
                   originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 2,
+                  player1Score: 0,
                   player2Score: 0
                 });
               }}
@@ -292,13 +312,18 @@ export default function HomeScreen({ navigation }: Props) {
               onPress={() => {
                 setIsPunishmentCardVisible(false);
                 setIsOneVOneCardVisible(false);
-                navigation.navigate('ItemGathering', {
+                navigation.navigate('GameInstructionsScreen1', {
                   player1: 'Alex',
                   player2: player2Name || 'Player 2',
                   punishment: undefined,
+                  availableItems: [
+                    { id: 1, name: 'Spatula', selected: true },
+                    { id: 2, name: 'Paper Plate', selected: true },
+                    { id: 3, name: 'Marshmallows', selected: true }
+                  ],
                   originalPlayer1: 'Alex',
                   originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 2,
+                  player1Score: 0,
                   player2Score: 0
                 });
               }}
@@ -511,6 +536,14 @@ const styles = StyleSheet.create({
     width: 80,
     height: 86,
     zIndex: 2,
+  },
+  cardAddUserIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 110,
+    width: 28,
+    height: 28,
+    zIndex: 3,
   },
   cardVsText: {
     color: '#B2282F',

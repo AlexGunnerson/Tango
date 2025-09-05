@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 
-type Props = RootStackScreenProps<'GameInstructions'>;
+type Props = RootStackScreenProps<'GameInstructionsScreen1'>;
 
-export default function GameInstructionsScreen({ navigation, route }: Props) {
+export default function GameInstructionsScreen1({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
   
@@ -19,6 +19,11 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>The Blind March</Text>
+        
+        {/* Game Number */}
+        <View style={styles.gameNumberSection}>
+          <Text style={styles.gameNumberText}>Game 1</Text>
+        </View>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -48,14 +53,13 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Navigate directly to gameplay if no handicap needed
-              navigation.navigate('Gameplay', {
+              // Navigate to GameplayScreenGame1Player1
+              navigation.navigate('GameplayScreenGame1Player1', {
                 player1,
                 player2,
                 punishment,
                 availableItems,
                 gameTitle: 'The Blind March',
-                isSecondPlayerTurn: false,
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
@@ -92,13 +96,12 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
               style={styles.handicapTangoButton}
               onPress={() => {
                 setIsHandicapModalVisible(false);
-                navigation.navigate('Gameplay', {
+                navigation.navigate('GameplayScreenGame1Player1', {
                   player1,
                   player2,
                   punishment,
                   availableItems,
                   gameTitle: 'The Blind March',
-                  isSecondPlayerTurn: false,
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
@@ -129,7 +132,17 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 30,
+    marginBottom: 10,
+    fontFamily: 'Nunito',
+  },
+  gameNumberSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  gameNumberText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#F66D3D',
     fontFamily: 'Nunito',
   },
   howToPlaySection: {
@@ -262,5 +275,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Nunito',
   },
-
 });

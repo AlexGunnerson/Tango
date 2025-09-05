@@ -16,6 +16,171 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
   };
+  // Game Instructions Screens (1-5)
+  GameInstructionsScreen1: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameInstructionsScreen2: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameInstructionsScreen3: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameInstructionsScreen4: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameInstructionsScreen5: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  
+  // Gameplay Screens (Game1-5, Player1/Player2)
+  GameplayScreenGame1Player1: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame1Player2: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame2Player1: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame2Player2: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame3Player1: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame3Player2: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame4Player1: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame4Player2: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame5Player1: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  GameplayScreenGame5Player2: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
+  
+  // Keep legacy screens for backward compatibility
   GameInstructions: { 
     player1: string; 
     player2: string; 
