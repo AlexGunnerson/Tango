@@ -20,11 +20,6 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
         {/* Game Title */}
         <Text style={styles.gameTitle}>The Blind March</Text>
         
-        {/* Game Number */}
-        <View style={styles.gameNumberSection}>
-          <Text style={styles.gameNumberText}>Game 5</Text>
-        </View>
-        
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
           <View style={styles.howToPlayHeader}>

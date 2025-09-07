@@ -84,6 +84,12 @@ export default function ScoringScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>ScoringScreen</Text>
+        </View>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
@@ -295,6 +301,22 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontFamily: 'Nunito',
     fontWeight: '500',
+  },
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
   },
 });
 

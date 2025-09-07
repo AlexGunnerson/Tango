@@ -9,6 +9,12 @@ export default function TimesUpScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>TimesUpScreen</Text>
+        </View>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
@@ -30,14 +36,13 @@ export default function TimesUpScreen({ navigation, route }: Props) {
         <TouchableOpacity 
           style={styles.tangoButton}
           onPress={() => {
-            // Navigate back to gameplay for next player
-            navigation.navigate('Gameplay', {
-              player1: nextPlayer, // Switch players
-              player2: currentPlayer,
+            // Navigate to GameplayScreenGame1Player2 for player 2's turn
+            navigation.navigate('GameplayScreenGame1Player2', {
+              player1,
+              player2,
               punishment,
               availableItems,
               gameTitle,
-              isSecondPlayerTurn: true, // This is the second player's turn
               originalPlayer1,
               originalPlayer2,
               player1Score,
@@ -135,5 +140,20 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     fontWeight: '500',
   },
-
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
+  },
 });

@@ -16,14 +16,15 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>GameInstructionsScreen1</Text>
+        </View>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>The Blind March</Text>
-        
-        {/* Game Number */}
-        <View style={styles.gameNumberSection}>
-          <Text style={styles.gameNumberText}>Game 1</Text>
-        </View>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -132,17 +133,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 10,
-    fontFamily: 'Nunito',
-  },
-  gameNumberSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  gameNumberText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#F66D3D',
+    marginBottom: 30,
     fontFamily: 'Nunito',
   },
   howToPlaySection: {
@@ -274,5 +265,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     fontFamily: 'Nunito',
+  },
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
   },
 });

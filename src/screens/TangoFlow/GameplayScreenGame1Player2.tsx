@@ -39,16 +39,16 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
   // Navigation logic when timer ends
   useEffect(() => {
     if (timeLeft === 0 && !isPlaying) {
-      // Navigate to Scoring screen after player 2's turn
+      // Player 2 finished, both players have played, navigate to winner selection (Scoring screen)
       setTimeout(() => {
         navigation.navigate('Scoring', {
           player1,
           player2,
           punishment,
           availableItems,
-          gameTitle,
-          originalPlayer1,
-          originalPlayer2,
+          gameTitle: gameTitle || 'The Blind March',
+          originalPlayer1: displayPlayer1,
+          originalPlayer2: displayPlayer2,
           player1Score,
           player2Score
         });
@@ -76,36 +76,38 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>GameplayScreenGame1Player2</Text>
+        </View>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
         
-        {/* Game and Player Info */}
-        <View style={styles.gameInfoSection}>
-          <Text style={styles.gameNumber}>Game 1</Text>
-          <Text style={styles.playerTurn}>{player2}'s Turn</Text>
-        </View>
-
-        {/* Timer */}
+        {/* Player Name */}
+        <Text style={styles.playerName}>{player2} March!</Text>
+        
+        {/* Timer Display */}
         <View style={styles.timerContainer}>
           <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
         </View>
-
+        
         {/* Control Buttons */}
         <View style={styles.controlsContainer}>
-          <TouchableOpacity style={styles.controlButton} onPress={handleRestart}>
-            <Text style={styles.controlButtonText}>↻</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity 
-            style={[styles.controlButton, styles.playButton]} 
+            style={styles.controlButton}
+            onPress={handleRestart}
+          >
+            <Text style={styles.controlButtonText}>↺</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.controlButton}
             onPress={handlePlayPause}
           >
-            <Text style={styles.playButtonText}>{isPlaying ? '⏸' : '▶'}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.controlButton}>
-            <Text style={styles.controlButtonText}>⏹</Text>
+            <Text style={styles.controlButtonText}>{isPlaying ? '||' : '▶'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -133,44 +135,25 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 20,
+    marginBottom: 30,
     fontFamily: 'Nunito',
   },
-  gameInfoSection: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  gameNumber: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#F66D3D',
-    fontFamily: 'Nunito',
-    marginBottom: 8,
-  },
-  playerTurn: {
+  playerName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333333',
+    marginBottom: 60,
     fontFamily: 'Nunito',
   },
   timerContainer: {
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 60,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 16,
+    marginBottom: 80,
   },
   timerText: {
-    fontSize: 72,
+    fontSize: 120,
     fontWeight: 'bold',
-    color: '#F66D3D',
+    color: '#333333',
     fontFamily: 'Nunito',
   },
   controlsContainer: {
@@ -178,13 +161,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 60,
-    gap: 30,
+    gap: 40,
   },
   controlButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFFFFF',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F66D3D',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -193,19 +176,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
-  playButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F66D3D',
-  },
   controlButtonText: {
-    fontSize: 20,
-    color: '#333333',
-  },
-  playButtonText: {
-    fontSize: 24,
+    fontSize: 28,
     color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   scoreSection: {
     position: 'absolute',
@@ -218,5 +192,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
   },
 });

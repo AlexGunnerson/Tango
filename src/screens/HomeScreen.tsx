@@ -33,6 +33,12 @@ export default function HomeScreen({ navigation }: Props) {
   };
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>HomeScreen</Text>
+        </View>
+      )}
       {/* Menu Icon */}
       <Image 
         source={require('../../assets/menu-red.png')} 
@@ -700,5 +706,21 @@ const styles = StyleSheet.create({
     top: 86,
     width: 35,
     height: 27,
+  },
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
   },
 });
