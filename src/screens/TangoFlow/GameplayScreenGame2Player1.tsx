@@ -6,7 +6,24 @@ type Props = RootStackScreenProps<'GameplayScreenGame2Player1'>;
 
 export default function GameplayScreenGame2Player1({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
-  const [timeLeft, setTimeLeft] = useState(3); // 3 seconds for testing, should be 90 in production
+  
+  // Game-specific configuration
+  const currentGameTitle = gameTitle || 'Marshmallow Scoop';
+  const gameConfig = {
+    'The Blind March': {
+      duration: 90,
+      playerAction: 'March',
+      testDuration: 3
+    },
+    'Marshmallow Scoop': {
+      duration: 30,
+      playerAction: 'Scoop',
+      testDuration: 3
+    }
+  };
+  
+  const config = gameConfig[currentGameTitle] || gameConfig['Marshmallow Scoop'];
+  const [timeLeft, setTimeLeft] = useState(config.testDuration); // Use test duration
   const [isPlaying, setIsPlaying] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -46,7 +63,7 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
           player2,
           punishment,
           availableItems,
-          gameTitle: gameTitle || 'The Blind March',
+          gameTitle: currentGameTitle,
           currentPlayer: player1,
           nextPlayer: player2,
           originalPlayer1: displayPlayer1,
@@ -63,7 +80,7 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
   };
 
   const handleRestart = () => {
-    setTimeLeft(3); // Reset to 3 seconds for testing
+    setTimeLeft(config.testDuration); // Reset to test duration
     setIsPlaying(false);
   };
 
@@ -86,10 +103,10 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
+        <Text style={styles.gameTitle}>{currentGameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player1} March!</Text>
+        <Text style={styles.playerName}>{player1} {config.playerAction}!</Text>
         
         {/* Timer Display */}
         <View style={styles.timerContainer}>

@@ -30,7 +30,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>The Blind March</Text>
+        <Text style={styles.gameTitle}>Marshmallow Scoop</Text>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -42,7 +42,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            You have 90 seconds to go nowhere! Blindfolded and marching in place, your mission is to see who can stay closest to their original position. Whoever ends up closest to the starting position wins!
+            Blindfolded, scoop as many marshmallows into the bowl as possible in 30 seconds. The person with the most marshmallows in the bowl wins!
           </Text>
         </View>
 
@@ -66,7 +66,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                 player2,
                 punishment,
                 availableItems,
-                gameTitle: 'The Blind March',
+                gameTitle: 'Marshmallow Scoop',
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
@@ -96,7 +96,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
             <Text style={styles.handicapTitle}>Handicap for {leadingDisplayPlayer}!</Text>
             
             <Text style={styles.handicapDescription}>
-              At 45 seconds, {leadingDisplayPlayer} must do a full 360 degree turn without changing the speed of marching.
+              At 15 seconds, {leadingDisplayPlayer} must switch to using their non-dominant hand for scooping.
             </Text>
 
             <TouchableOpacity 
@@ -108,7 +108,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                   player2,
                   punishment,
                   availableItems,
-                  gameTitle: 'The Blind March',
+                  gameTitle: 'Marshmallow Scoop',
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,

@@ -27,6 +27,25 @@ export default function TimesUpScreen({ navigation, route }: Props) {
   // Check if the next player (who is about to play) is the one who should get the handicap
   const nextPlayerGetsHandicap = hasHandicap && (nextPlayer === leadingPlayer);
   
+  // Game-specific configuration
+  const currentGameTitle = gameTitle || 'The Blind March';
+  const gameConfig = {
+    'The Blind March': {
+      playerAction: 'march',
+      readyAction: 'March',
+      timesUpInstruction: 'Mark the spot',
+      handicapDescription: 'At 45 seconds, {player} must do a full 360 degree turn without changing the speed of marching.'
+    },
+    'Marshmallow Scoop': {
+      playerAction: 'scoop',
+      readyAction: 'Scoop',
+      timesUpInstruction: 'Count your marshmallows',
+      handicapDescription: 'At 15 seconds, {player} must switch to using their non-dominant hand for scooping.'
+    }
+  };
+  
+  const config = gameConfig[currentGameTitle] || gameConfig['The Blind March'];
+  
   // Get the correct GameplayScreen for Player2 based on current game
   const getGameplayScreenPlayer2 = (gameNumber: number) => {
     switch (gameNumber) {
@@ -49,14 +68,14 @@ export default function TimesUpScreen({ navigation, route }: Props) {
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
+        <Text style={styles.gameTitle}>{currentGameTitle}</Text>
         
         {/* Times Up Message */}
         <Text style={styles.timesUpTitle}>Times Up!</Text>
         
         {/* Instructions */}
         <Text style={styles.instructionsText}>
-          Mark the spot. {nextPlayer} get ready to march!
+          {config.timesUpInstruction}. {nextPlayer} get ready to {config.playerAction}!
         </Text>
         
         {/* Ready Message */}
@@ -109,7 +128,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
             <Text style={styles.handicapTitle}>Handicap for {leadingDisplayPlayer}!</Text>
             
             <Text style={styles.handicapDescription}>
-              At 45 seconds, {leadingDisplayPlayer} must do a full 360 degree turn without changing the speed of marching.
+              {config.handicapDescription.replace('{player}', leadingDisplayPlayer)}
             </Text>
 
             <TouchableOpacity 
