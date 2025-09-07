@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
+import React from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 type Props = RootStackScreenProps<'GameInstructionsScreen3'>;
 
 export default function GameInstructionsScreen3({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
-  const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;
   const currentPlayer2Score = player2Score || 0;
   const scoreDifference = Math.abs(currentPlayer1Score - currentPlayer2Score);
   const hasHandicap = scoreDifference >= 2;
+  
+  // Determine which player is ahead and gets the handicap
+  const leadingPlayer = currentPlayer1Score > currentPlayer2Score ? player1 : player2;
+  const displayPlayer1 = originalPlayer1 || player1;
+  const displayPlayer2 = originalPlayer2 || player2;
+  const leadingDisplayPlayer = currentPlayer1Score > currentPlayer2Score ? displayPlayer1 : displayPlayer2;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -51,22 +56,18 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
         <TouchableOpacity 
           style={styles.tangoButton}
           onPress={() => {
-            if (hasHandicap) {
-              setIsHandicapModalVisible(true);
-            } else {
-              // Navigate to GameplayScreenGame3Player1
-              navigation.navigate('GameplayScreenGame3Player1', {
-                player1,
-                player2,
-                punishment,
-                availableItems,
-                gameTitle: 'The Blind March',
-                originalPlayer1,
-                originalPlayer2,
-                player1Score: currentPlayer1Score,
-                player2Score: currentPlayer2Score
-              });
-            }
+            // Navigate directly to GameplayScreenGame3Player1 (handicap logic moved to TimesUpScreen)
+            navigation.navigate('GameplayScreenGame3Player1', {
+              player1,
+              player2,
+              punishment,
+              availableItems,
+              gameTitle: 'The Blind March',
+              originalPlayer1,
+              originalPlayer2,
+              player1Score: currentPlayer1Score,
+              player2Score: currentPlayer2Score
+            });
           }}
         >
           <Text style={styles.tangoButtonText}>Tango!</Text>
@@ -77,44 +78,6 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
           <Text style={styles.scoreText}>{originalPlayer1 || player1}: {currentPlayer1Score} | {originalPlayer2 || player2}: {currentPlayer2Score}</Text>
         </View>
       </View>
-
-      {/* Handicap Modal */}
-      <Modal
-        visible={isHandicapModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsHandicapModalVisible(false)}
-      >
-        <Pressable style={styles.modalBackdrop} onPress={() => setIsHandicapModalVisible(false)}>
-          <Pressable style={styles.handicapCard} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.handicapTitle}>Handicap for {player1}!</Text>
-            
-            <Text style={styles.handicapDescription}>
-              At 45 seconds, {player1} must do a full 360 degree turn without changing the speed of marching.
-            </Text>
-
-            <TouchableOpacity 
-              style={styles.handicapTangoButton}
-              onPress={() => {
-                setIsHandicapModalVisible(false);
-                navigation.navigate('GameplayScreenGame3Player1', {
-                  player1,
-                  player2,
-                  punishment,
-                  availableItems,
-                  gameTitle: 'The Blind March',
-                  originalPlayer1,
-                  originalPlayer2,
-                  player1Score: currentPlayer1Score,
-                  player2Score: currentPlayer2Score
-                });
-              }}
-            >
-              <Text style={styles.handicapTangoButtonText}>Tango!</Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </SafeAreaView>
   );
 }

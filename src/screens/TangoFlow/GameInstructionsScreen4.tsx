@@ -13,6 +13,12 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
   const currentPlayer2Score = player2Score || 0;
   const scoreDifference = Math.abs(currentPlayer1Score - currentPlayer2Score);
   const hasHandicap = scoreDifference >= 2;
+  
+  // Determine which player is ahead and gets the handicap
+  const leadingPlayer = currentPlayer1Score > currentPlayer2Score ? player1 : player2;
+  const displayPlayer1 = originalPlayer1 || player1;
+  const displayPlayer2 = originalPlayer2 || player2;
+  const leadingDisplayPlayer = currentPlayer1Score > currentPlayer2Score ? displayPlayer1 : displayPlayer2;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,10 +94,10 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
       >
         <Pressable style={styles.modalBackdrop} onPress={() => setIsHandicapModalVisible(false)}>
           <Pressable style={styles.handicapCard} onPress={(e) => e.stopPropagation()}>
-            <Text style={styles.handicapTitle}>Handicap for {player1}!</Text>
+            <Text style={styles.handicapTitle}>Handicap for {leadingDisplayPlayer}!</Text>
             
             <Text style={styles.handicapDescription}>
-              At 45 seconds, {player1} must do a full 360 degree turn without changing the speed of marching.
+              At 45 seconds, {leadingDisplayPlayer} must do a full 360 degree turn without changing the speed of marching.
             </Text>
 
             <TouchableOpacity 
