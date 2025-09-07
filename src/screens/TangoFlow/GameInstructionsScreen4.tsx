@@ -16,6 +16,12 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>GameInstructionsScreen4</Text>
+        </View>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>The Blind March</Text>
@@ -48,8 +54,8 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Navigate to legacy Gameplay for now (will be GameplayScreenGame4Player1 when created)
-              navigation.navigate('Gameplay', {
+              // Navigate to GameplayScreenGame4Player1
+              navigation.navigate('GameplayScreenGame4Player1', {
                 player1,
                 player2,
                 punishment,
@@ -92,7 +98,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
               style={styles.handicapTangoButton}
               onPress={() => {
                 setIsHandicapModalVisible(false);
-                navigation.navigate('Gameplay', {
+                navigation.navigate('GameplayScreenGame4Player1', {
                   player1,
                   player2,
                   punishment,
@@ -271,5 +277,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     fontFamily: 'Nunito',
+  },
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
   },
 });

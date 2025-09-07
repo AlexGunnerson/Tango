@@ -6,6 +6,22 @@ type Props = RootStackScreenProps<'TimesUp'>;
 
 export default function TimesUpScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  
+  // Determine current game number based on total games played
+  const totalGamesPlayed = (player1Score || 0) + (player2Score || 0);
+  const currentGameNumber = totalGamesPlayed + 1;
+  
+  // Get the correct GameplayScreen for Player2 based on current game
+  const getGameplayScreenPlayer2 = (gameNumber: number) => {
+    switch (gameNumber) {
+      case 1: return 'GameplayScreenGame1Player2';
+      case 2: return 'GameplayScreenGame2Player2';
+      case 3: return 'GameplayScreenGame3Player2';
+      case 4: return 'GameplayScreenGame4Player2';
+      case 5: return 'GameplayScreenGame5Player2';
+      default: return 'GameplayScreenGame1Player2'; // Fallback
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,8 +52,9 @@ export default function TimesUpScreen({ navigation, route }: Props) {
         <TouchableOpacity 
           style={styles.tangoButton}
           onPress={() => {
-            // Navigate to GameplayScreenGame1Player2 for player 2's turn
-            navigation.navigate('GameplayScreenGame1Player2', {
+            // Navigate to the correct GameplayScreenGame*Player2 for player 2's turn
+            const targetScreen = getGameplayScreenPlayer2(currentGameNumber);
+            navigation.navigate(targetScreen as any, {
               player1,
               player2,
               punishment,
@@ -55,7 +72,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
-          <Text style={styles.scoreText}>{originalPlayer1 || player1}: {player1Score || 2} | {originalPlayer2 || player2}: {player2Score || 0}</Text>
+          <Text style={styles.scoreText}>{originalPlayer1 || player1}: {player1Score || 0} | {originalPlayer2 || player2}: {player2Score || 0}</Text>
         </View>
       </View>
     </SafeAreaView>

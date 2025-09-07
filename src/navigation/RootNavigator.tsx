@@ -29,6 +29,14 @@ import GameInstructionsScreen4 from '../screens/TangoFlow/GameInstructionsScreen
 import GameInstructionsScreen5 from '../screens/TangoFlow/GameInstructionsScreen5';
 import GameplayScreenGame1Player1 from '../screens/TangoFlow/GameplayScreenGame1Player1';
 import GameplayScreenGame1Player2 from '../screens/TangoFlow/GameplayScreenGame1Player2';
+import GameplayScreenGame2Player1 from '../screens/TangoFlow/GameplayScreenGame2Player1';
+import GameplayScreenGame2Player2 from '../screens/TangoFlow/GameplayScreenGame2Player2';
+import GameplayScreenGame3Player1 from '../screens/TangoFlow/GameplayScreenGame3Player1';
+import GameplayScreenGame3Player2 from '../screens/TangoFlow/GameplayScreenGame3Player2';
+import GameplayScreenGame4Player1 from '../screens/TangoFlow/GameplayScreenGame4Player1';
+import GameplayScreenGame4Player2 from '../screens/TangoFlow/GameplayScreenGame4Player2';
+import GameplayScreenGame5Player1 from '../screens/TangoFlow/GameplayScreenGame5Player1';
+import GameplayScreenGame5Player2 from '../screens/TangoFlow/GameplayScreenGame5Player2';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -289,6 +297,78 @@ export default function RootNavigator() {
         <Stack.Screen 
           name="GameplayScreenGame1Player2" 
           component={GameplayScreenGame1Player2}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame2Player1" 
+          component={GameplayScreenGame2Player1}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame2Player2" 
+          component={GameplayScreenGame2Player2}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame3Player1" 
+          component={GameplayScreenGame3Player1}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame3Player2" 
+          component={GameplayScreenGame3Player2}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame4Player1" 
+          component={GameplayScreenGame4Player1}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame4Player2" 
+          component={GameplayScreenGame4Player2}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame5Player1" 
+          component={GameplayScreenGame5Player1}
+          options={({ navigation }) => ({ 
+            title: '',
+            headerBackTitle: 'Back',
+            headerRight: createHomeButton(navigation, showMenu)
+          })}
+        />
+        <Stack.Screen 
+          name="GameplayScreenGame5Player2" 
+          component={GameplayScreenGame5Player2}
           options={({ navigation }) => ({ 
             title: '',
             headerBackTitle: 'Back',

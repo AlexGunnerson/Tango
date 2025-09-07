@@ -16,6 +16,12 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* DEV: Screen Name Indicator */}
+      {__DEV__ && (
+        <View style={styles.devScreenIndicator}>
+          <Text style={styles.devScreenText}>GameInstructionsScreen3</Text>
+        </View>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>The Blind March</Text>
@@ -48,14 +54,13 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Navigate to legacy Gameplay for now (will be GameplayScreenGame3Player1 when created)
-              navigation.navigate('Gameplay', {
+              // Navigate to GameplayScreenGame3Player1
+              navigation.navigate('GameplayScreenGame3Player1', {
                 player1,
                 player2,
                 punishment,
                 availableItems,
                 gameTitle: 'The Blind March',
-                isSecondPlayerTurn: false,
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
@@ -92,13 +97,12 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
               style={styles.handicapTangoButton}
               onPress={() => {
                 setIsHandicapModalVisible(false);
-                navigation.navigate('Gameplay', {
+                navigation.navigate('GameplayScreenGame3Player1', {
                   player1,
                   player2,
                   punishment,
                   availableItems,
                   gameTitle: 'The Blind March',
-                  isSecondPlayerTurn: false,
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
@@ -271,5 +275,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     fontFamily: 'Nunito',
+  },
+  // DEV: Screen indicator styles
+  devScreenIndicator: {
+    position: 'absolute',
+    top: 90,
+    left: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    zIndex: 1000,
+  },
+  devScreenText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Courier',
   },
 });

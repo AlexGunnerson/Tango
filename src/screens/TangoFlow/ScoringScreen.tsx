@@ -7,7 +7,7 @@ type Props = RootStackScreenProps<'Scoring'>;
 export default function ScoringScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score: initialPlayer1Score, player2Score: initialPlayer2Score } = route.params;
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
-  const [player1Score, setPlayer1Score] = useState(initialPlayer1Score || 2);
+  const [player1Score, setPlayer1Score] = useState(initialPlayer1Score || 0);
   const [player2Score, setPlayer2Score] = useState(initialPlayer2Score || 0);
 
   // Use original player names for consistent display
