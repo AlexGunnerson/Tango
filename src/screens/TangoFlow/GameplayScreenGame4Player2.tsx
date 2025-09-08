@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 type Props = RootStackScreenProps<'GameplayScreenGame4Player2'>;
@@ -8,7 +8,37 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
   const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [timeLeft, setTimeLeft] = useState(3); // 3 seconds for testing, should be 90 in production
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(true);
+  const [countdownValue, setCountdownValue] = useState(5);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Countdown logic - runs first when screen loads
+  useEffect(() => {
+    if (showCountdown && countdownValue > 0) {
+      countdownRef.current = setInterval(() => {
+        setCountdownValue((prevCount) => {
+          if (prevCount <= 1) {
+            setShowCountdown(false);
+            setIsPlaying(true); // Auto-start the timer after countdown
+            return 0;
+          }
+          return prevCount - 1;
+        });
+      }, 1000);
+    } else {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+    }
+
+    return () => {
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+      }
+    };
+  }, [showCountdown, countdownValue]);
 
   // Timer logic
   useEffect(() => {
@@ -82,6 +112,19 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
           <Text style={styles.devScreenText}>GameplayScreenGame4Player2</Text>
         </View>
       )}
+
+      {/* Countdown Modal */}
+      <Modal
+        visible={showCountdown}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.countdownModalBackdrop}>
+          <View style={styles.countdownContainer}>
+            <Text style={styles.countdownNumber}>{countdownValue}</Text>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
@@ -208,5 +251,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontFamily: 'Courier',
+  },
+  // Countdown Modal Styles
+  countdownModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  countdownContainer: {
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  countdownNumber: {
+    fontSize: 200,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontFamily: 'Nunito',
+    textAlign: 'center',
+    zIndex: 1000,
   },
 });
