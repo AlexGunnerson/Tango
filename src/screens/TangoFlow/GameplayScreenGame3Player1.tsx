@@ -76,7 +76,7 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
           player2,
           punishment,
           availableItems,
-          gameTitle: gameTitle || 'The Blind March',
+          gameTitle: gameTitle || 'Paper Plate Snowman',
           currentPlayer: player1,
           nextPlayer: player2,
           originalPlayer1: displayPlayer1,
@@ -129,10 +129,10 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
       </Modal>
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
+        <Text style={styles.gameTitle}>{gameTitle || 'Paper Plate Snowman'}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player1} March!</Text>
+        <Text style={styles.playerName}>{player1} Draw!</Text>
         
         {/* Timer Display */}
         <View style={styles.timerContainer}>

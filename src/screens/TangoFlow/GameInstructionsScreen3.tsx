@@ -29,7 +29,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>The Blind March</Text>
+        <Text style={styles.gameTitle}>Paper Plate Snowman</Text>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -41,7 +41,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            You have 90 seconds to go nowhere! Blindfolded and marching in place, your mission is to see who can stay closest to their original position. Whoever ends up closest to the starting position wins!
+           Hold a paper plate on your head and draw a snowman. Best drawing wins!
           </Text>
         </View>
 
@@ -62,7 +62,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
               player2,
               punishment,
               availableItems,
-              gameTitle: 'The Blind March',
+              gameTitle: 'Paper Plate Snowman',
               originalPlayer1,
               originalPlayer2,
               player1Score: currentPlayer1Score,

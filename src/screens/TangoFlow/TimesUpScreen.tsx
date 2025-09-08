@@ -41,6 +41,12 @@ export default function TimesUpScreen({ navigation, route }: Props) {
       readyAction: 'Scoop',
       timesUpInstruction: 'Count your marshmallows',
       handicapDescription: 'At 15 seconds, {player} must switch to using their non-dominant hand for scooping.'
+    },
+    'Paper Plate Snowman': {
+      playerAction: 'draw',
+      readyAction: 'Draw',
+      timesUpInstruction: 'Show your drawing',
+      handicapDescription: 'At 15 seconds, {player} must switch the paper plate to their non-dominant hand.'
     }
   };
   
