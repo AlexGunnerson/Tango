@@ -137,6 +137,46 @@ export default function WinnerScreen({ navigation, route }: Props) {
           </TouchableOpacity>
         )}
 
+        {/* Home and Play Again Buttons - shown when no punishment */}
+        {(!punishment || punishment === 'No Punishment') && (
+          <View style={styles.noPunishmentButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.homeButton}
+              onPress={() => navigation.navigate('Home')}
+            >
+              <Image 
+                source={require('../../../assets/home-icon-white.png')} 
+                style={styles.homeButtonIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.homeButtonText}>Home</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.playAgainButton}
+              onPress={() => {
+                // Navigate back to ItemGathering to restart with same players but reset scores
+                navigation.navigate('ItemGathering', {
+                  player1: player1Name,
+                  player2: player2Name,
+                  punishment: undefined,
+                  originalPlayer1: player1Name,
+                  originalPlayer2: player2Name,
+                  player1Score: 0,
+                  player2Score: 0
+                });
+              }}
+            >
+              <Image 
+                source={require('../../../assets/repeat-icon.png')} 
+                style={styles.playAgainButtonIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.playAgainButtonText}>Play Again</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Final Score Display */}
         <View style={styles.scoreSection}>
           <Text style={styles.scoreText}>
@@ -345,5 +385,63 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontFamily: 'Courier',
+  },
+  // No Punishment Buttons Styles
+  noPunishmentButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 40,
+    gap: 20,
+  },
+  homeButton: {
+    backgroundColor: '#F66D3D',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 120,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  homeButtonIcon: {
+    width: 24,
+    height: 24,
+    marginBottom: 4,
+  },
+  homeButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontFamily: 'Nunito',
+  },
+  playAgainButton: {
+    backgroundColor: '#F66D3D',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 120,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  playAgainButtonIcon: {
+    width: 24,
+    height: 24,
+    marginBottom: 4,
+  },
+  playAgainButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontFamily: 'Nunito',
   },
 });
