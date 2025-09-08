@@ -156,60 +156,65 @@ export default function HomeScreen({ navigation }: Props) {
             <TouchableOpacity style={styles.cardCloseButton} onPress={handleModalClose}>
               <Text style={styles.cardCloseText}>×</Text>
             </TouchableOpacity>
-            <Image 
-              source={require('../../assets/karate-yellow-1.png')}
-              style={styles.cardKarateLeft}
-              resizeMode="contain"
-            />
-            <View style={styles.cardNameBoxLeft}>
-              <Text style={styles.cardNameLeftText}>Alex</Text>
+            
+            {/* Player Characters and VS */}
+            <View style={styles.playersSection}>
+              <View style={styles.playerColumn}>
+                <Image 
+                  source={require('../../assets/karate-yellow-1.png')}
+                  style={styles.cardKarateLeft}
+                  resizeMode="contain"
+                />
+                <Text style={styles.playerNameLabel}>Whale3x</Text>
+              </View>
+              
+              <Text style={styles.cardVsText}>VS</Text>
+              
+              <View style={styles.playerColumn}>
+                <Image 
+                  source={require('../../assets/karate-red-2.png')}
+                  style={styles.cardKarateRight}
+                  resizeMode="contain"
+                />
+                <Text style={styles.playerNameLabel}>{player2Name || 'Player 2'}</Text>
+              </View>
             </View>
-            <Text style={styles.cardVsText}>VS</Text>
-            <Image 
-              source={require('../../assets/karate-red-2.png')}
-              style={styles.cardKarateRight}
-              resizeMode="contain"
-            />
-            <Image 
-              source={require('../../assets/icon-add-user.png')}
-              style={styles.cardAddUserIcon}
-              resizeMode="contain"
-            />
+
+            {/* Player 2 Name Input Section */}
+            <View style={styles.player2InputSection}>
+              <Text style={styles.player2InputLabel}>PLAYER 2 NAME</Text>
+              <View style={styles.player2InputContainer}>
+                <TextInput
+                  ref={textInputRef}
+                  style={styles.player2TextInput}
+                  value={player2Name}
+                  onChangeText={setPlayer2Name}
+                  placeholder="Enter your name"
+                  placeholderTextColor="#B0B0B0"
+                  multiline={false}
+                  maxLength={20}
+                  autoFocus={false}
+                  selectionColor="#F66D3D"
+                  cursorColor="#F66D3D"
+                  onFocus={() => setIsTextInputFocused(true)}
+                  onBlur={() => setIsTextInputFocused(false)}
+                />
+              </View>
+            </View>
+
+            {/* Start Game Button */}
             <TouchableOpacity 
-              style={styles.cardNameBoxRight}
-              activeOpacity={1}
-              onPress={() => textInputRef.current?.focus()}
-            >
-              <TextInput
-                ref={textInputRef}
-                style={[
-                  styles.cardNameRightTextInput,
-                  { color: player2Name ? '#D84B15' : '#D84B15' }
-                ]}
-                value={player2Name}
-                onChangeText={setPlayer2Name}
-                placeholder={isTextInputFocused ? "" : "Player 2..."}
-                placeholderTextColor="#B0B0B0"
-                multiline={false}
-                maxLength={20}
-                textAlign="center"
-                autoFocus={false}
-                selectionColor="#D84B15"
-                cursorColor="#D84B15"
-                clearTextOnFocus={false}
-                onFocus={() => setIsTextInputFocused(true)}
-                onBlur={() => setIsTextInputFocused(false)}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.cardArrowButton}
+              style={styles.startGameButton}
               onPress={() => {
                 setIsOneVOneCardVisible(false);
                 setIsPunishmentCardVisible(true);
               }}
             >
-              <Text style={styles.cardArrowText}>→</Text>
+              <Text style={styles.startGameText}>Start Game</Text>
             </TouchableOpacity>
+
+            {/* Connect Account Text */}
+            <Text style={styles.connectAccountText}>Connect to Player 2's Account</Text>
           </Pressable>
         </Pressable>
       </Modal>
@@ -494,114 +499,133 @@ const styles = StyleSheet.create({
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
   cardContainer: {
-    width: 330,
-    height: 270,
+    width: 350,
+    height: 420,
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 25,
+    paddingHorizontal: 20,
   },
   cardCloseButton: {
     position: 'absolute',
-    right: 10,
-    top: 10,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    right: 15,
+    top: 15,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardCloseText: {
-    fontSize: 24,
+    fontSize: 26,
     color: '#888',
-    lineHeight: 24,
+    lineHeight: 26,
+  },
+  playersSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 15,
+    marginBottom: 30,
+  },
+  playerColumn: {
+    alignItems: 'center',
+    flex: 1,
   },
   cardKarateLeft: {
-    position: 'absolute',
-    left: 40,
-    top: 85,
     width: 80,
     height: 80,
-    zIndex: 2,
+    marginBottom: 15,
   },
   cardKarateRight: {
-    position: 'absolute',
-    right: 45,
-    top: 80,
     width: 80,
-    height: 86,
-    zIndex: 2,
+    height: 80,
+    marginBottom: 15,
   },
-  cardAddUserIcon: {
-    position: 'absolute',
-    right: 15,
-    top: 110,
-    width: 28,
-    height: 28,
-    zIndex: 3,
+  playerNameLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333333',
+    fontFamily: 'Nunito',
   },
   cardVsText: {
-    color: '#B2282F',
     fontSize: 28,
     fontWeight: 'bold',
+    color: '#333333',
+    fontFamily: 'Nunito',
+    marginHorizontal: 20,
   },
-  cardNameBoxLeft: {
-    position: 'absolute',
-    left: 20,
-    top: 165,
-    width: 120,
-    height: 28,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
+  player2InputSection: {
+    width: '100%',
+    marginBottom: 25,
+  },
+  player2InputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666666',
+    fontFamily: 'Nunito',
+    marginBottom: 10,
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  player2InputContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  cardNameLeftText: {
-    color: '#d99816',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  cardNameBoxRight: {
-    position: 'absolute',
-    right: 24,
-    top: 165,
-    width: 120,
-    height: 28,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardNameRightTextInput: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  player2TextInput: {
     flex: 1,
-    paddingHorizontal: 8,
+    fontSize: 16,
+    color: '#333333',
+    fontFamily: 'Nunito',
+    textAlign: 'left',
   },
-  cardArrowButton: {
-    position: 'absolute',
-    bottom: 15,
-    right: 15,
-    width: 30,
-    height: 30,
-    backgroundColor: '#B2282F',
-    borderRadius: 20,
-    justifyContent: 'center',
+  startGameButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#F66D3D',
+    borderRadius: 25,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  cardArrowText: {
-    color: '#ffffff',
-    fontSize: 24,
+  startGameText: {
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Nunito',
+  },
+  connectAccountText: {
+    fontSize: 16,
+    color: '#F66D3D',
+    fontFamily: 'Nunito',
+    textAlign: 'center',
   },
   punishmentContainer: {
     width: 350,
