@@ -46,10 +46,10 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
           </Text>
         </View>
 
-        {/* Player Ready Section */}
+        {/* Players Ready Section */}
         <View style={styles.playerReadySection}>
           <Text style={styles.playerReadyText}>
-            <Text style={styles.playerName}>{player1}</Text> get ready, you're up first!
+            <Text style={styles.playerName}>{player1}</Text> and <Text style={styles.playerName}>{player2}</Text>, get ready to play together!
           </Text>
         </View>
 
@@ -60,14 +60,13 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Navigate to GameplayScreenGame4Player1
-              navigation.navigate('GameplayScreenGame4Player1', {
+              // Navigate to GameplayScreenGame4 (simultaneous play)
+              navigation.navigate('GameplayScreenGame4', {
                 player1,
                 player2,
                 punishment,
                 availableItems,
                 gameTitle: 'Tearable Tree',
-                isSecondPlayerTurn: false,
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
@@ -104,13 +103,12 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
               style={styles.handicapTangoButton}
               onPress={() => {
                 setIsHandicapModalVisible(false);
-                navigation.navigate('GameplayScreenGame4Player1', {
+                navigation.navigate('GameplayScreenGame4', {
                   player1,
                   player2,
                   punishment,
                   availableItems,
                   gameTitle: 'Tearable Tree',
-                  isSecondPlayerTurn: false,
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,

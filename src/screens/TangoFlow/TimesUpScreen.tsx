@@ -51,8 +51,9 @@ export default function TimesUpScreen({ navigation, route }: Props) {
     'Tearable Tree': {
       playerAction: 'tear',
       readyAction: 'Tear',
-      timesUpInstruction: 'Show your tree',
-      handicapDescription: 'At 15 seconds, {player} must close their eyes while continuing to tear.'
+      timesUpInstruction: 'Show your trees',
+      handicapDescription: 'At 15 seconds, {player} must close their eyes while continuing to tear.',
+      isSimultaneous: true
     }
   };
   

@@ -157,6 +157,17 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
   };
+  GameplayScreenGame4: { 
+    player1: string; 
+    player2: string; 
+    punishment?: string;
+    availableItems: any[];
+    gameTitle?: string;
+    originalPlayer1?: string;
+    originalPlayer2?: string;
+    player1Score?: number;
+    player2Score?: number;
+  };
   GameplayScreenGame5Player1: { 
     player1: string; 
     player2: string; 
