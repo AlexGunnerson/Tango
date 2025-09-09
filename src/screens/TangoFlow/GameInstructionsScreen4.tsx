@@ -30,7 +30,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>The Blind March</Text>
+        <Text style={styles.gameTitle}>Tearable Tree</Text>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -42,7 +42,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            You have 90 seconds to go nowhere! Blindfolded and marching in place, your mission is to see who can stay closest to their original position. Whoever ends up closest to the starting position wins!
+            Get into the holiday spirit with a test of handiwork. With a piece of paper behind your back, tear the paper into the shape of a Christmas tree. Best tree wins!
           </Text>
         </View>
 
@@ -66,7 +66,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
                 player2,
                 punishment,
                 availableItems,
-                gameTitle: 'The Blind March',
+                gameTitle: 'Tearable Tree',
                 isSecondPlayerTurn: false,
                 originalPlayer1,
                 originalPlayer2,
@@ -109,7 +109,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
                   player2,
                   punishment,
                   availableItems,
-                  gameTitle: 'The Blind March',
+                  gameTitle: 'Tearable Tree',
                   isSecondPlayerTurn: false,
                   originalPlayer1,
                   originalPlayer2,

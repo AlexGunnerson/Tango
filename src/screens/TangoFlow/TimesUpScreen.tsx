@@ -47,6 +47,12 @@ export default function TimesUpScreen({ navigation, route }: Props) {
       readyAction: 'Draw',
       timesUpInstruction: 'Show your drawing',
       handicapDescription: 'At 15 seconds, {player} must switch the paper plate to their non-dominant hand.'
+    },
+    'Tearable Tree': {
+      playerAction: 'tear',
+      readyAction: 'Tear',
+      timesUpInstruction: 'Show your tree',
+      handicapDescription: 'At 15 seconds, {player} must close their eyes while continuing to tear.'
     }
   };
   
