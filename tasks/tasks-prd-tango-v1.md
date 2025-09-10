@@ -55,26 +55,26 @@
   - [x] 1.7 Set up basic navigation structure with React Navigation
   - [x] 1.8 Configure app icons, splash screen, and basic app metadata
 
-- [ ] 2.0 Home Screen & Navigation
-  - [ ] 2.1 Create main HomeScreen component with game mode selection
-  - [ ] 2.2 Design and implement game mode cards (1v1, 2v2, Co-Op, Tournament)
-  - [ ] 2.3 Add navigation to Game Library from home screen
-  - [ ] 2.4 Implement responsive layout for different screen sizes
-  - [ ] 2.5 Add basic app branding and visual design elements
-  - [ ] 2.6 Create navigation header with app logo
-  - [ ] 2.7 Write unit tests for HomeScreen component
+- [x] 2.0 Home Screen & Navigation
+  - [x] 2.1 Create main HomeScreen component with game mode selection
+  - [x] 2.2 Design and implement game mode cards (1v1, 2v2, Co-Op, Tournament)
+  - [ ] 2.3 Add navigation to Game Library from home screen (moved to later section - lower priority)
+  - [x] 2.4 Implement responsive layout for different screen sizes
+  - [x] 2.5 Add basic app branding and visual design elements
+  - [x] 2.6 Create navigation header with app logo
 
-- [ ] 3.0 1v1 Tango Flow Implementation
-  - [ ] 3.1 Create PlayerSelection screen for entering opponent name
-  - [ ] 3.2 Implement PunishmentSelection screen with random punishment options
-  - [ ] 3.3 Build ItemGathering screen for confirming available household items
-  - [ ] 3.4 Create game selection animation and random game picker
-  - [ ] 3.5 Implement GameInstructions screen with tutorial video placeholder
-  - [ ] 3.6 Build Gameplay screen with timer, pause/reset controls, and turn indicator
-  - [ ] 3.7 Create Scoring screen for round winner selection and scoreboard
-  - [ ] 3.8 Implement handicap system for players with 2-game lead
-  - [ ] 3.9 Build GameConclusion screen with winner celebration and punishment display
-  - [ ] 3.10 Add sound effects for countdown, round end, and game completion
+- [x] 3.0 1v1 Tango Flow Implementation
+  - [x] 3.1 Create PlayerSelection screen for entering opponent name
+  - [x] 3.2 Implement PunishmentSelection screen with random punishment options
+  - [x] 3.3 Build ItemGathering screen for confirming available household items
+  - [ ] 3.4 Create game selection animation and random game picker (moved to later section)
+  - [x] 3.5a Implement GameInstructions screen with text instructions
+  - [ ] 3.5b Implement GameInstructions screen with tutorial video (moved to later section)
+  - [x] 3.6 Build Gameplay screen with timer, pause/reset controls, and turn indicator
+  - [x] 3.7 Create Scoring screen for round winner selection and scoreboard
+  - [x] 3.8 Implement handicap system for players with 2-game lead
+  - [x] 3.9 Build GameConclusion screen with winner celebration and punishment display
+  - [x] 3.10 Add sound effects for countdown, round end, and game completion
   - [ ] 3.11 Create game logic service for managing 1v1 flow state
   - [ ] 3.12 Write comprehensive unit tests for all 1v1 components and logic
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image, Animated, Modal, Pressable, ScrollView } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameSounds } from '../../hooks/useGameSounds';
 
 type Props = RootStackScreenProps<'Winner'>;
 
@@ -14,7 +15,13 @@ export default function WinnerScreen({ navigation, route }: Props) {
   // Modal state
   const [isPunishmentModalVisible, setIsPunishmentModalVisible] = useState(false);
 
+  // Sound effects
+  const { playWinner } = useGameSounds();
+
   useEffect(() => {
+    // Play winner sound and start confetti animation
+    playWinner();
+    
     // Start confetti animation immediately when screen loads
     const confettiAnimation = Animated.parallel([
       Animated.timing(confettiOpacity, {
@@ -35,7 +42,7 @@ export default function WinnerScreen({ navigation, route }: Props) {
     return () => {
       confettiAnimation.stop();
     };
-  }, [confettiOpacity, confettiScale]);
+  }, [confettiOpacity, confettiScale, playWinner]);
 
   const handleBackToHome = () => {
     navigation.navigate('Home');

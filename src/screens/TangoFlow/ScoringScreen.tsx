@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameSounds } from '../../hooks/useGameSounds';
 
 type Props = RootStackScreenProps<'Scoring'>;
 
@@ -14,9 +15,13 @@ export default function ScoringScreen({ navigation, route }: Props) {
   const displayPlayer1 = originalPlayer1 || player1;
   const displayPlayer2 = originalPlayer2 || player2;
 
+  // Sound effects
+  const { playButtonClick } = useGameSounds();
+
   const handleWinnerSelect = (winner: string) => {
     if (selectedWinner) return; // Prevent selection if already selected
     
+    playButtonClick(); // Play sound when winner is selected
     setSelectedWinner(winner);
     
     // Calculate new scores
