@@ -76,58 +76,63 @@
   - [x] 3.9 Build GameConclusion screen with winner celebration and punishment display
   - [x] 3.10 Add sound effects for countdown, round end, and game completion
   - [x] 3.11 Create game logic service for managing 1v1 flow state
-  - [ ] 3.12 Write comprehensive unit tests for all 1v1 components and logic
 
-- [ ] 4.0 2v2 Game Mode Implementation
-  - [ ] 4.1 Create TeamSelection screen for forming teams
-  - [ ] 4.2 Adapt ItemGathering for team-based item confirmation
-  - [ ] 4.3 Modify game selection to filter for team-compatible games
-  - [ ] 4.4 Update Gameplay screen for team turn indicators
-  - [ ] 4.5 Adapt Scoring screen for team-based scoring
-  - [ ] 4.6 Implement team-based GameConclusion with team celebration
-  - [ ] 4.7 Create team game logic service
-  - [ ] 4.8 Write unit tests for 2v2 components and logic
+- [ ] 4.0 Supabase Integration for 1v1 Flow
+  - [x] 4.1 Set up Supabase project and configure database schema for 1v1 games
+  - [x] 4.2 Create database tables for games, users, players, and 1v1 game sessions
+  - [x] 4.3 Create API service layer for Supabase integration
+  - [x] 4.4 Replace mock game data with Supabase queries for 1v1 flow
+  - [ ] 4.5 Integrate game logic service with Supabase backend
+  - [ ] 4.6 Implement game session persistence and retrieval
+  - [ ] 4.7 Add match history tracking and statistics for 1v1
+  - [ ] 4.8 Set up Row Level Security (RLS) policies for 1v1 data
+  - [ ] 4.9 Update 1v1 components to use real backend data
+  - [ ] 4.10 Add offline mode support with sync capabilities
+  - [ ] 4.11 Write integration tests for 1v1 backend connectivity
 
-- [ ] 5.0 Co-Op Game Mode Implementation
-  - [ ] 5.1 Create PlayerSetup screen for co-op participant selection
-  - [ ] 5.2 Implement cooperative ItemGathering with shared item pool
-  - [ ] 5.3 Filter game selection for cooperative-compatible games
-  - [ ] 5.4 Build cooperative Gameplay screen with shared objectives
-  - [ ] 5.5 Create cooperative Scoring screen with team achievement tracking
-  - [ ] 5.6 Implement cooperative GameConclusion with shared celebration
-  - [ ] 5.7 Create cooperative game logic service
-  - [ ] 5.8 Write unit tests for Co-Op components and logic
+- [ ] 5.0 2v2 Game Mode Implementation
+  - [ ] 5.1 Create TeamSelection screen for forming teams
+  - [ ] 5.2 Adapt ItemGathering for team-based item confirmation
+  - [ ] 5.3 Modify game selection to filter for team-compatible games
+  - [ ] 5.4 Update Gameplay screen for team turn indicators
+  - [ ] 5.5 Adapt Scoring screen for team-based scoring
+  - [ ] 5.6 Implement team-based GameConclusion with team celebration
+  - [ ] 5.7 Create team game logic service
+  - [ ] 5.8 Extend Supabase integration for 2v2 game mode
+  - [ ] 5.9 Write unit tests for 2v2 components and logic
 
-- [ ] 6.0 Tournament Game Mode Implementation
-  - [ ] 6.1 Create TournamentSetup screen for bracket configuration
-  - [ ] 6.2 Implement bracket visualization component
-  - [ ] 6.3 Build tournament progression logic and bracket updates
-  - [ ] 6.4 Integrate existing game flows into tournament structure
-  - [ ] 6.5 Create tournament management screens for hosts
-  - [ ] 6.6 Implement tournament conclusion with final winner celebration
-  - [ ] 6.7 Create tournament logic service
-  - [ ] 6.8 Write unit tests for Tournament components and logic
+- [ ] 6.0 Co-Op Game Mode Implementation
+  - [ ] 6.1 Create PlayerSetup screen for co-op participant selection
+  - [ ] 6.2 Implement cooperative ItemGathering with shared item pool
+  - [ ] 6.3 Filter game selection for cooperative-compatible games
+  - [ ] 6.4 Build cooperative Gameplay screen with shared objectives
+  - [ ] 6.5 Create cooperative Scoring screen with team achievement tracking
+  - [ ] 6.6 Implement cooperative GameConclusion with shared celebration
+  - [ ] 6.7 Create cooperative game logic service
+  - [ ] 6.8 Extend Supabase integration for Co-Op game mode
+  - [ ] 6.9 Write unit tests for Co-Op components and logic
 
-- [ ] 7.0 Game Library & Filtering System
-  - [ ] 7.1 Create GameLibrary screen with grid/list view of all games
-  - [ ] 7.2 Implement filtering by category (Creative, Physical, Foodie)
-  - [ ] 7.3 Add filtering by theme (Christmas, Halloween, etc.)
-  - [ ] 7.4 Create filtering by available household items
-  - [ ] 7.5 Build individual GameDetail screen with instructions and video
-  - [ ] 7.6 Implement search functionality for finding specific games
-  - [ ] 7.7 Add game favoriting and recently played tracking
-  - [ ] 7.8 Create game service for library management
-  - [ ] 7.9 Write unit tests for GameLibrary components and services
+- [ ] 7.0 Tournament Game Mode Implementation
+  - [ ] 7.1 Create TournamentSetup screen for bracket configuration
+  - [ ] 7.2 Implement bracket visualization component
+  - [ ] 7.3 Build tournament progression logic and bracket updates
+  - [ ] 7.4 Integrate existing game flows into tournament structure
+  - [ ] 7.5 Create tournament management screens for hosts
+  - [ ] 7.6 Implement tournament conclusion with final winner celebration
+  - [ ] 7.7 Create tournament logic service
+  - [ ] 7.8 Extend Supabase integration for Tournament game mode
+  - [ ] 7.9 Write unit tests for Tournament components and logic
 
-- [ ] 8.0 Supabase Backend Integration
-  - [ ] 8.1 Set up Supabase project and configure database schema
-  - [ ] 8.2 Create database tables for games, users, and game sessions
-  - [ ] 8.3 Replace mock game data with Supabase queries
-  - [ ] 8.4 Implement real-time game session synchronization for remote play
-  - [ ] 8.5 Set up Row Level Security (RLS) policies
-  - [ ] 8.6 Create API service layer for Supabase integration
-  - [ ] 8.7 Update all components to use real backend data
-  - [ ] 8.8 Write integration tests for backend connectivity
+- [ ] 8.0 Game Library & Filtering System
+  - [ ] 8.1 Create GameLibrary screen with grid/list view of all games
+  - [ ] 8.2 Implement filtering by category (Creative, Physical, Foodie)
+  - [ ] 8.3 Add filtering by theme (Christmas, Halloween, etc.)
+  - [ ] 8.4 Create filtering by available household items
+  - [ ] 8.5 Build individual GameDetail screen with instructions and video
+  - [ ] 8.6 Implement search functionality for finding specific games
+  - [ ] 8.7 Add game favoriting and recently played tracking
+  - [ ] 8.8 Create game service for library management
+  - [ ] 8.9 Write unit tests for GameLibrary components and services
 
 - [ ] 9.0 Authentication System (Google Auth, Apple Auth)
   - [ ] 9.1 Configure Supabase Auth with Google and Apple providers
@@ -147,3 +152,11 @@
   - [ ] 10.6 Create purchase confirmation and receipt management
   - [ ] 10.7 Add premium status indicators throughout the app
   - [ ] 10.8 Write unit tests for monetization features
+
+- [ ] 11.0 Comprehensive Testing & Quality Assurance
+  - [ ] 11.1 Write unit tests for all 1v1 components and logic
+  - [ ] 11.2 Write unit tests for game logic service and Supabase integration
+  - [ ] 11.3 Create end-to-end tests for complete 1v1 game flows
+  - [ ] 11.4 Add performance testing for game state management
+  - [ ] 11.5 Implement accessibility testing and improvements
+  - [ ] 11.6 Create automated testing pipeline for CI/CD

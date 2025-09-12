@@ -77,10 +77,10 @@ export const useGameLogic = () => {
     }
   }, []);
 
-  const selectGames = useCallback(() => {
+  const selectGames = useCallback(async () => {
     try {
       setError(null);
-      return gameLogicService.selectGames();
+      return await gameLogicService.selectGames();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to select games');
       return [];
@@ -88,20 +88,20 @@ export const useGameLogic = () => {
   }, []);
 
   // Round management
-  const completeRound = useCallback((winnerId: string) => {
+  const completeRound = useCallback(async (winnerId: string) => {
     try {
       setError(null);
-      gameLogicService.completeRound(winnerId);
+      await gameLogicService.completeRound(winnerId);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to complete round');
     }
   }, []);
 
   // Handicap system
-  const applyHandicap = useCallback((playerId: string, gameId: string) => {
+  const applyHandicap = useCallback(async (playerId: string, gameId: string) => {
     try {
       setError(null);
-      return gameLogicService.applyHandicap(playerId, gameId);
+      return await gameLogicService.applyHandicap(playerId, gameId);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to apply handicap');
       return null;

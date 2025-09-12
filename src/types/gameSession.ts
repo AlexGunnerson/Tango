@@ -101,18 +101,18 @@ export interface GameLogicService {
   // Game flow
   setPunishment(punishment: string): void;
   setAvailableItems(items: string[]): void;
-  selectGames(): string[]; // Select 5 random games based on available items
+  selectGames(): Promise<string[]>; // Select 5 random games based on available items
   getCurrentGame(): string | null;
   getNextGameInstructions(): string; // Returns screen name for next game instructions
   
   // Round management
-  completeRound(winnerId: string): void;
+  completeRound(winnerId: string): Promise<void>;
   isGameComplete(): boolean;
   getWinner(): GamePlayer | null;
   
   // Handicap system
   checkHandicapCondition(): boolean;
-  applyHandicap(playerId: string, gameId: string): PlayerHandicap;
+  applyHandicap(playerId: string, gameId: string): Promise<PlayerHandicap>;
   getPlayerHandicap(playerId: string): PlayerHandicap | null;
   
   // Navigation helpers

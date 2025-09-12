@@ -9,7 +9,8 @@ import {
   GameSessionEventType,
   GameLogicService 
 } from '../types/gameSession';
-import { getRandomGames, getGameById } from '../data/games';
+import { supabaseService, GameFilters } from './supabaseService';
+import { Game } from '../types/game';
 
 class GameLogicServiceImpl implements GameLogicService {
   private currentSession: GameSessionState | null = null;
@@ -144,24 +145,32 @@ class GameLogicServiceImpl implements GameLogicService {
     this.notifySubscribers();
   }
 
-  selectGames(): string[] {
+  async selectGames(): Promise<string[]> {
     if (!this.currentSession) {
       throw new Error('No active session. Create a session first.');
     }
 
-    // Select 5 random games based on available items and 1v1 compatibility
-    const selectedGames = getRandomGames(5, {
-      maxPlayers: 2,
-      minPlayers: 2,
-      availableItems: this.currentSession.availableItems,
-      isPremium: false // For now, only use free games
-    });
+    try {
+      // Select 5 random games based on available items and 1v1 compatibility
+      const filters: GameFilters = {
+        maxPlayers: 2,
+        minPlayers: 2,
+        availableItems: this.currentSession.availableItems,
+        isPremium: false // For now, only use free games
+      };
 
-    this.currentSession.selectedGames = selectedGames.map(game => game.id);
-    this.currentSession.status = GameSessionStatus.GAME_INSTRUCTIONS;
+      const selectedGames = await supabaseService.getRandomGames(5, filters);
 
-    this.notifySubscribers();
-    return this.currentSession.selectedGames;
+      this.currentSession.selectedGames = selectedGames.map(game => game.id);
+      this.currentSession.status = GameSessionStatus.GAME_INSTRUCTIONS;
+
+      this.notifySubscribers();
+      return this.currentSession.selectedGames;
+    } catch (error) {
+      console.error('Error selecting games from Supabase:', error);
+      // Fallback: return empty array or throw error based on requirements
+      throw new Error('Failed to select games. Please check your connection.');
+    }
   }
 
   getCurrentGame(): string | null {
@@ -188,7 +197,7 @@ class GameLogicServiceImpl implements GameLogicService {
   }
 
   // Round management
-  completeRound(winnerId: string): void {
+  async completeRound(winnerId: string): Promise<void> {
     if (!this.currentSession) {
       throw new Error('No active session. Create a session first.');
     }
@@ -201,7 +210,16 @@ class GameLogicServiceImpl implements GameLogicService {
 
     // Record the win
     const currentGameId = this.getCurrentGame();
-    const currentGame = currentGameId ? getGameById(currentGameId) : null;
+    let currentGame: Game | null = null;
+    
+    try {
+      if (currentGameId) {
+        currentGame = await supabaseService.getGameById(currentGameId);
+      }
+    } catch (error) {
+      console.error('Error fetching game details:', error);
+      // Continue with null game - we'll use a fallback title
+    }
     
     const roundResult: GameRoundResult = {
       gameId: currentGameId || '',
@@ -275,13 +293,20 @@ class GameLogicServiceImpl implements GameLogicService {
     return scoreDifference >= 2;
   }
 
-  applyHandicap(playerId: string, gameId: string): PlayerHandicap {
+  async applyHandicap(playerId: string, gameId: string): Promise<PlayerHandicap> {
     if (!this.currentSession) {
       throw new Error('No active session. Create a session first.');
     }
 
     const player = playerId === 'player1' ? this.currentSession.player1 : this.currentSession.player2;
-    const game = getGameById(gameId);
+    
+    let game: Game | null = null;
+    try {
+      game = await supabaseService.getGameById(gameId);
+    } catch (error) {
+      console.error('Error fetching game for handicap:', error);
+      // Continue without game details
+    }
     
     // For now, implement a simple time reduction handicap
     const handicap: PlayerHandicap = {
