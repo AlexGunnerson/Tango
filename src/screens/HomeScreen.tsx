@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable, TextInput } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../navigation/types';
+import { useGameLogic } from '../hooks/useGameLogic';
 
 type Props = RootStackScreenProps<'Home'>;
 
@@ -12,12 +13,17 @@ export default function HomeScreen({ navigation }: Props) {
   const [isTextInputFocused, setIsTextInputFocused] = useState(false);
   const textInputRef = useRef<TextInput>(null);
 
+  // Game logic service
+  const { createSession, resetSession, setPlayers, setPunishment, setAvailableItems } = useGameLogic();
+
   // Reset player name when returning to home screen
   useFocusEffect(
     React.useCallback(() => {
       setPlayer2Name('');
       setIsTextInputFocused(false);
-    }, [])
+      // Reset any existing game session when returning to home
+      resetSession();
+    }, [resetSession])
   );
 
   const handleModalClose = () => {
@@ -30,6 +36,49 @@ export default function HomeScreen({ navigation }: Props) {
     setIsPunishmentCardVisible(false);
     setPlayer2Name('');
     setIsTextInputFocused(false);
+  };
+
+  const startGameWithPunishment = (punishment: string | undefined) => {
+    // Create new game session
+    const session = createSession('1v1');
+    if (!session) {
+      console.error('Failed to create game session');
+      return;
+    }
+
+    // Set up the game state
+    const player1Name = 'Alex'; // TODO: Get from user profile when auth is implemented
+    const player2DisplayName = player2Name || 'Player 2';
+    
+    setPlayers(player1Name, player2DisplayName);
+    
+    if (punishment) {
+      setPunishment(punishment);
+    }
+
+    // Set default available items (this would normally come from ItemGathering screen)
+    const defaultItems = ['Spatula', 'Paper Plate', 'Marshmallows'];
+    setAvailableItems(defaultItems);
+
+    // Close modals
+    setIsPunishmentCardVisible(false);
+    setIsOneVOneCardVisible(false);
+
+    // Navigate to first game instructions
+    navigation.navigate('GameInstructionsScreen1', {
+      player1: player1Name,
+      player2: player2DisplayName,
+      punishment: punishment,
+      availableItems: [
+        { id: 1, name: 'Spatula', selected: true },
+        { id: 2, name: 'Paper Plate', selected: true },
+        { id: 3, name: 'Marshmallows', selected: true }
+      ],
+      originalPlayer1: player1Name,
+      originalPlayer2: player2DisplayName,
+      player1Score: 0,
+      player2Score: 0
+    });
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -245,24 +294,7 @@ export default function HomeScreen({ navigation }: Props) {
             
             <TouchableOpacity 
               style={styles.punishmentOption}
-              onPress={() => {
-                setIsPunishmentCardVisible(false);
-                setIsOneVOneCardVisible(false);
-                navigation.navigate('GameInstructionsScreen1', {
-                  player1: 'Alex',
-                  player2: player2Name || 'Player 2',
-                  punishment: 'The Human Butler',
-                  availableItems: [
-                    { id: 1, name: 'Spatula', selected: true },
-                    { id: 2, name: 'Paper Plate', selected: true },
-                    { id: 3, name: 'Marshmallows', selected: true }
-                  ],
-                  originalPlayer1: 'Alex',
-                  originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 0,
-                  player2Score: 0
-                });
-              }}
+              onPress={() => startGameWithPunishment('The Human Butler')}
             >
               <Text style={styles.punishmentName1}>The Human Butler</Text>
               <Text style={styles.punishmentDescription}>The loser must receive a snack or drink of the winner's choice.</Text>
@@ -270,24 +302,7 @@ export default function HomeScreen({ navigation }: Props) {
             
             <TouchableOpacity 
               style={styles.punishmentOption}
-              onPress={() => {
-                setIsPunishmentCardVisible(false);
-                setIsOneVOneCardVisible(false);
-                navigation.navigate('GameInstructionsScreen1', {
-                  player1: 'Alex',
-                  player2: player2Name || 'Player 2',
-                  punishment: 'The Dramatic Defeat',
-                  availableItems: [
-                    { id: 1, name: 'Spatula', selected: true },
-                    { id: 2, name: 'Paper Plate', selected: true },
-                    { id: 3, name: 'Marshmallows', selected: true }
-                  ],
-                  originalPlayer1: 'Alex',
-                  originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 0,
-                  player2Score: 0
-                });
-              }}
+              onPress={() => startGameWithPunishment('The Dramatic Defeat')}
             >
               <Text style={styles.punishmentName2}>The Dramatic Defeat</Text>
               <Text style={styles.punishmentDescription}>The loser must lie on the floor dramatically with their tongue out for 30 seconds.</Text>
@@ -295,24 +310,7 @@ export default function HomeScreen({ navigation }: Props) {
             
             <TouchableOpacity 
               style={styles.punishmentOption}
-              onPress={() => {
-                setIsPunishmentCardVisible(false);
-                setIsOneVOneCardVisible(false);
-                navigation.navigate('GameInstructionsScreen1', {
-                  player1: 'Alex',
-                  player2: player2Name || 'Player 2',
-                  punishment: 'Concession Speech',
-                  availableItems: [
-                    { id: 1, name: 'Spatula', selected: true },
-                    { id: 2, name: 'Paper Plate', selected: true },
-                    { id: 3, name: 'Marshmallows', selected: true }
-                  ],
-                  originalPlayer1: 'Alex',
-                  originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 0,
-                  player2Score: 0
-                });
-              }}
+              onPress={() => startGameWithPunishment('Concession Speech')}
             >
               <Text style={styles.punishmentName3}>Concession Speech</Text>
               <Text style={styles.punishmentDescription}>The loser must deliver a pre-written speech praising the winner's skills and declaring their defeat.</Text>
@@ -320,24 +318,7 @@ export default function HomeScreen({ navigation }: Props) {
             
             <TouchableOpacity 
               style={styles.punishmentOptionShort}
-              onPress={() => {
-                setIsPunishmentCardVisible(false);
-                setIsOneVOneCardVisible(false);
-                navigation.navigate('GameInstructionsScreen1', {
-                  player1: 'Alex',
-                  player2: player2Name || 'Player 2',
-                  punishment: undefined,
-                  availableItems: [
-                    { id: 1, name: 'Spatula', selected: true },
-                    { id: 2, name: 'Paper Plate', selected: true },
-                    { id: 3, name: 'Marshmallows', selected: true }
-                  ],
-                  originalPlayer1: 'Alex',
-                  originalPlayer2: player2Name || 'Player 2',
-                  player1Score: 0,
-                  player2Score: 0
-                });
-              }}
+              onPress={() => startGameWithPunishment(undefined)}
             >
               <Text style={styles.punishmentNameNone}>No Punishment</Text>
             </TouchableOpacity>

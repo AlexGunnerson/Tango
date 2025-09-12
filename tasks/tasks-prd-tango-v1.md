@@ -75,7 +75,7 @@
   - [x] 3.8 Implement handicap system for players with 2-game lead
   - [x] 3.9 Build GameConclusion screen with winner celebration and punishment display
   - [x] 3.10 Add sound effects for countdown, round end, and game completion
-  - [ ] 3.11 Create game logic service for managing 1v1 flow state
+  - [x] 3.11 Create game logic service for managing 1v1 flow state
   - [ ] 3.12 Write comprehensive unit tests for all 1v1 components and logic
 
 - [ ] 4.0 2v2 Game Mode Implementation
