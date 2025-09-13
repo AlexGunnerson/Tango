@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity, Text, Modal, View, Pressable, StyleSheet } from 'react-native';
 import { RootStackParamList } from './types';
-import DevNavigator from '../components/DevNavigator';
+// import DevNavigator from '../components/DevNavigator';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -94,24 +94,13 @@ const createHomeButton = (navigation: any, showModal: () => void) => () => (
 
 export default function RootNavigator() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<string>('Home');
   const navigationRef = useRef<any>(null);
   
   const showMenu = () => setIsMenuVisible(true);
   const hideMenu = () => setIsMenuVisible(false);
   
-  // Track current screen for dev navigator
-  const onStateChange = (state: any) => {
-    if (state) {
-      const routeName = state.routes[state.index]?.name;
-      if (routeName) {
-        setCurrentScreen(routeName);
-      }
-    }
-  };
-  
   return (
-    <NavigationContainer ref={navigationRef} onStateChange={onStateChange}>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
@@ -393,8 +382,8 @@ export default function RootNavigator() {
         navigation={navigationRef.current}
       />
       
-      {/* Development Navigator - Only shows in development */}
-      <DevNavigator currentScreen={currentScreen} />
+      {/* Development Navigator - Disabled */}
+      {/* <DevNavigator currentScreen={currentScreen} /> */}
     </NavigationContainer>
   );
 }

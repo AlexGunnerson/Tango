@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image, Modal } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameSounds } from '../../hooks/useGameSounds';
 
 type Props = RootStackScreenProps<'GameplayScreenGame3Player2'>;
 
@@ -13,32 +14,41 @@ export default function GameplayScreenGame3Player2({ navigation, route }: Props)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Sound effects
+  const { playFiveSecondCountdown, playGameStart, playTimeUp, soundsLoaded } = useGameSounds();
+
   // Countdown logic - runs first when screen loads
   useEffect(() => {
-    if (showCountdown && countdownValue > 0) {
+    if (soundsLoaded && showCountdown) {
+      // Play countdown sound and start visual countdown
+      playFiveSecondCountdown();
+      
       countdownRef.current = setInterval(() => {
         setCountdownValue((prevCount) => {
+          console.log('Countdown tick:', prevCount);
           if (prevCount <= 1) {
+            // Clear the interval first to stop the countdown
+            if (countdownRef.current) {
+              clearInterval(countdownRef.current);
+              countdownRef.current = null;
+            }
             setShowCountdown(false);
             setIsPlaying(true); // Auto-start the timer after countdown
+            playGameStart(); // Play game start sound once
             return 0;
           }
           return prevCount - 1;
         });
       }, 1000);
-    } else {
-      if (countdownRef.current) {
-        clearInterval(countdownRef.current);
-        countdownRef.current = null;
-      }
     }
 
     return () => {
       if (countdownRef.current) {
         clearInterval(countdownRef.current);
+        countdownRef.current = null;
       }
     };
-  }, [showCountdown, countdownValue]);
+  }, [soundsLoaded]); // Only depend on soundsLoaded, not countdownValue
 
   // Timer logic
   useEffect(() => {
@@ -69,6 +79,9 @@ export default function GameplayScreenGame3Player2({ navigation, route }: Props)
   // Navigation logic when timer ends
   useEffect(() => {
     if (timeLeft === 0 && !isPlaying) {
+      // Play time up sound
+      playTimeUp();
+      
       // Player 2 finished, both players have played, navigate to winner selection (Scoring screen)
       setTimeout(() => {
         navigation.navigate('Scoring', {

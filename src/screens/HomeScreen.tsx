@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../navigation/types';
 import { useGameLogic } from '../hooks/useGameLogic';
@@ -82,12 +82,12 @@ export default function HomeScreen({ navigation }: Props) {
   };
   return (
     <SafeAreaView style={styles.container}>
-      {/* DEV: Screen Name Indicator */}
-      {__DEV__ && (
+      {/* DEV: Screen Name Indicator - Disabled */}
+      {/* {__DEV__ && (
         <View style={styles.devScreenIndicator}>
           <Text style={styles.devScreenText}>HomeScreen</Text>
         </View>
-      )}
+      )} */}
       {/* Menu Icon */}
       <Image 
         source={require('../../assets/menu-red.png')} 
@@ -200,8 +200,13 @@ export default function HomeScreen({ navigation }: Props) {
         animationType="fade"
         onRequestClose={handleModalClose}
       >
-        <Pressable style={styles.modalBackdrop} onPress={handleModalClose}>
-          <Pressable style={styles.cardContainer} onPress={(e) => e.stopPropagation()}>
+        <KeyboardAvoidingView 
+          style={styles.keyboardAvoidingView}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <Pressable style={styles.modalBackdrop} onPress={handleModalClose}>
+            <Pressable style={styles.cardContainer} onPress={(e) => e.stopPropagation()}>
             <TouchableOpacity style={styles.cardCloseButton} onPress={handleModalClose}>
               <Text style={styles.cardCloseText}>×</Text>
             </TouchableOpacity>
@@ -245,8 +250,15 @@ export default function HomeScreen({ navigation }: Props) {
                   autoFocus={false}
                   selectionColor="#F66D3D"
                   cursorColor="#F66D3D"
+                  returnKeyType="done"
+                  returnKeyLabel="Done"
+                  enablesReturnKeyAutomatically={true}
+                  blurOnSubmit={true}
                   onFocus={() => setIsTextInputFocused(true)}
                   onBlur={() => setIsTextInputFocused(false)}
+                  onSubmitEditing={() => {
+                    textInputRef.current?.blur();
+                  }}
                 />
               </View>
             </View>
@@ -264,8 +276,9 @@ export default function HomeScreen({ navigation }: Props) {
 
             {/* Connect Account Text */}
             <Text style={styles.connectAccountText}>Connect to Player 2's Account</Text>
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Punishment Selection Modal */}
@@ -477,6 +490,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     fontFamily: 'Nunito',
+  },
+  keyboardAvoidingView: {
+    flex: 1,
   },
   modalBackdrop: {
     flex: 1,
