@@ -10,12 +10,15 @@ import {
   GameLogicService 
 } from '../types/gameSession';
 import { supabaseService, GameFilters } from './supabaseService';
+import { networkService } from './networkService';
+import { offlineStorageService, OfflineGameSession } from './offlineStorageService';
 import { Game } from '../types/game';
 
 class GameLogicServiceImpl implements GameLogicService {
   private currentSession: GameSessionState | null = null;
   private subscribers: ((state: GameSessionState) => void)[] = [];
   private eventHistory: GameSessionEvent[] = [];
+  private supabaseSessionId: string | null = null;
 
   // Session management
   createSession(gameMode: '1v1' | '2v2' | 'coop' | 'tournament'): GameSessionState {
@@ -64,12 +67,13 @@ class GameLogicServiceImpl implements GameLogicService {
 
   resetSession(): void {
     this.currentSession = null;
+    this.supabaseSessionId = null;
     this.eventHistory = [];
     this.notifySubscribers();
   }
 
   // Player management
-  setPlayers(player1Name: string, player2Name: string): void {
+  async setPlayers(player1Name: string, player2Name: string): Promise<void> {
     if (!this.currentSession) {
       throw new Error('No active session. Create a session first.');
     }
@@ -79,6 +83,34 @@ class GameLogicServiceImpl implements GameLogicService {
     this.currentSession.player2.name = player2Name;
     this.currentSession.player2.originalName = player2Name;
     this.currentSession.status = GameSessionStatus.PLAYER_SELECTION;
+
+    // Create players in Supabase if online
+    if (networkService.isOnline()) {
+      try {
+        console.log('🌐 Creating players in Supabase...');
+        const player1 = await supabaseService.createPlayer({ name: player1Name });
+        const player2 = await supabaseService.createPlayer({ name: player2Name });
+        
+        this.currentSession.player1.id = player1.id;
+        this.currentSession.player2.id = player2.id;
+        
+        console.log('✅ Players created in Supabase:', player1.id, player2.id);
+      } catch (error) {
+        console.error('❌ Failed to create players in Supabase:', error);
+        // Generate UUID fallbacks so game session creation doesn't fail
+        this.currentSession.player1.id = `player1_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        this.currentSession.player2.id = `player2_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        console.log('🔄 Using fallback player IDs:', this.currentSession.player1.id, this.currentSession.player2.id);
+      }
+    } else {
+      console.log('📱 Offline: Players will be synced later');
+      // Generate UUID fallbacks for offline mode
+      this.currentSession.player1.id = `player1_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      this.currentSession.player2.id = `player2_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Queue for sync when online
+      await this.queueSyncOperation('CREATE_PLAYER', { name: player1Name });
+      await this.queueSyncOperation('CREATE_PLAYER', { name: player2Name });
+    }
 
     this.emit({
       type: GameSessionEventType.PLAYER_ADDED,
@@ -151,25 +183,66 @@ class GameLogicServiceImpl implements GameLogicService {
     }
 
     try {
-      // Select 5 random games based on available items and 1v1 compatibility
-      const filters: GameFilters = {
-        maxPlayers: 2,
-        minPlayers: 2,
-        availableItems: this.currentSession.availableItems,
-        isPremium: false // For now, only use free games
-      };
+      let selectedGames: Game[] = [];
 
-      const selectedGames = await supabaseService.getRandomGames(5, filters);
+      if (networkService.isOnline()) {
+        // Online: Use Supabase
+        console.log('🌐 Online: Selecting games from Supabase');
+        const filters: GameFilters = {
+          maxPlayers: 2,
+          minPlayers: 2,
+          availableItems: this.currentSession.availableItems,
+          isPremium: false // For now, only use free games
+        };
+
+        selectedGames = await supabaseService.getRandomGames(5, filters);
+
+        // Create Supabase session if not exists
+        if (!this.supabaseSessionId) {
+          await this.createSupabaseSession();
+        }
+      } else {
+        // Offline: Use cached games
+        console.log('📱 Offline: Selecting games from cache');
+        const cachedGames = await offlineStorageService.getCachedGames();
+        
+        if (cachedGames.length === 0) {
+          throw new Error('No cached games available for offline play. Please connect to internet first.');
+        }
+
+        // Filter cached games based on criteria
+        const filteredGames = cachedGames.filter(game => 
+          game.maxPlayers >= 2 && 
+          game.minPlayers <= 2 &&
+          !game.isPremium
+        );
+
+        if (filteredGames.length === 0) {
+          throw new Error('No suitable cached games found for 1v1 play.');
+        }
+
+        // Randomly select 5 games (or all if less than 5)
+        const numGames = Math.min(5, filteredGames.length);
+        selectedGames = [];
+        const availableGames = [...filteredGames];
+        
+        for (let i = 0; i < numGames; i++) {
+          const randomIndex = Math.floor(Math.random() * availableGames.length);
+          selectedGames.push(availableGames.splice(randomIndex, 1)[0]);
+        }
+      }
 
       this.currentSession.selectedGames = selectedGames.map(game => game.id);
       this.currentSession.status = GameSessionStatus.GAME_INSTRUCTIONS;
 
+      // Save session offline
+      await this.saveSessionOffline();
+
       this.notifySubscribers();
       return this.currentSession.selectedGames;
     } catch (error) {
-      console.error('Error selecting games from Supabase:', error);
-      // Fallback: return empty array or throw error based on requirements
-      throw new Error('Failed to select games. Please check your connection.');
+      console.error('Error selecting games:', error);
+      throw new Error(`Failed to select games: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -263,6 +336,48 @@ class GameLogicServiceImpl implements GameLogicService {
       });
     } else {
       this.currentSession.status = GameSessionStatus.GAME_INSTRUCTIONS;
+    }
+
+    // Save session offline
+    await this.saveSessionOffline();
+
+    // Update Supabase session if online
+    if (networkService.isOnline() && this.supabaseSessionId) {
+      try {
+        console.log('🌐 Updating game session in Supabase...');
+        await supabaseService.updateGameSession(this.supabaseSessionId, {
+          player1_score: this.currentSession.player1.score,
+          player2_score: this.currentSession.player2.score,
+          current_round: this.currentSession.currentRound,
+          status: this.currentSession.status === GameSessionStatus.GAME_COMPLETE ? 'completed' : 'active',
+          winner_id: this.isGameComplete() ? this.getWinner()?.id : undefined,
+          completed_at: this.currentSession.completedAt?.toISOString(),
+        });
+        
+        // Create match history if game is complete
+        if (this.isGameComplete()) {
+          console.log('🌐 Creating match history in Supabase...');
+          await supabaseService.createMatchHistory(this.supabaseSessionId);
+        }
+        
+        console.log('✅ Game session updated in Supabase');
+      } catch (error) {
+        console.error('❌ Failed to update game session in Supabase:', error);
+        // Continue with local session even if Supabase fails
+      }
+    } else if (!networkService.isOnline()) {
+      // Queue sync operation if offline
+      await this.queueSyncOperation('UPDATE_SESSION', {
+        id: this.currentSession.sessionId,
+        updates: {
+          player1_score: this.currentSession.player1.score,
+          player2_score: this.currentSession.player2.score,
+          current_round: this.currentSession.currentRound,
+          status: this.currentSession.status,
+          winner_id: this.isGameComplete() ? this.getWinner()?.id : null,
+          completed_at: this.currentSession.completedAt?.toISOString(),
+        }
+      });
     }
 
     this.notifySubscribers();
@@ -386,6 +501,73 @@ class GameLogicServiceImpl implements GameLogicService {
   }
 
   // Private helper methods
+  private async createSupabaseSession(): Promise<void> {
+    if (!this.currentSession) {
+      throw new Error('No active session');
+    }
+
+    try {
+      console.log('🌐 Creating game session in Supabase...');
+      
+      const sessionData = {
+        player1_id: this.currentSession.player1.id,
+        player2_id: this.currentSession.player2.id,
+        punishment_id: undefined, // TODO: Convert punishment name to ID when needed
+        available_items: this.currentSession.availableItems,
+        selected_games: this.currentSession.selectedGames,
+      };
+
+      const session = await supabaseService.createGameSession(sessionData);
+      this.supabaseSessionId = session.id;
+      
+      console.log('✅ Game session created in Supabase:', session.id);
+    } catch (error) {
+      console.error('❌ Failed to create game session in Supabase:', error);
+      throw error;
+    }
+  }
+
+  // Offline session management
+  private async saveSessionOffline(): Promise<void> {
+    if (!this.currentSession) return;
+
+    try {
+      const offlineSession: OfflineGameSession = {
+        id: this.currentSession.sessionId,
+        sessionState: { ...this.currentSession },
+        createdAt: this.currentSession.startedAt.toISOString(),
+        updatedAt: new Date().toISOString(),
+        completed: this.currentSession.status === GameSessionStatus.COMPLETED,
+        synced: networkService.isOnline() && !!this.supabaseSessionId,
+      };
+
+      await offlineStorageService.saveOfflineSession(offlineSession);
+      console.log('📱 Session saved offline:', this.currentSession.sessionId);
+    } catch (error) {
+      console.error('Failed to save session offline:', error);
+      // Don't throw error - offline saving is best effort
+    }
+  }
+
+  private async queueSyncOperation(type: string, data: any): Promise<void> {
+    if (networkService.isOnline()) {
+      // If online, no need to queue
+      return;
+    }
+
+    try {
+      await offlineStorageService.addToSyncQueue({
+        type: type as any,
+        data,
+        maxRetries: 3,
+      });
+      console.log('📱 Queued sync operation:', type);
+    } catch (error) {
+      console.error('Failed to queue sync operation:', error);
+      // Don't throw error - sync queuing is best effort
+    }
+  }
+
   private notifySubscribers(): void {
     if (this.currentSession) {
       this.subscribers.forEach(callback => callback(this.currentSession!));

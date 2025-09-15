@@ -49,12 +49,15 @@ export const useGameLogic = () => {
   }, []);
 
   // Player management
-  const setPlayers = useCallback((player1Name: string, player2Name: string) => {
+  const setPlayers = useCallback(async (player1Name: string, player2Name: string) => {
     try {
+      setIsLoading(true);
       setError(null);
-      gameLogicService.setPlayers(player1Name, player2Name);
+      await gameLogicService.setPlayers(player1Name, player2Name);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to set players');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 

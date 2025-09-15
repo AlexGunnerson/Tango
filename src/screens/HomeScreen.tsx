@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, P
 import { useFocusEffect } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../navigation/types';
 import { useGameLogic } from '../hooks/useGameLogic';
+import OfflineIndicator from '../components/OfflineIndicator';
 
 type Props = RootStackScreenProps<'Home'>;
 
@@ -14,7 +15,7 @@ export default function HomeScreen({ navigation }: Props) {
   const textInputRef = useRef<TextInput>(null);
 
   // Game logic service
-  const { createSession, resetSession, setPlayers, setPunishment, setAvailableItems } = useGameLogic();
+  const { createSession, resetSession, setPlayers, setPunishment, setAvailableItems, selectGames } = useGameLogic();
 
   // Reset player name when returning to home screen
   useFocusEffect(
@@ -38,7 +39,7 @@ export default function HomeScreen({ navigation }: Props) {
     setIsTextInputFocused(false);
   };
 
-  const startGameWithPunishment = (punishment: string | undefined) => {
+  const startGameWithPunishment = async (punishment: string | undefined) => {
     // Create new game session
     const session = createSession('1v1');
     if (!session) {
@@ -50,7 +51,7 @@ export default function HomeScreen({ navigation }: Props) {
     const player1Name = 'Alex'; // TODO: Get from user profile when auth is implemented
     const player2DisplayName = player2Name || 'Player 2';
     
-    setPlayers(player1Name, player2DisplayName);
+    await setPlayers(player1Name, player2DisplayName);
     
     if (punishment) {
       setPunishment(punishment);
@@ -59,6 +60,11 @@ export default function HomeScreen({ navigation }: Props) {
     // Set default available items (this would normally come from ItemGathering screen)
     const defaultItems = ['Spatula', 'Paper Plate', 'Marshmallows'];
     setAvailableItems(defaultItems);
+
+    // Select games and create Supabase session
+    console.log('🎮 Selecting games and creating Supabase session...');
+    const selectedGames = await selectGames();
+    console.log('🎮 Selected games:', selectedGames);
 
     // Close modals
     setIsPunishmentCardVisible(false);
@@ -82,6 +88,11 @@ export default function HomeScreen({ navigation }: Props) {
   };
   return (
     <SafeAreaView style={styles.container}>
+      {/* Offline Mode Indicator */}
+      <View style={styles.offlineIndicatorContainer}>
+        <OfflineIndicator />
+      </View>
+      
       {/* DEV: Screen Name Indicator - Disabled */}
       {/* {__DEV__ && (
         <View style={styles.devScreenIndicator}>
@@ -346,6 +357,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+  },
+  offlineIndicatorContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1000,
   },
   content: {
     flex: 1,

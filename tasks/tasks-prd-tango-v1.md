@@ -77,17 +77,17 @@
   - [x] 3.10 Add sound effects for countdown, round end, and game completion
   - [x] 3.11 Create game logic service for managing 1v1 flow state
 
-- [ ] 4.0 Supabase Integration for 1v1 Flow
+- [x] 4.0 Supabase Integration for 1v1 Flow
   - [x] 4.1 Set up Supabase project and configure database schema for 1v1 games
   - [x] 4.2 Create database tables for games, users, players, and 1v1 game sessions
   - [x] 4.3 Create API service layer for Supabase integration
   - [x] 4.4 Replace mock game data with Supabase queries for 1v1 flow
-  - [ ] 4.5 Integrate game logic service with Supabase backend
-  - [ ] 4.6 Implement game session persistence and retrieval
-  - [ ] 4.7 Add match history tracking and statistics for 1v1
-  - [ ] 4.8 Set up Row Level Security (RLS) policies for 1v1 data
-  - [ ] 4.9 Update 1v1 components to use real backend data
-  - [ ] 4.10 Add offline mode support with sync capabilities
+  - [x] 4.5 Integrate game logic service with Supabase backend
+  - [x] 4.6 Implement game session persistence and retrieval
+  - [x] 4.7 Add match history tracking and statistics for 1v1
+  - [x] 4.8 Set up Row Level Security (RLS) policies for 1v1 data
+  - [x] 4.9 Update 1v1 components to use real backend data
+  - [x] 4.10 Add offline mode support with sync capabilities
   - [ ] 4.11 Write integration tests for 1v1 backend connectivity
 
 - [ ] 5.0 2v2 Game Mode Implementation

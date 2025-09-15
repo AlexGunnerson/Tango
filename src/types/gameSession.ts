@@ -94,7 +94,7 @@ export interface GameLogicService {
   resetSession(): void;
   
   // Player management
-  setPlayers(player1Name: string, player2Name: string): void;
+  setPlayers(player1Name: string, player2Name: string): Promise<void>;
   getPlayerScore(playerId: string): number;
   getLeadingPlayer(): GamePlayer | null;
   

@@ -4,3 +4,6 @@ export * from './mediaService';
 export * from './soundService';
 export * from './gameLogicService';
 export * from './supabaseService';
+export * from './networkService';
+export * from './offlineStorageService';
+export * from './syncService';
