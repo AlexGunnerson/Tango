@@ -123,6 +123,11 @@ export interface CreateGameSessionData {
   punishment_id?: string;
   available_items: string[];
   selected_games: string[];
+  current_game_index?: number;
+  current_round?: number;
+  player1_score?: number;
+  player2_score?: number;
+  status?: string;
 }
 
 export interface UpdateGameSessionData {
@@ -480,6 +485,41 @@ class SupabaseService {
   }
 
   // Match History Methods
+  async createMatchHistory(sessionId: string): Promise<DatabaseMatchHistory> {
+    try {
+      // First, get the game session data to create the match history
+      const gameSession = await this.getGameSession(sessionId);
+      if (!gameSession) {
+        throw new Error(`Game session not found: ${sessionId}`);
+      }
+
+      const matchHistoryData = {
+        session_id: sessionId,
+        player1_id: gameSession.player1_id,
+        player2_id: gameSession.player2_id,
+        winner_id: gameSession.winner_id,
+        final_score_p1: gameSession.player1_score,
+        final_score_p2: gameSession.player2_score,
+        total_games_played: gameSession.current_round - 1, // current_round is 1-indexed
+        session_duration: null, // TODO: Calculate duration if needed
+        punishment_completed: false, // TODO: Track punishment completion
+        completed_at: gameSession.completed_at || new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from('match_history')
+        .insert([matchHistoryData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating match history:', error);
+      throw error;
+    }
+  }
+
   async getPlayerMatchHistory(playerId: string, limit: number = 10): Promise<DatabaseMatchHistory[]> {
     try {
       const { data, error } = await supabase

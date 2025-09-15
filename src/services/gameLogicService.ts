@@ -345,11 +345,13 @@ class GameLogicServiceImpl implements GameLogicService {
     if (networkService.isOnline() && this.supabaseSessionId) {
       try {
         console.log('🌐 Updating game session in Supabase...');
+        
         await supabaseService.updateGameSession(this.supabaseSessionId, {
           player1_score: this.currentSession.player1.score,
           player2_score: this.currentSession.player2.score,
+          current_game_index: this.currentSession.currentGameIndex,
           current_round: this.currentSession.currentRound,
-          status: this.currentSession.status === GameSessionStatus.GAME_COMPLETE ? 'completed' : 'active',
+          status: this.currentSession.status === GameSessionStatus.GAME_COMPLETE ? 'game_complete' : 'gameplay',
           winner_id: this.isGameComplete() ? this.getWinner()?.id : undefined,
           completed_at: this.currentSession.completedAt?.toISOString(),
         });
@@ -515,6 +517,11 @@ class GameLogicServiceImpl implements GameLogicService {
         punishment_id: undefined, // TODO: Convert punishment name to ID when needed
         available_items: this.currentSession.availableItems,
         selected_games: this.currentSession.selectedGames,
+        current_game_index: this.currentSession.currentGameIndex,
+        current_round: this.currentSession.currentRound,
+        player1_score: this.currentSession.player1.score,
+        player2_score: this.currentSession.player2.score,
+        status: 'setup',
       };
 
       const session = await supabaseService.createGameSession(sessionData);

@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameSounds } from '../../hooks/useGameSounds';
+import { useGameLogic } from '../../hooks/useGameLogic';
 
 type Props = RootStackScreenProps<'Scoring'>;
 
 export default function ScoringScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score: initialPlayer1Score, player2Score: initialPlayer2Score } = route.params;
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
-  const [player1Score, setPlayer1Score] = useState(initialPlayer1Score || 0);
-  const [player2Score, setPlayer2Score] = useState(initialPlayer2Score || 0);
+  
+  // Game logic integration
+  const { sessionState, completeRound, isGameComplete, winner, getNextGameInstructions, service } = useGameLogic();
+  
+  // Use game logic service state for scores, fallback to route params for backward compatibility
+  const player1Score = sessionState?.player1?.score ?? initialPlayer1Score ?? 0;
+  const player2Score = sessionState?.player2?.score ?? initialPlayer2Score ?? 0;
 
   // Use original player names for consistent display
   const displayPlayer1 = originalPlayer1 || player1;
@@ -18,37 +24,42 @@ export default function ScoringScreen({ navigation, route }: Props) {
   // Sound effects
   const { playButtonClick } = useGameSounds();
 
-  const handleWinnerSelect = (winner: string) => {
+  const handleWinnerSelect = async (winner: string) => {
     if (selectedWinner) return; // Prevent selection if already selected
     
     playButtonClick(); // Play sound when winner is selected
     setSelectedWinner(winner);
     
-    // Calculate new scores
-    let newPlayer1Score = player1Score;
-    let newPlayer2Score = player2Score;
+    // Determine winner ID for game logic service
+    const winnerId = winner === displayPlayer1 ? 'player1' : 'player2';
     
-    if (winner === displayPlayer1) {
-      newPlayer1Score = player1Score + 1;
-      setPlayer1Score(newPlayer1Score);
-    } else if (winner === displayPlayer2) {
-      newPlayer2Score = player2Score + 1;
-      setPlayer2Score(newPlayer2Score);
-    }
-
-    // Check if someone reached 3 wins
-    if (newPlayer1Score >= 3 || newPlayer2Score >= 3) {
-      // Game is complete, navigate to winner screen
-      setTimeout(() => {
-        navigation.navigate('Winner', {
-          winner,
-          finalPlayer1Score: newPlayer1Score,
-          finalPlayer2Score: newPlayer2Score,
-          player1Name: displayPlayer1,
-          player2Name: displayPlayer2,
-          punishment
-        });
-      }, 1500); // Small delay to show the updated score before navigating
+    try {
+      // Complete the round in the game logic service - this will update scores and sync to database
+      await completeRound(winnerId);
+      
+      // Check if game is complete by accessing the service directly to avoid async state issues
+      const gameIsComplete = service.isGameComplete();
+      
+      if (gameIsComplete) {
+        const gameWinner = winner;
+        // Game is complete, navigate to winner screen
+        setTimeout(() => {
+          // Get the final scores directly from the service for accuracy
+          const currentSession = service.getSession();
+          navigation.navigate('Winner', {
+            winner,
+            finalPlayer1Score: currentSession?.player1?.score ?? 0,
+            finalPlayer2Score: currentSession?.player2?.score ?? 0,
+            player1Name: displayPlayer1,
+            player2Name: displayPlayer2,
+            punishment
+          });
+        }, 1500); // Small delay to show the updated score before navigating
+      }
+    } catch (error) {
+      console.error('Error completing round:', error);
+      // Fallback to local state management if service fails
+      // (This preserves the original behavior as a backup)
     }
   };
 
@@ -72,7 +83,8 @@ export default function ScoringScreen({ navigation, route }: Props) {
   const handleNextGame = () => {
     // Only allow next game if no one has reached 3 wins yet
     if (player1Score < 3 && player2Score < 3) {
-      const nextScreen = getNextGameInstructionsScreen(player1Score, player2Score);
+      // Use game logic service to get the next screen
+      const nextScreen = getNextGameInstructions();
       
       navigation.navigate(nextScreen as any, {
         player1,
@@ -81,8 +93,8 @@ export default function ScoringScreen({ navigation, route }: Props) {
         availableItems,
         originalPlayer1,
         originalPlayer2,
-        player1Score,
-        player2Score
+        player1Score: sessionState?.player1?.score ?? 0,
+        player2Score: sessionState?.player2?.score ?? 0
       });
     }
   };

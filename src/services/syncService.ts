@@ -188,15 +188,15 @@ class SyncService {
           const sessionData = {
             player1_id: session.sessionState.player1?.id || '',
             player2_id: session.sessionState.player2?.id || '',
-            punishment_id: session.sessionState.punishment?.id || '',
-            player1_score: session.sessionState.player1Score,
-            player2_score: session.sessionState.player2Score,
-            current_round: session.sessionState.currentRound,
-            status: session.completed ? 'completed' : 'active',
-            winner_id: session.sessionState.winner?.id,
+            punishment_id: undefined, // TODO: Convert punishment string to ID
+            player1_score: session.sessionState.player1?.score || 0,
+            player2_score: session.sessionState.player2?.score || 0,
+            current_game_index: session.sessionState.currentGameIndex || 0,
+            current_round: session.sessionState.currentRound || 1,
+            status: session.completed ? 'game_complete' : 'gameplay',
+            winner_id: undefined, // TODO: Implement winner tracking
             completed_at: session.completed ? session.updatedAt : null,
-            games: session.sessionState.selectedGames,
-            handicaps: session.sessionState.handicaps,
+            selected_games: session.sessionState.selectedGames || [],
           };
 
           // Try to update first, then create if not exists
