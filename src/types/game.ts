@@ -2,19 +2,17 @@ export interface Game {
   id: string;
   title: string;
   description: string;
-  category: GameCategory;
   theme?: GameTheme;
   requiredItems: string[];
   minPlayers: number;
   maxPlayers: number;
-  estimatedDuration: number; // in minutes
-  difficulty: GameDifficulty;
-  instructions: string;
   videoUrl?: string;
   hasTimer: boolean;
   timerDuration?: number; // in seconds
   gameType: GameType;
   isPremium: boolean;
+  timesUpInstruction?: string; // New field for TimesUpScreen
+  playerAction?: string; // New field for TimesUpScreen
   createdAt: string;
   updatedAt: string;
 }
@@ -101,14 +99,6 @@ export interface TournamentMatch {
 }
 
 // Enums
-export enum GameCategory {
-  CREATIVE = 'creative',
-  PHYSICAL = 'physical',
-  FOODIE = 'foodie',
-  MENTAL = 'mental',
-  PARTY = 'party'
-}
-
 export enum GameTheme {
   CHRISTMAS = 'christmas',
   HALLOWEEN = 'halloween',
@@ -118,17 +108,9 @@ export enum GameTheme {
   HOLIDAY = 'holiday'
 }
 
-export enum GameDifficulty {
-  EASY = 'easy',
-  MEDIUM = 'medium',
-  HARD = 'hard'
-}
-
 export enum GameType {
-  COMPETITIVE = 'competitive',
-  COOPERATIVE = 'cooperative',
-  TEAM_VS_TEAM = 'team_vs_team',
-  SOLO = 'solo'
+  SIMULTANEOUS = 'simultaneous',
+  ALTERNATING = 'alternating'
 }
 
 export enum GameMode {

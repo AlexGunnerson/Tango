@@ -1,16 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameLogic } from '../../hooks/useGameLogic';
+import { supabaseService } from '../../services/supabaseService';
+import { Game } from '../../types/game';
 
 type Props = RootStackScreenProps<'TimesUp'>;
 
 export default function TimesUpScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
+  const [gameData, setGameData] = useState<Game | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Get timer duration from game logic service
   const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+
+  // Fetch game data from Supabase
+  useEffect(() => {
+    const fetchGameData = async () => {
+      try {
+        setIsLoading(true);
+        const game = await supabaseService.getGameByTitle(gameTitle || 'The Blind March');
+        console.log('🎮 TimesUpScreen - Game data from Supabase:', game);
+        setGameData(game);
+      } catch (error) {
+        console.error('🎮 TimesUpScreen - Error fetching game data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGameData();
+  }, [gameTitle]);
   
   // Determine current game number based on total games played
   const totalGamesPlayed = (player1Score || 0) + (player2Score || 0);
@@ -31,37 +53,13 @@ export default function TimesUpScreen({ navigation, route }: Props) {
   // Check if the next player (who is about to play) is the one who should get the handicap
   const nextPlayerGetsHandicap = hasHandicap && (nextPlayer === leadingPlayer);
   
-  // Game-specific configuration
+  // Game-specific configuration (fallback values)
   const currentGameTitle = gameTitle || 'The Blind March';
-  const gameConfig = {
-    'The Blind March': {
-      playerAction: 'march',
-      readyAction: 'March',
-      timesUpInstruction: 'Mark the spot',
-      handicapDescription: 'At 45 seconds, {player} must do a full 360 degree turn without changing the speed of marching.'
-    },
-    'Marshmallow Scoop': {
-      playerAction: 'scoop',
-      readyAction: 'Scoop',
-      timesUpInstruction: 'Count your marshmallows',
-      handicapDescription: 'At 15 seconds, {player} must switch to using their non-dominant hand for scooping.'
-    },
-    'Paper Plate Snowman': {
-      playerAction: 'draw',
-      readyAction: 'Draw',
-      timesUpInstruction: 'Show your drawing',
-      handicapDescription: 'At 15 seconds, {player} must switch the paper plate to their non-dominant hand.'
-    },
-    'Tearable Tree': {
-      playerAction: 'tear',
-      readyAction: 'Tear',
-      timesUpInstruction: 'Show your trees',
-      handicapDescription: 'At 15 seconds, {player} must close their eyes while continuing to tear.',
-      isSimultaneous: true
-    }
+  const fallbackConfig = {
+    playerAction: 'march',
+    timesUpInstruction: 'Mark the spot',
+    handicapDescription: 'At 45 seconds, {player} must do a full 360 degree turn without changing the speed of marching.'
   };
-  
-  const config = gameConfig[currentGameTitle as keyof typeof gameConfig] || gameConfig['The Blind March'];
   
   // Get the correct GameplayScreen for Player2 based on current game
   const getGameplayScreenPlayer2 = (gameNumber: number) => {
@@ -92,7 +90,9 @@ export default function TimesUpScreen({ navigation, route }: Props) {
         
         {/* Instructions */}
         <Text style={styles.instructionsText}>
-          {config.timesUpInstruction}. {nextPlayer} get ready to {config.playerAction}!
+          {isLoading ? 'Loading...' : 
+            `${gameData?.timesUpInstruction || fallbackConfig.timesUpInstruction}. ${nextPlayer} get ready to ${gameData?.playerAction || fallbackConfig.playerAction}!`
+          }
         </Text>
         
         {/* Ready Message */}
@@ -150,7 +150,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
             <Text style={styles.handicapTitle}>Handicap for {leadingDisplayPlayer}!</Text>
             
             <Text style={styles.handicapDescription}>
-              {config.handicapDescription.replace('{player}', leadingDisplayPlayer)}
+              {fallbackConfig.handicapDescription.replace('{player}', leadingDisplayPlayer)}
             </Text>
 
             <TouchableOpacity 

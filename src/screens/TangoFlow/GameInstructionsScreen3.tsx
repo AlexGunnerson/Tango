@@ -1,15 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameLogic } from '../../hooks/useGameLogic';
+import { supabaseService } from '../../services/supabaseService';
+import { Game } from '../../types/game';
 
 type Props = RootStackScreenProps<'GameInstructionsScreen3'>;
 
 export default function GameInstructionsScreen3({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  const [gameData, setGameData] = useState<Game | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Get timer duration from game logic service
   const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+
+  // Fetch game data from Supabase
+  useEffect(() => {
+    const fetchGameData = async () => {
+      try {
+        setIsLoading(true);
+        const game = await supabaseService.getGameByTitle('Paper Plate Snowman');
+        console.log('🎮 GameInstructionsScreen3 - Game data from Supabase:', game);
+        setGameData(game);
+      } catch (error) {
+        console.error('🎮 GameInstructionsScreen3 - Error fetching game data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGameData();
+  }, []);
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;
@@ -33,7 +55,9 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>Paper Plate Snowman</Text>
+        <Text style={styles.gameTitle}>
+          {isLoading ? 'Loading...' : (gameData?.title || 'Paper Plate Snowman')}
+        </Text>
         
         {/* How to Play Section */}
         <View style={styles.howToPlaySection}>
@@ -45,7 +69,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-           Hold a paper plate on your head and draw a snowman. Best drawing wins!
+            {isLoading ? 'Loading instructions...' : (gameData?.description || 'Hold a paper plate on your head and draw a snowman. Best drawing wins!')}
           </Text>
         </View>
 

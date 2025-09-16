@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Game, GameCategory, GameDifficulty, GameType } from '../types/game';
+import { Game, GameType } from '../types/game';
 
 // Supabase database types that match our schema
 export interface DatabasePlayer {
@@ -20,20 +20,18 @@ export interface DatabaseGameConfig {
   id: string;
   title: string;
   description: string;
-  category: string;
   theme?: string;
   required_items: string[];
   min_players: number;
   max_players: number;
-  estimated_duration: number;
-  difficulty: string;
-  instructions: string;
   video_url?: string;
   has_timer: boolean;
   timer_duration?: number;
   game_type: string;
   is_premium: boolean;
   is_active: boolean;
+  times_up_instruction?: string;
+  player_action?: string;
   created_at: string;
   updated_at: string;
 }
@@ -101,13 +99,11 @@ export interface DatabaseMatchHistory {
 
 // Filter interfaces
 export interface GameFilters {
-  category?: GameCategory;
   theme?: string;
   maxPlayers?: number;
   minPlayers?: number;
   availableItems?: string[];
   isPremium?: boolean;
-  difficulty?: GameDifficulty;
   gameType?: GameType;
 }
 
@@ -210,23 +206,6 @@ class SupabaseService {
     }
   }
 
-  async getGamesByCategory(category: GameCategory): Promise<Game[]> {
-    try {
-      const { data, error } = await supabase
-        .from('game_configs')
-        .select('*')
-        .eq('category', category)
-        .eq('is_active', true)
-        .order('title');
-
-      if (error) throw error;
-
-      return data.map(this.transformGameConfig);
-    } catch (error) {
-      console.error('Error fetching games by category:', error);
-      throw error;
-    }
-  }
 
   async getGamesByFilters(filters: GameFilters): Promise<Game[]> {
     try {
@@ -235,9 +214,6 @@ class SupabaseService {
         .select('*')
         .eq('is_active', true);
 
-      if (filters.category) {
-        query = query.eq('category', filters.category);
-      }
       if (filters.theme) {
         query = query.eq('theme', filters.theme);
       }
@@ -249,9 +225,6 @@ class SupabaseService {
       }
       if (filters.isPremium !== undefined) {
         query = query.eq('is_premium', filters.isPremium);
-      }
-      if (filters.difficulty) {
-        query = query.eq('difficulty', filters.difficulty);
       }
       if (filters.gameType) {
         query = query.eq('game_type', filters.gameType);
@@ -595,19 +568,17 @@ class SupabaseService {
       id: dbGame.id,
       title: dbGame.title,
       description: dbGame.description,
-      category: dbGame.category as GameCategory,
       theme: dbGame.theme as any,
       requiredItems: dbGame.required_items,
       minPlayers: dbGame.min_players,
       maxPlayers: dbGame.max_players,
-      estimatedDuration: dbGame.estimated_duration,
-      difficulty: dbGame.difficulty as GameDifficulty,
-      instructions: dbGame.instructions,
       videoUrl: dbGame.video_url,
       hasTimer: dbGame.has_timer,
       timerDuration: dbGame.timer_duration,
       gameType: dbGame.game_type as GameType,
       isPremium: dbGame.is_premium,
+      timesUpInstruction: dbGame.times_up_instruction,
+      playerAction: dbGame.player_action,
       createdAt: dbGame.created_at,
       updatedAt: dbGame.updated_at
     };
