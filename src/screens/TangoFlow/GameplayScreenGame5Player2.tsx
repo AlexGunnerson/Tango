@@ -6,8 +6,8 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame5Player2'>;
 
 export default function GameplayScreenGame5Player2({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
-  const [timeLeft, setTimeLeft] = useState(3); // 3 seconds for testing, should be 90 in production
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  const [timeLeft, setTimeLeft] = useState(timerDuration ?? 90); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
   const [countdownValue, setCountdownValue] = useState(5);
@@ -104,7 +104,7 @@ export default function GameplayScreenGame5Player2({ navigation, route }: Props)
   };
 
   const handleRestart = () => {
-    setTimeLeft(3); // Reset to 3 seconds for testing
+    setTimeLeft(timerDuration ?? 90); // Reset to dynamic timer duration
     setIsPlaying(false);
   };
 

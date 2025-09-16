@@ -6,7 +6,14 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame2Player2'>;
 
 export default function GameplayScreenGame2Player2({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  
+  // DEBUG: Log the timer duration values
+  console.log('🎮 GameplayScreenGame2Player2 - Timer Debug:', {
+    timerDuration,
+    gameTitle,
+    routeParams: route.params
+  });
   
   // Game-specific configuration
   const currentGameTitle = gameTitle || 'Marshmallow Scoop';
@@ -24,7 +31,16 @@ export default function GameplayScreenGame2Player2({ navigation, route }: Props)
   };
   
   const config = gameConfig[currentGameTitle] || gameConfig['Marshmallow Scoop'];
-  const [timeLeft, setTimeLeft] = useState(config.testDuration); // Use test duration
+  const initialTimerValue = timerDuration ?? config.testDuration;
+  
+  console.log('🎮 GameplayScreenGame2Player2 - Timer Values:', {
+    timerDuration,
+    configTestDuration: config.testDuration,
+    initialTimerValue,
+    currentGameTitle
+  });
+  
+  const [timeLeft, setTimeLeft] = useState(initialTimerValue); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
   const [countdownValue, setCountdownValue] = useState(5);
@@ -121,7 +137,7 @@ export default function GameplayScreenGame2Player2({ navigation, route }: Props)
   };
 
   const handleRestart = () => {
-    setTimeLeft(config.testDuration); // Reset to test duration
+    setTimeLeft(timerDuration ?? config.testDuration); // Reset to dynamic timer duration
     setIsPlaying(false);
   };
 

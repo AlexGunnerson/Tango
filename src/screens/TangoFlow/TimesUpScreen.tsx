@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameLogic } from '../../hooks/useGameLogic';
 
 type Props = RootStackScreenProps<'TimesUp'>;
 
 export default function TimesUpScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
+  
+  // Get timer duration from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
   
   // Determine current game number based on total games played
   const totalGamesPlayed = (player1Score || 0) + (player2Score || 0);
@@ -57,7 +61,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
     }
   };
   
-  const config = gameConfig[currentGameTitle] || gameConfig['The Blind March'];
+  const config = gameConfig[currentGameTitle as keyof typeof gameConfig] || gameConfig['The Blind March'];
   
   // Get the correct GameplayScreen for Player2 based on current game
   const getGameplayScreenPlayer2 = (gameNumber: number) => {
@@ -99,11 +103,15 @@ export default function TimesUpScreen({ navigation, route }: Props) {
         {/* Tango Button */}
         <TouchableOpacity 
           style={styles.tangoButton}
-          onPress={() => {
+          onPress={async () => {
             if (nextPlayerGetsHandicap) {
               // Show handicap modal if the next player is the one who gets the handicap
               setIsHandicapModalVisible(true);
             } else {
+              // Get timer duration directly by game title to bypass session state issues
+              const timerDuration = await getGameTimerDurationByTitle(gameTitle || 'The Blind March');
+              console.log('🎮 TimesUpScreen - Timer Duration from Supabase by title:', { gameTitle, timerDuration });
+              
               // Navigate directly to the correct GameplayScreenGame*Player2 for player 2's turn
               const targetScreen = getGameplayScreenPlayer2(currentGameNumber);
               navigation.navigate(targetScreen as any, {
@@ -115,7 +123,8 @@ export default function TimesUpScreen({ navigation, route }: Props) {
                 originalPlayer1,
                 originalPlayer2,
                 player1Score,
-                player2Score
+                player2Score,
+                timerDuration
               });
             }
           }}
@@ -146,8 +155,13 @@ export default function TimesUpScreen({ navigation, route }: Props) {
 
             <TouchableOpacity 
               style={styles.handicapTangoButton}
-              onPress={() => {
+              onPress={async () => {
                 setIsHandicapModalVisible(false);
+                
+                // Get timer duration for handicap path too
+                const timerDuration = await getGameTimerDurationByTitle(gameTitle || 'The Blind March');
+                console.log('🎮 TimesUpScreen - Timer Duration from Supabase by title (handicap path):', { gameTitle, timerDuration });
+                
                 const targetScreen = getGameplayScreenPlayer2(currentGameNumber);
                 navigation.navigate(targetScreen as any, {
                   player1,
@@ -158,7 +172,8 @@ export default function TimesUpScreen({ navigation, route }: Props) {
                   originalPlayer1,
                   originalPlayer2,
                   player1Score,
-                  player2Score
+                  player2Score,
+                  timerDuration
                 });
               }}
             >

@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Modal, Pressable } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameLogic } from '../../hooks/useGameLogic';
 
 type Props = RootStackScreenProps<'GameInstructionsScreen1'>;
 
 export default function GameInstructionsScreen1({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
+  
+  // Get timer duration from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;
@@ -56,10 +60,14 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
         {/* Tango Button */}
         <TouchableOpacity 
           style={styles.tangoButton}
-          onPress={() => {
+          onPress={async () => {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
+              // Get timer duration directly by game title to bypass session state issues
+              const timerDuration = await getGameTimerDurationByTitle('The Blind March');
+              console.log('🎮 GameInstructionsScreen1 - Timer Duration from Supabase by title:', timerDuration);
+              
               // Navigate to GameplayScreenGame1Player1
               navigation.navigate('GameplayScreenGame1Player1', {
                 player1,
@@ -70,7 +78,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
-                player2Score: currentPlayer2Score
+                player2Score: currentPlayer2Score,
+                timerDuration
               });
             }
           }}
@@ -101,7 +110,10 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
 
             <TouchableOpacity 
               style={styles.handicapTangoButton}
-              onPress={() => {
+              onPress={async () => {
+                // Get timer duration from current game config
+                const timerDuration = await getCurrentGameTimerDuration();
+                
                 setIsHandicapModalVisible(false);
                 navigation.navigate('GameplayScreenGame1Player1', {
                   player1,
@@ -112,7 +124,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
-                  player2Score: currentPlayer2Score
+                  player2Score: currentPlayer2Score,
+                  timerDuration
                 });
               }}
             >

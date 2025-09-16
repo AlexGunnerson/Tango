@@ -135,6 +135,14 @@ export const useGameLogic = () => {
     return gameLogicService.getNextGameInstructions();
   }, []);
 
+  const getCurrentGameTimerDuration = useCallback(async () => {
+    return await gameLogicService.getCurrentGameTimerDuration();
+  }, []);
+
+  const getGameTimerDurationByTitle = useCallback(async (gameTitle: string) => {
+    return await gameLogicService.getGameTimerDurationByTitle(gameTitle);
+  }, []);
+
   // Debug helpers
   const getSessionSummary = useCallback(() => {
     return gameLogicService.getSessionSummary();
@@ -179,6 +187,8 @@ export const useGameLogic = () => {
     nextScreen,
     canProceedToNextRound,
     getNextGameInstructions,
+    getCurrentGameTimerDuration,
+    getGameTimerDurationByTitle,
     
     // Computed values
     currentGameId,

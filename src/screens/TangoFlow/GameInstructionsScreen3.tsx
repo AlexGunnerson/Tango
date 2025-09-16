@@ -1,11 +1,15 @@
 import React from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameLogic } from '../../hooks/useGameLogic';
 
 type Props = RootStackScreenProps<'GameInstructionsScreen3'>;
 
 export default function GameInstructionsScreen3({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  
+  // Get timer duration from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;
@@ -55,7 +59,11 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
         {/* Tango Button */}
         <TouchableOpacity 
           style={styles.tangoButton}
-          onPress={() => {
+          onPress={async () => {
+            // Get timer duration directly by game title to bypass session state issues
+            const timerDuration = await getGameTimerDurationByTitle('Paper Plate Snowman');
+            console.log('🎮 GameInstructionsScreen3 - Timer Duration from Supabase by title:', timerDuration);
+            
             // Navigate directly to GameplayScreenGame3Player1 (handicap logic moved to TimesUpScreen)
             navigation.navigate('GameplayScreenGame3Player1', {
               player1,
@@ -66,7 +74,8 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
               originalPlayer1,
               originalPlayer2,
               player1Score: currentPlayer1Score,
-              player2Score: currentPlayer2Score
+              player2Score: currentPlayer2Score,
+              timerDuration
             });
           }}
         >

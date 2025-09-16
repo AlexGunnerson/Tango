@@ -6,8 +6,8 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame4'>;
 
 export default function GameplayScreenGame4({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
-  const [timeLeft, setTimeLeft] = useState(30); // 30 seconds for Tearable Tree
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  const [timeLeft, setTimeLeft] = useState(timerDuration ?? 30); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
   const [countdownValue, setCountdownValue] = useState(5);
@@ -104,7 +104,7 @@ export default function GameplayScreenGame4({ navigation, route }: Props) {
   };
 
   const handleRestart = () => {
-    setTimeLeft(30); // Reset to 30 seconds for Tearable Tree
+    setTimeLeft(timerDuration ?? 30); // Reset to dynamic timer duration
     setIsPlaying(false);
   };
 

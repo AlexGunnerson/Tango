@@ -189,6 +189,27 @@ class SupabaseService {
     }
   }
 
+  async getGameByTitle(title: string): Promise<Game | null> {
+    try {
+      const { data, error } = await supabase
+        .from('game_configs')
+        .select('*')
+        .eq('title', title)
+        .eq('is_active', true)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null; // Not found
+        throw error;
+      }
+
+      return this.transformGameConfig(data);
+    } catch (error) {
+      console.error('Error fetching game by title:', error);
+      return null;
+    }
+  }
+
   async getGamesByCategory(category: GameCategory): Promise<Game[]> {
     try {
       const { data, error } = await supabase
