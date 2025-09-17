@@ -24,7 +24,6 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
         // Flip Cup Tic Tac Toe Game ID
         const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
         const game = await supabaseService.getGameById(gameId);
-        console.log('🎮 GameInstructionsScreen2 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen2 - Error fetching game data:', error);
@@ -93,7 +92,6 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
               // Get timer duration directly by game title to bypass session state issues
               const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
               const timerDuration = await getGameTimerDurationById(gameId);
-              console.log('🎮 GameInstructionsScreen2 - Timer Duration from Supabase by title:', timerDuration);
               
               // Navigate to GameplayScreenGame2Player1
               navigation.navigate('GameplayScreenGame2Player1', {

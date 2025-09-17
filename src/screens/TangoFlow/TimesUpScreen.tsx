@@ -22,7 +22,6 @@ export default function TimesUpScreen({ navigation, route }: Props) {
       try {
         setIsLoading(true);
         const game = await supabaseService.getGameByTitle(gameTitle || 'The Blind March');
-        console.log('🎮 TimesUpScreen - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 TimesUpScreen - Error fetching game data:', error);
@@ -110,7 +109,6 @@ export default function TimesUpScreen({ navigation, route }: Props) {
             } else {
               // Get timer duration directly by game title to bypass session state issues
               const timerDuration = await getGameTimerDurationByTitle(gameTitle || 'The Blind March');
-              console.log('🎮 TimesUpScreen - Timer Duration from Supabase by title:', { gameTitle, timerDuration });
               
               // Navigate directly to the correct GameplayScreenGame*Player2 for player 2's turn
               const targetScreen = getGameplayScreenPlayer2(currentGameNumber);
@@ -161,7 +159,6 @@ export default function TimesUpScreen({ navigation, route }: Props) {
                 
                 // Get timer duration for handicap path too
                 const timerDuration = await getGameTimerDurationByTitle(gameTitle || 'The Blind March');
-                console.log('🎮 TimesUpScreen - Timer Duration from Supabase by title (handicap path):', { gameTitle, timerDuration });
                 
                 const targetScreen = getGameplayScreenPlayer2(currentGameNumber);
                 navigation.navigate(targetScreen as any, {

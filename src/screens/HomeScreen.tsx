@@ -62,9 +62,7 @@ export default function HomeScreen({ navigation }: Props) {
     setAvailableItems(defaultItems);
 
     // Select games and create Supabase session
-    console.log('🎮 Selecting games and creating Supabase session...');
     const selectedGames = await selectGames();
-    console.log('🎮 Selected games:', selectedGames);
 
     // Close modals
     setIsPunishmentCardVisible(false);

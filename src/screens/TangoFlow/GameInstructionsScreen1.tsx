@@ -25,7 +25,6 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
         // Cup Catch Game ID
         const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
         const game = await supabaseService.getGameById(gameId);
-        console.log('🎮 GameInstructionsScreen1 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen1 - Error fetching game data:', error);
@@ -94,7 +93,6 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
               // Get timer duration directly by game ID to bypass session state issues
               const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
               const timerDuration = await getGameTimerDurationById(gameId);
-              console.log('🎮 GameInstructionsScreen1 - Timer Duration from Supabase by ID:', timerDuration);
               
               // Navigate to GameplayScreenGame1Player1
               navigation.navigate('GameplayScreenGame1Player1', {

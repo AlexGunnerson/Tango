@@ -24,7 +24,6 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
         // Last Card Standing Game ID
         const gameId = 'c496d155-ab0f-46cd-812a-0823dbf213ef';
         const game = await supabaseService.getGameById(gameId);
-        console.log('🎮 GameInstructionsScreen5 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen5 - Error fetching game data:', error);
@@ -93,7 +92,6 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
               // Get timer duration directly by game title to bypass session state issues
               const gameId = 'c496d155-ab0f-46cd-812a-0823dbf213ef';
               const timerDuration = await getGameTimerDurationById(gameId);
-              console.log('🎮 GameInstructionsScreen5 - Timer Duration from Supabase by title:', timerDuration);
               
               // Navigate to GameplayScreenGame5Player1
               navigation.navigate('GameplayScreenGame5Player1', {

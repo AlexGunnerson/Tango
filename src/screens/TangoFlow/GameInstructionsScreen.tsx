@@ -22,7 +22,6 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
       try {
         setIsLoading(true);
         const game = await supabaseService.getGameByTitle('The Blind March');
-        console.log('🎮 GameInstructionsScreen - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen - Error fetching game data:', error);
@@ -84,7 +83,6 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
             } else {
               // Get timer duration directly by game title to bypass session state issues
               const timerDuration = await getGameTimerDurationByTitle('The Blind March');
-              console.log('🎮 GameInstructionsScreen - Timer Duration from Supabase by title:', timerDuration);
               
               // Navigate directly to gameplay if no handicap needed
               navigation.navigate('Gameplay', {
@@ -134,7 +132,6 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
                 
                 // Get timer duration for handicap path too
                 const timerDuration = await getGameTimerDurationByTitle('The Blind March');
-                console.log('🎮 GameInstructionsScreen - Timer Duration from Supabase by title (handicap path):', timerDuration);
                 
                 navigation.navigate('Gameplay', {
                   player1,

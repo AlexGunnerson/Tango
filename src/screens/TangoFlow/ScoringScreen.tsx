@@ -20,7 +20,6 @@ export default function ScoringScreen({ navigation, route }: Props) {
       try {
         setIsLoading(true);
         const game = await supabaseService.getGameByTitle(gameTitle || 'The Blind March');
-        console.log('🎮 ScoringScreen - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 ScoringScreen - Error fetching game data:', error);

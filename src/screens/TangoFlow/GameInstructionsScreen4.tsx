@@ -24,7 +24,6 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
         // Stuck in the Middle Game ID
         const gameId = '9c24c395-8eaf-4417-9e5d-9965346591aa';
         const game = await supabaseService.getGameById(gameId);
-        console.log('🎮 GameInstructionsScreen4 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen4 - Error fetching game data:', error);
@@ -94,7 +93,6 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
               // Get timer duration directly by game title to bypass session state issues
               const gameId = '9c24c395-8eaf-4417-9e5d-9965346591aa';
               const timerDuration = await getGameTimerDurationById(gameId);
-              console.log('🎮 GameInstructionsScreen4 - Timer Duration from Supabase by title:', timerDuration);
               
               navigation.navigate('GameplayScreenGame4', {
                 player1,

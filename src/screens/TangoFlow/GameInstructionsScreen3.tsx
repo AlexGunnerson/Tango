@@ -23,7 +23,6 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
         // Don't Wet the TP! Game ID
         const gameId = '4dc3b5cb-f1e1-4a0a-b613-0d5e535036db';
         const game = await supabaseService.getGameById(gameId);
-        console.log('🎮 GameInstructionsScreen3 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen3 - Error fetching game data:', error);
@@ -89,7 +88,6 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
             // Get timer duration directly by game title to bypass session state issues
             const gameId = '4dc3b5cb-f1e1-4a0a-b613-0d5e535036db';
             const timerDuration = await getGameTimerDurationById(gameId);
-            console.log('🎮 GameInstructionsScreen3 - Timer Duration from Supabase by title:', timerDuration);
             
             // Navigate directly to GameplayScreenGame3Player1 (handicap logic moved to TimesUpScreen)
             navigation.navigate('GameplayScreenGame3Player1', {

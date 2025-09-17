@@ -8,21 +8,10 @@ type Props = RootStackScreenProps<'GameplayScreenGame2Player2'>;
 export default function GameplayScreenGame2Player2({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction } = route.params;
   
-  // DEBUG: Log the timer duration values
-  console.log('🎮 GameplayScreenGame2Player2 - Timer Debug:', {
-    timerDuration,
-    gameTitle,
-    routeParams: route.params
-  });
   
   // Use timer duration from route params (fetched from Supabase)
   const initialTimerValue = timerDuration ?? 90; // Fallback to 90 seconds if not provided
   
-  console.log('🎮 GameplayScreenGame2Player2 - Timer Values:', {
-    timerDuration,
-    initialTimerValue,
-    gameTitle
-  });
   
   const [timeLeft, setTimeLeft] = useState(initialTimerValue); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
