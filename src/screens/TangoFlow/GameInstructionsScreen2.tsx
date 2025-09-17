@@ -14,14 +14,16 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   
   // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        const game = await supabaseService.getGameByTitle('Marshmallow Scoop');
+        // Flip Cup Tic Tac Toe Game ID
+        const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
+        const game = await supabaseService.getGameById(gameId);
         console.log('🎮 GameInstructionsScreen2 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
@@ -57,7 +59,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>
-          {isLoading ? 'Loading...' : (gameData?.title || 'Marshmallow Scoop')}
+          {isLoading ? 'Loading...' : gameData?.title}
         </Text>
         
         {/* How to Play Section */}
@@ -70,7 +72,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            {isLoading ? 'Loading instructions...' : (gameData?.description || 'Blindfolded, scoop as many marshmallows into the bowl as possible in 30 seconds. The person with the most marshmallows in the bowl wins!')}
+            {isLoading ? 'Loading instructions...' : gameData?.description}
           </Text>
         </View>
 
@@ -89,7 +91,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
               setIsHandicapModalVisible(true);
             } else {
               // Get timer duration directly by game title to bypass session state issues
-              const timerDuration = await getGameTimerDurationByTitle('Marshmallow Scoop');
+              const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
+              const timerDuration = await getGameTimerDurationById(gameId);
               console.log('🎮 GameInstructionsScreen2 - Timer Duration from Supabase by title:', timerDuration);
               
               // Navigate to GameplayScreenGame2Player1
@@ -98,13 +101,14 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                 player2,
                 punishment,
                 availableItems,
-                gameTitle: 'Marshmallow Scoop',
+                gameTitle: gameData?.title,
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
                 player2Score: currentPlayer2Score,
-                timerDuration
-              });
+            timerDuration,
+            playerAction: gameData?.playerAction
+          });
             }
           }}
         >
@@ -136,7 +140,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
               style={styles.handicapTangoButton}
               onPress={async () => {
                 // Get timer duration from current game config
-                const timerDuration = await getCurrentGameTimerDuration();
+                const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
+              const timerDuration = await getGameTimerDurationById(gameId);
                 
                 setIsHandicapModalVisible(false);
                 navigation.navigate('GameplayScreenGame2Player1', {
@@ -144,13 +149,14 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                   player2,
                   punishment,
                   availableItems,
-                  gameTitle: 'Marshmallow Scoop',
+                  gameTitle: gameData?.title,
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
                   player2Score: currentPlayer2Score,
-                  timerDuration
-                });
+            timerDuration,
+            playerAction: gameData?.playerAction
+          });
               }}
             >
               <Text style={styles.handicapTangoButtonText}>Tango!</Text>

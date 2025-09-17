@@ -6,7 +6,7 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame1Player1'>;
 
 export default function GameplayScreenGame1Player1({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction } = route.params;
   const [timeLeft, setTimeLeft] = useState(timerDuration ?? 90); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
@@ -89,13 +89,14 @@ export default function GameplayScreenGame1Player1({ navigation, route }: Props)
           player2,
           punishment,
           availableItems,
-          gameTitle: gameTitle || 'The Blind March',
+          gameTitle: gameTitle,
           currentPlayer: player1,
           nextPlayer: player2,
           originalPlayer1: displayPlayer1,
           originalPlayer2: displayPlayer2,
           player1Score,
-          player2Score
+          player2Score,
+          playerAction
         });
       }, 1000);
     }
@@ -142,10 +143,10 @@ export default function GameplayScreenGame1Player1({ navigation, route }: Props)
       </Modal>
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
+        <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player1} March!</Text>
+        <Text style={styles.playerName}>{player1} {playerAction || 'Go!'}</Text>
         
         {/* Timer Display */}
         <View style={styles.timerContainer}>

@@ -14,14 +14,17 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   
   // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        const game = await supabaseService.getGameByTitle('The Blind March');
+        
+        // Cup Catch Game ID
+        const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
+        const game = await supabaseService.getGameById(gameId);
         console.log('🎮 GameInstructionsScreen1 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
@@ -57,7 +60,7 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>
-          {isLoading ? 'Loading...' : (gameData?.title || 'The Blind March')}
+          {isLoading ? 'Loading...' : gameData?.title}
         </Text>
         
         {/* How to Play Section */}
@@ -70,7 +73,7 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            {isLoading ? 'Loading instructions...' : (gameData?.description || 'You have 90 seconds to go nowhere! Blindfolded and marching in place, your mission is to see who can stay closest to their original position. Whoever ends up closest to the starting position wins!')}
+            {isLoading ? 'Loading instructions...' : gameData?.description}
           </Text>
         </View>
 
@@ -88,9 +91,10 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Get timer duration directly by game title to bypass session state issues
-              const timerDuration = await getGameTimerDurationByTitle('The Blind March');
-              console.log('🎮 GameInstructionsScreen1 - Timer Duration from Supabase by title:', timerDuration);
+              // Get timer duration directly by game ID to bypass session state issues
+              const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
+              const timerDuration = await getGameTimerDurationById(gameId);
+              console.log('🎮 GameInstructionsScreen1 - Timer Duration from Supabase by ID:', timerDuration);
               
               // Navigate to GameplayScreenGame1Player1
               navigation.navigate('GameplayScreenGame1Player1', {
@@ -98,12 +102,13 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                 player2,
                 punishment,
                 availableItems,
-                gameTitle: 'The Blind March',
+                gameTitle: gameData?.title,
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
                 player2Score: currentPlayer2Score,
-                timerDuration
+                timerDuration,
+                playerAction: gameData?.playerAction
               });
             }
           }}
@@ -136,7 +141,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
               style={styles.handicapTangoButton}
               onPress={async () => {
                 // Get timer duration from current game config
-                const timerDuration = await getCurrentGameTimerDuration();
+                const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
+                const timerDuration = await getGameTimerDurationById(gameId);
                 
                 setIsHandicapModalVisible(false);
                 navigation.navigate('GameplayScreenGame1Player1', {
@@ -144,12 +150,13 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                   player2,
                   punishment,
                   availableItems,
-                  gameTitle: 'The Blind March',
+                  gameTitle: gameData?.title,
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
                   player2Score: currentPlayer2Score,
-                  timerDuration
+                  timerDuration,
+                  playerAction: gameData?.playerAction
                 });
               }}
             >

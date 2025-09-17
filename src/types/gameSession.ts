@@ -119,6 +119,11 @@ export interface GameLogicService {
   getNextScreenForCurrentState(): string;
   canProceedToNextRound(): boolean;
   
+  // Timer helpers
+  getCurrentGameTimerDuration(): Promise<number>;
+  getGameTimerDurationByTitle(gameTitle: string): Promise<number>;
+  getGameTimerDurationById(gameId: string): Promise<number>;
+  
   // State subscription
   subscribe(callback: (state: GameSessionState) => void): () => void;
   emit(event: GameSessionEvent): void;

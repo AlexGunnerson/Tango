@@ -1,15 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameSounds } from '../../hooks/useGameSounds';
 import { useGameLogic } from '../../hooks/useGameLogic';
+import { supabaseService } from '../../services/supabaseService';
+import { Game } from '../../types/game';
 
 type Props = RootStackScreenProps<'Scoring'>;
 
 export default function ScoringScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score: initialPlayer1Score, player2Score: initialPlayer2Score } = route.params;
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
+  const [gameData, setGameData] = useState<Game | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
+  // Fetch game data from Supabase
+  useEffect(() => {
+    const fetchGameData = async () => {
+      try {
+        setIsLoading(true);
+        const game = await supabaseService.getGameByTitle(gameTitle || 'The Blind March');
+        console.log('🎮 ScoringScreen - Game data from Supabase:', game);
+        setGameData(game);
+      } catch (error) {
+        console.error('🎮 ScoringScreen - Error fetching game data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGameData();
+  }, [gameTitle]);
+
   // Game logic integration
   const { sessionState, completeRound, isGameComplete, winner, getNextGameInstructions, service } = useGameLogic();
   
@@ -109,13 +131,19 @@ export default function ScoringScreen({ navigation, route }: Props) {
       )}
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
+        <Text style={styles.gameTitle}>
+          {isLoading ? 'Loading...' : (gameData?.title || gameTitle || 'The Blind March')}
+        </Text>
         
         {/* Times Up Message */}
         <Text style={styles.timesUpTitle}>Times Up!</Text>
         
         {/* Instructions */}
-        <Text style={styles.instructionsText}>Mark the spot.</Text>
+        <Text style={styles.instructionsText}>
+          {isLoading ? 'Loading instructions...' : 
+            (gameData?.timesUpInstruction?.split('.')[0] || 'Mark the spot') + '.'
+          }
+        </Text>
         
         {/* Select Winner Section */}
         <Text style={styles.selectWinnerTitle}>Select the Winner</Text>

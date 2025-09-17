@@ -6,7 +6,7 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame2Player1'>;
 
 export default function GameplayScreenGame2Player1({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction } = route.params;
   
   // DEBUG: Log the timer duration values
   console.log('🎮 GameplayScreenGame2Player1 - Timer Debug:', {
@@ -15,29 +15,13 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
     routeParams: route.params
   });
   
-  // Game-specific configuration
-  const currentGameTitle = gameTitle || 'Marshmallow Scoop';
-  const gameConfig = {
-    'The Blind March': {
-      duration: 90,
-      playerAction: 'March',
-      testDuration: 3
-    },
-    'Marshmallow Scoop': {
-      duration: 30,
-      playerAction: 'Scoop',
-      testDuration: 3
-    }
-  };
-  
-  const config = gameConfig[currentGameTitle] || gameConfig['Marshmallow Scoop'];
-  const initialTimerValue = timerDuration ?? config.testDuration;
+  // Use timer duration from route params (fetched from Supabase)
+  const initialTimerValue = timerDuration ?? 90; // Fallback to 90 seconds if not provided
   
   console.log('🎮 GameplayScreenGame2Player1 - Timer Values:', {
     timerDuration,
-    configTestDuration: config.testDuration,
     initialTimerValue,
-    currentGameTitle
+    gameTitle
   });
   
   const [timeLeft, setTimeLeft] = useState(initialTimerValue); // Use dynamic timer duration from game config
@@ -122,13 +106,14 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
           player2,
           punishment,
           availableItems,
-          gameTitle: currentGameTitle,
+          gameTitle: gameTitle,
           currentPlayer: player1,
           nextPlayer: player2,
           originalPlayer1: displayPlayer1,
           originalPlayer2: displayPlayer2,
           player1Score,
-          player2Score
+          player2Score,
+          playerAction
         });
       }, 1000);
     }
@@ -139,8 +124,8 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
   };
 
   const handleRestart = () => {
-    const resetValue = timerDuration ?? config.testDuration;
-    console.log('🎮 GameplayScreenGame2Player1 - Restart Timer:', { resetValue, timerDuration, configTestDuration: config.testDuration });
+    const resetValue = timerDuration ?? 90;
+    console.log('🎮 GameplayScreenGame2Player1 - Restart Timer:', { resetValue, timerDuration });
     setTimeLeft(resetValue); // Reset to dynamic timer duration
     setIsPlaying(false);
   };
@@ -177,10 +162,10 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
       </Modal>
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{currentGameTitle}</Text>
+        <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player1} {config.playerAction}!</Text>
+        <Text style={styles.playerName}>{player1} {playerAction || 'Go!'}!</Text>
         
         {/* Timer Display */}
         <View style={styles.timerContainer}>

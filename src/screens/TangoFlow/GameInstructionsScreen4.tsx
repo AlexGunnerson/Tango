@@ -14,14 +14,16 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   
   // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        const game = await supabaseService.getGameByTitle('Tearable Tree');
+        // Stuck in the Middle Game ID
+        const gameId = '9c24c395-8eaf-4417-9e5d-9965346591aa';
+        const game = await supabaseService.getGameById(gameId);
         console.log('🎮 GameInstructionsScreen4 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
@@ -57,7 +59,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>
-          {isLoading ? 'Loading...' : (gameData?.title || 'Tearable Tree')}
+          {isLoading ? 'Loading...' : gameData?.title}
         </Text>
         
         {/* How to Play Section */}
@@ -70,7 +72,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            {isLoading ? 'Loading instructions...' : (gameData?.description || 'Get into the holiday spirit with a test of handiwork. With a piece of paper behind your back, tear the paper into the shape of a Christmas tree. Best tree wins!')}
+            {isLoading ? 'Loading instructions...' : gameData?.description}
           </Text>
         </View>
 
@@ -90,7 +92,8 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
             } else {
               // Navigate to GameplayScreenGame4 (simultaneous play)
               // Get timer duration directly by game title to bypass session state issues
-              const timerDuration = await getGameTimerDurationByTitle('Tearable Tree');
+              const gameId = '9c24c395-8eaf-4417-9e5d-9965346591aa';
+              const timerDuration = await getGameTimerDurationById(gameId);
               console.log('🎮 GameInstructionsScreen4 - Timer Duration from Supabase by title:', timerDuration);
               
               navigation.navigate('GameplayScreenGame4', {
@@ -98,7 +101,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
                 player2,
                 punishment,
                 availableItems,
-                gameTitle: 'Tearable Tree',
+                gameTitle: gameData?.title,
                 originalPlayer1,
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
@@ -144,7 +147,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
                   player2,
                   punishment,
                   availableItems,
-                  gameTitle: 'Tearable Tree',
+                  gameTitle: gameData?.title,
                   originalPlayer1,
                   originalPlayer2,
                   player1Score: currentPlayer1Score,

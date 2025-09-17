@@ -80,6 +80,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame1Player2: { 
     player1: string; 
@@ -92,6 +93,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame2Player1: { 
     player1: string; 
@@ -104,6 +106,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame2Player2: { 
     player1: string; 
@@ -116,6 +119,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame3Player1: { 
     player1: string; 
@@ -128,6 +132,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame3Player2: { 
     player1: string; 
@@ -140,6 +145,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame4Player1: { 
     player1: string; 
@@ -152,6 +158,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame4Player2: { 
     player1: string; 
@@ -164,6 +171,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame4: { 
     player1: string; 
@@ -176,6 +184,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame5Player1: { 
     player1: string; 
@@ -188,6 +197,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   GameplayScreenGame5Player2: { 
     player1: string; 
@@ -200,6 +210,7 @@ export type RootStackParamList = {
     player1Score?: number;
     player2Score?: number;
     timerDuration?: number;
+    playerAction?: string;
   };
   
   // Keep legacy screens for backward compatibility
@@ -224,6 +235,8 @@ export type RootStackParamList = {
     originalPlayer2?: string;
     player1Score?: number;
     player2Score?: number;
+    timerDuration?: number;
+    playerAction?: string;
   };
   TimesUp: {
     player1: string; 
@@ -237,6 +250,7 @@ export type RootStackParamList = {
     originalPlayer2?: string;
     player1Score?: number;
     player2Score?: number;
+    playerAction?: string;
   };
   Scoring: { 
     player1: string; 

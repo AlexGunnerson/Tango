@@ -143,6 +143,10 @@ export const useGameLogic = () => {
     return await gameLogicService.getGameTimerDurationByTitle(gameTitle);
   }, []);
 
+  const getGameTimerDurationById = useCallback(async (gameId: string) => {
+    return await gameLogicService.getGameTimerDurationById(gameId);
+  }, []);
+
   // Debug helpers
   const getSessionSummary = useCallback(() => {
     return gameLogicService.getSessionSummary();
@@ -189,6 +193,7 @@ export const useGameLogic = () => {
     getNextGameInstructions,
     getCurrentGameTimerDuration,
     getGameTimerDurationByTitle,
+    getGameTimerDurationById,
     
     // Computed values
     currentGameId,

@@ -286,11 +286,15 @@ class GameLogicServiceImpl implements GameLogicService {
         } : null
       });
       
-      if (game && game.hasTimer && game.timerDuration) {
+      if (game && game.timerDuration !== null && game.timerDuration !== undefined) {
         console.log('🎮 GameLogicService - Returning timer duration from Supabase:', game.timerDuration);
         return game.timerDuration;
       }
-      console.log('🎮 GameLogicService - No timer duration in game, returning default 90');
+      console.log('🎮 GameLogicService - No timer duration in game, returning default 90', {
+        gameExists: !!game,
+        hasTimer: game?.hasTimer,
+        timerDuration: game?.timerDuration
+      });
       return 90; // Default fallback if no timer duration specified
     } catch (error) {
       console.error('🎮 GameLogicService - Error fetching game timer duration:', error);
@@ -313,14 +317,49 @@ class GameLogicServiceImpl implements GameLogicService {
         } : null
       });
       
-      if (game && game.hasTimer && game.timerDuration) {
+      if (game && game.timerDuration !== null && game.timerDuration !== undefined) {
         console.log('🎮 GameLogicService - Returning timer duration from Supabase by title:', game.timerDuration);
         return game.timerDuration;
       }
-      console.log('🎮 GameLogicService - No timer duration in game by title, returning default 90');
+      console.log('🎮 GameLogicService - No timer duration in game by title, returning default 90', {
+        gameExists: !!game,
+        hasTimer: game?.hasTimer,
+        timerDuration: game?.timerDuration
+      });
       return 90; // Default fallback if no timer duration specified
     } catch (error) {
       console.error('🎮 GameLogicService - Error fetching game timer duration by title:', error);
+      return 90; // Default fallback on error
+    }
+  }
+
+  async getGameTimerDurationById(gameId: string): Promise<number> {
+    console.log('🎮 GameLogicService - getGameTimerDurationById:', { gameId });
+    
+    try {
+      const game = await supabaseService.getGameById(gameId);
+      console.log('🎮 GameLogicService - Game from Supabase by ID:', { 
+        gameId, 
+        game: game ? {
+          id: game.id,
+          title: game.title,
+          hasTimer: game.hasTimer,
+          timerDuration: game.timerDuration
+        } : null
+      });
+      
+      if (game && game.timerDuration !== null && game.timerDuration !== undefined) {
+        console.log('🎮 GameLogicService - Returning timer duration from Supabase by ID:', game.timerDuration);
+        return game.timerDuration;
+      }
+      console.log('🎮 GameLogicService - No timer duration in game by ID, returning default 90', {
+        gameExists: !!game,
+        hasTimer: game?.hasTimer,
+        timerDuration: game?.timerDuration
+      });
+      return 90; // Default fallback if no timer duration specified
+    } catch (error) {
+      console.error('🎮 GameLogicService - Error fetching game timer duration by ID:', error);
       return 90; // Default fallback on error
     }
   }

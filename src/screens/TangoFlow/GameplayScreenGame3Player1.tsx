@@ -89,7 +89,7 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
           player2,
           punishment,
           availableItems,
-          gameTitle: gameTitle || 'Paper Plate Snowman',
+          gameTitle: gameTitle,
           currentPlayer: player1,
           nextPlayer: player2,
           originalPlayer1: displayPlayer1,
@@ -142,7 +142,7 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
       </Modal>
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'Paper Plate Snowman'}</Text>
+        <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
         <Text style={styles.playerName}>{player1} Draw!</Text>

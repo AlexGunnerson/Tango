@@ -82,7 +82,7 @@ export default function GameplayScreen({ navigation, route }: Props) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         {/* Game Title */}
-        <Text style={styles.gameTitle}>{gameTitle || 'The Blind March'}</Text>
+        <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
         <Text style={styles.playerName}>{player1} March!</Text>

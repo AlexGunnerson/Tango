@@ -13,14 +13,16 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   
   // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        const game = await supabaseService.getGameByTitle('Paper Plate Snowman');
+        // Don't Wet the TP! Game ID
+        const gameId = '4dc3b5cb-f1e1-4a0a-b613-0d5e535036db';
+        const game = await supabaseService.getGameById(gameId);
         console.log('🎮 GameInstructionsScreen3 - Game data from Supabase:', game);
         setGameData(game);
       } catch (error) {
@@ -56,7 +58,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>
-          {isLoading ? 'Loading...' : (gameData?.title || 'Paper Plate Snowman')}
+          {isLoading ? 'Loading...' : gameData?.title}
         </Text>
         
         {/* How to Play Section */}
@@ -69,7 +71,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
           </View>
           
           <Text style={styles.instructionsText}>
-            {isLoading ? 'Loading instructions...' : (gameData?.description || 'Hold a paper plate on your head and draw a snowman. Best drawing wins!')}
+            {isLoading ? 'Loading instructions...' : gameData?.description}
           </Text>
         </View>
 
@@ -85,7 +87,8 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
           style={styles.tangoButton}
           onPress={async () => {
             // Get timer duration directly by game title to bypass session state issues
-            const timerDuration = await getGameTimerDurationByTitle('Paper Plate Snowman');
+            const gameId = '4dc3b5cb-f1e1-4a0a-b613-0d5e535036db';
+            const timerDuration = await getGameTimerDurationById(gameId);
             console.log('🎮 GameInstructionsScreen3 - Timer Duration from Supabase by title:', timerDuration);
             
             // Navigate directly to GameplayScreenGame3Player1 (handicap logic moved to TimesUpScreen)
@@ -94,7 +97,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
               player2,
               punishment,
               availableItems,
-              gameTitle: 'Paper Plate Snowman',
+              gameTitle: gameData?.title,
               originalPlayer1,
               originalPlayer2,
               player1Score: currentPlayer1Score,

@@ -8,7 +8,7 @@ import { Game } from '../../types/game';
 type Props = RootStackScreenProps<'TimesUp'>;
 
 export default function TimesUpScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, currentPlayer, nextPlayer, originalPlayer1, originalPlayer2, player1Score, player2Score, playerAction } = route.params;
   const [isHandicapModalVisible, setIsHandicapModalVisible] = useState(false);
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +57,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
   const currentGameTitle = gameTitle || 'The Blind March';
   const fallbackConfig = {
     playerAction: 'march',
-    timesUpInstruction: 'Mark the spot',
+    timesUpInstruction: 'Mark the spot. <player> get ready to march!',
     handicapDescription: 'At 45 seconds, {player} must do a full 360 degree turn without changing the speed of marching.'
   };
   
@@ -91,7 +91,7 @@ export default function TimesUpScreen({ navigation, route }: Props) {
         {/* Instructions */}
         <Text style={styles.instructionsText}>
           {isLoading ? 'Loading...' : 
-            `${gameData?.timesUpInstruction || fallbackConfig.timesUpInstruction}. ${nextPlayer} get ready to ${gameData?.playerAction || fallbackConfig.playerAction}!`
+            (gameData?.timesUpInstruction || fallbackConfig.timesUpInstruction).replace('<player>', nextPlayer)
           }
         </Text>
         
@@ -124,7 +124,8 @@ export default function TimesUpScreen({ navigation, route }: Props) {
                 originalPlayer2,
                 player1Score,
                 player2Score,
-                timerDuration
+                timerDuration,
+                playerAction
               });
             }
           }}
