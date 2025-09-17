@@ -32,7 +32,18 @@ export default function ScoringScreen({ navigation, route }: Props) {
   }, [gameTitle]);
 
   // Game logic integration
-  const { sessionState, completeRound, isGameComplete, winner, getNextGameInstructions, service } = useGameLogic();
+  const { sessionState, completeRound, isGameComplete, winner, getNextGameInstructions, service, createSession, setPlayers } = useGameLogic();
+  
+  // Session initialization fallback
+  useEffect(() => {
+    // Initialize session if it doesn't exist
+    if (!sessionState && !service.getSession()) {
+      const newSession = createSession('1v1');
+      if (newSession) {
+        setPlayers(displayPlayer1, displayPlayer2);
+      }
+    }
+  }, []);
   
   // Use game logic service state for scores, fallback to route params for backward compatibility
   const player1Score = sessionState?.player1?.score ?? initialPlayer1Score ?? 0;

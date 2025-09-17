@@ -89,7 +89,11 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.title}>Gather Items</Text>
         
         {error && (
@@ -123,9 +127,6 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
                 )}
                 <View style={styles.itemTextContainer}>
                   <Text style={styles.itemName}>{item.name}</Text>
-                  {item.availabilityScore && (
-                    <Text style={styles.availabilityScore}>{item.availabilityScore}</Text>
-                  )}
                   {item.alternatives && item.alternatives.length > 0 && (
                     <Text style={styles.alternatives}>
                       Alternatives: {item.alternatives.join(', ')}
@@ -196,25 +197,28 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+  },
+  scrollViewContent: {
+    paddingBottom: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     fontFamily: 'Nunito',
     color: '#333333',
     textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 15,
+    marginBottom: 20,
   },
   itemsList: {
-    marginBottom: 0,
+    marginBottom: 12,
   },
   itemContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -243,7 +247,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   itemName: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#333333',
     fontWeight: '500',
     fontFamily: 'Nunito',
@@ -269,9 +273,9 @@ const styles = StyleSheet.create({
   },
   addItemsContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -289,14 +293,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addItemsText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#F66D3D',
     fontWeight: '500',
     fontFamily: 'Nunito',
   },
   progressSection: {
-    marginTop: 18,
-    marginBottom: 30,
+    marginTop: 12,
+    marginBottom: 20,
     alignItems: 'center',
   },
   progressBar: {
@@ -321,8 +325,8 @@ const styles = StyleSheet.create({
   itemsGatheredButton: {
     backgroundColor: '#F66D3D',
     borderRadius: 12,
-    padding: 16,
-    margin: 20,
+    padding: 14,
+    margin: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -338,7 +342,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   itemsGatheredText: {
-    fontSize: 30,
+    fontSize: 26,
     color: '#FFFFFF',
     fontWeight: 'semibold',
     fontFamily: 'Nunito',
@@ -367,18 +371,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     textAlign: 'center',
   },
-  availabilityScore: {
-    fontSize: 12,
-    color: '#F66D3D',
-    fontFamily: 'Nunito',
-    fontWeight: '600',
-    marginTop: 2,
-  },
   alternatives: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#888888',
     fontFamily: 'Nunito',
-    marginTop: 2,
+    marginTop: 1,
     fontStyle: 'italic',
   },
 
