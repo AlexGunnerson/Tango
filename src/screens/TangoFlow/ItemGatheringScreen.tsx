@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { useGameLogic } from '../../hooks/useGameLogic';
 
 type Props = RootStackScreenProps<'ItemGathering'>;
 
@@ -13,6 +14,9 @@ interface Item {
 
 export default function ItemGatheringScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  
+  // Get game logic functions
+  const { setAvailableItems, selectGames } = useGameLogic();
   
   const [items, setItems] = useState<Item[]>([
     { id: '1', name: 'Something to write with', icon: '✏️', checked: true },
@@ -85,9 +89,16 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
 
       <TouchableOpacity 
         style={styles.itemsGatheredButton}
-        onPress={() => {
-          // Navigate to game instructions screen
-          navigation.navigate('GameInstructions', {
+        onPress={async () => {
+          // Set available items in game logic service
+          const selectedItems = items.filter(item => item.checked).map(item => item.name);
+          setAvailableItems(selectedItems);
+          
+          // Select games based on available items
+          await selectGames();
+          
+          // Navigate to first game instructions screen
+          navigation.navigate('GameInstructionsScreen1', {
             player1,
             player2,
             punishment,

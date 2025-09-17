@@ -57,27 +57,15 @@ export default function HomeScreen({ navigation }: Props) {
       setPunishment(punishment);
     }
 
-    // Set default available items (this would normally come from ItemGathering screen)
-    const defaultItems = ['Spatula', 'Paper Plate', 'Marshmallows'];
-    setAvailableItems(defaultItems);
-
-    // Select games and create Supabase session
-    const selectedGames = await selectGames();
-
     // Close modals
     setIsPunishmentCardVisible(false);
     setIsOneVOneCardVisible(false);
 
-    // Navigate to first game instructions
-    navigation.navigate('GameInstructionsScreen1', {
+    // Navigate to ItemGathering screen first
+    navigation.navigate('ItemGathering', {
       player1: player1Name,
       player2: player2DisplayName,
       punishment: punishment,
-      availableItems: [
-        { id: 1, name: 'Spatula', selected: true },
-        { id: 2, name: 'Paper Plate', selected: true },
-        { id: 3, name: 'Marshmallows', selected: true }
-      ],
       originalPlayer1: player1Name,
       originalPlayer2: player2DisplayName,
       player1Score: 0,
