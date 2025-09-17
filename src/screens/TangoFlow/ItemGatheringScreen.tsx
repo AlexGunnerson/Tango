@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameLogic } from '../../hooks/useGameLogic';
+import { supabaseService, DatabaseMaterial } from '../../services/supabaseService';
+import { Material } from '../../types/material';
 
 type Props = RootStackScreenProps<'ItemGathering'>;
 
@@ -10,6 +12,8 @@ interface Item {
   name: string;
   icon: string;
   checked: boolean;
+  alternatives?: string[];
+  availabilityScore?: string;
 }
 
 export default function ItemGatheringScreen({ navigation, route }: Props) {
@@ -18,13 +22,50 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
   // Get game logic functions
   const { setAvailableItems, selectGames } = useGameLogic();
   
-  const [items, setItems] = useState<Item[]>([
-    { id: '1', name: 'Something to write with', icon: '✏️', checked: true },
-    { id: '2', name: 'Paper', icon: '📄', checked: true },
-    { id: '3', name: 'Large Bowl', icon: '🥣', checked: true },
-    { id: '4', name: 'Spatula', icon: 'icon-spatula', checked: false },
-    { id: '5', name: 'Paper Plate', icon: 'icon-plate', checked: true },
-  ]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch materials from Supabase on component mount
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        setLoading(true);
+        const materials = await supabaseService.getMaterials();
+        
+        // Transform database materials to Item format
+        const transformedItems: Item[] = materials.map((material: DatabaseMaterial) => ({
+          id: material.id,
+          name: material.material,
+          icon: material.icon || '📦', // Default icon if none provided
+          checked: material.availability_score === '1-Everyone Has It', // Auto-check most available items
+          alternatives: [
+            material.alternative_1,
+            material.alternative_2,
+            material.alternative_3
+          ].filter(Boolean) as string[], // Filter out null/undefined values
+          availabilityScore: material.availability_score
+        }));
+        
+        setItems(transformedItems);
+      } catch (err) {
+        console.error('Error fetching materials:', err);
+        setError('Failed to load materials. Please try again.');
+        // Fallback to hardcoded items if Supabase fails
+        setItems([
+          { id: '1', name: 'Something to write with', icon: '✏️', checked: true },
+          { id: '2', name: 'Paper', icon: '📄', checked: true },
+          { id: '3', name: 'Large Bowl', icon: '🥣', checked: true },
+          { id: '4', name: 'Spatula', icon: 'icon-spatula', checked: false },
+          { id: '5', name: 'Paper Plate', icon: 'icon-plate', checked: true },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMaterials();
+  }, []);
 
   const toggleItem = (id: string) => {
     setItems(prev => prev.map(item => 
@@ -35,10 +76,27 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
   const checkedCount = items.filter(item => item.checked).length;
   const totalGames = Math.floor((checkedCount / items.length) * 150);
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#F66D3D" />
+          <Text style={styles.loadingText}>Loading materials...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Gather Items</Text>
+        
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
         
         <View style={styles.itemsList}>
           {items.map((item) => (
@@ -63,7 +121,17 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
                 ) : (
                   <Text style={styles.itemIcon}>{item.icon}</Text>
                 )}
-                <Text style={styles.itemName}>{item.name}</Text>
+                <View style={styles.itemTextContainer}>
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  {item.availabilityScore && (
+                    <Text style={styles.availabilityScore}>{item.availabilityScore}</Text>
+                  )}
+                  {item.alternatives && item.alternatives.length > 0 && (
+                    <Text style={styles.alternatives}>
+                      Alternatives: {item.alternatives.join(', ')}
+                    </Text>
+                  )}
+                </View>
               </View>
               <View style={[styles.checkbox, item.checked && styles.checkboxChecked]}>
                 {item.checked && <Text style={styles.checkmark}>✓</Text>}
@@ -158,8 +226,12 @@ const styles = StyleSheet.create({
   },
   itemContent: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flex: 1,
+  },
+  itemTextContainer: {
+    flex: 1,
+    marginLeft: 0,
   },
   itemIcon: {
     fontSize: 24,
@@ -270,6 +342,44 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'semibold',
     fontFamily: 'Nunito',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 18,
+    color: '#666666',
+    fontFamily: 'Nunito',
+  },
+  errorContainer: {
+    backgroundColor: '#FFE6E6',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    marginHorizontal: 4,
+  },
+  errorText: {
+    color: '#D32F2F',
+    fontSize: 14,
+    fontFamily: 'Nunito',
+    textAlign: 'center',
+  },
+  availabilityScore: {
+    fontSize: 12,
+    color: '#F66D3D',
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  alternatives: {
+    fontSize: 11,
+    color: '#888888',
+    fontFamily: 'Nunito',
+    marginTop: 2,
+    fontStyle: 'italic',
   },
 
 });

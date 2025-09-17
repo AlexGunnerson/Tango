@@ -97,6 +97,26 @@ export interface DatabaseMatchHistory {
   created_at: string;
 }
 
+export interface DatabaseMaterial {
+  id: string;
+  material: string;
+  alternative_1?: string;
+  alternative_2?: string;
+  alternative_3?: string;
+  availability_score: '1-Everyone Has It' | '2 - 9/10 people have it' | '3 - 5/10 people have it' | '4 - Seasonal';
+  icon?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DatabaseGameConfigMaterial {
+  id: string;
+  game_config_id: string;
+  material_id: string;
+  is_required: boolean;
+  created_at: string;
+}
+
 // Filter interfaces
 export interface GameFilters {
   theme?: string;
@@ -582,6 +602,92 @@ class SupabaseService {
       createdAt: dbGame.created_at,
       updatedAt: dbGame.updated_at
     };
+  }
+
+  // Material Methods
+  async getMaterials(): Promise<DatabaseMaterial[]> {
+    try {
+      const { data, error } = await supabase
+        .from('materials')
+        .select('*')
+        .order('material');
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+      throw error;
+    }
+  }
+
+  async getMaterialById(id: string): Promise<DatabaseMaterial | null> {
+    try {
+      const { data, error } = await supabase
+        .from('materials')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null; // Not found
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching material by ID:', error);
+      return null;
+    }
+  }
+
+  async getMaterialsByAvailability(availabilityScore: string): Promise<DatabaseMaterial[]> {
+    try {
+      const { data, error } = await supabase
+        .from('materials')
+        .select('*')
+        .eq('availability_score', availabilityScore)
+        .order('material');
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching materials by availability:', error);
+      throw error;
+    }
+  }
+
+  async getGameMaterials(gameConfigId: string): Promise<DatabaseMaterial[]> {
+    try {
+      const { data, error } = await supabase
+        .from('game_config_materials')
+        .select(`
+          materials!inner(*)
+        `)
+        .eq('game_config_id', gameConfigId);
+
+      if (error) throw error;
+      return data?.map(item => (item as any).materials) || [];
+    } catch (error) {
+      console.error('Error fetching game materials:', error);
+      throw error;
+    }
+  }
+
+  async linkGameToMaterial(gameConfigId: string, materialId: string, isRequired: boolean = true): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('game_config_materials')
+        .insert([{
+          game_config_id: gameConfigId,
+          material_id: materialId,
+          is_required: isRequired
+        }]);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error linking game to material:', error);
+      throw error;
+    }
   }
 
   // Health check method
