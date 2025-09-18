@@ -20,6 +20,89 @@ class GameLogicServiceImpl implements GameLogicService {
   private eventHistory: GameSessionEvent[] = [];
   private supabaseSessionId: string | null = null;
 
+  // Helper method for improved item matching logic with database alternatives
+  private async doesGameMatchAvailableItems(game: Game, availableItems: string[], playerCount: number = 2): Promise<boolean> {
+    if (availableItems.length === 0) return true;
+    
+    try {
+      // Get detailed material requirements for this game
+      const requirements = await supabaseService.getGameMaterialRequirements(game.id);
+      
+      return requirements.every(req => {
+        // Calculate total quantity needed
+        const totalQuantityNeeded = req.quantity_type === 'PER_USER' 
+          ? req.quantity * playerCount 
+          : req.quantity;
+        
+        // Check if user has the primary material
+        if (this.hasEnoughMaterial(availableItems, req.material_name, totalQuantityNeeded)) {
+          return true;
+        }
+        
+        // Check if user has any acceptable alternatives
+        return req.alternatives.some(alt => 
+          this.hasEnoughMaterial(availableItems, alt.name, totalQuantityNeeded)
+        );
+      });
+    } catch (error) {
+      console.error('Error checking game material requirements:', error);
+      // Fallback to legacy string-based matching
+      return this.doesGameMatchAvailableItemsLegacy(game, availableItems);
+    }
+  }
+
+  // Legacy matching logic as fallback
+  private doesGameMatchAvailableItemsLegacy(game: Game, availableItems: string[]): boolean {
+    if (availableItems.length === 0) return true;
+    
+    return game.requiredItems.every(requiredItem => {
+      return availableItems.some(availableItem => {
+        const required = requiredItem.toLowerCase().trim();
+        const available = availableItem.toLowerCase().trim();
+        
+        // Exact match
+        if (available === required) return true;
+        
+        // Partial match (current logic)
+        if (available.includes(required) || required.includes(available)) return true;
+        
+        // Handle common alternatives
+        const alternatives: { [key: string]: string[] } = {
+          'spoon': ['spoon', 'utensil', 'silverware', 'cutlery'],
+          'bowl': ['bowl', 'container', 'dish'],
+          'paper': ['paper', 'sheet', 'notebook', 'pad'],
+          'pen': ['pen', 'pencil', 'marker', 'writing utensil', 'something to write with'],
+          'pencil': ['pen', 'pencil', 'marker', 'writing utensil', 'something to write with'],
+          'coins': ['coins', 'pennies', 'change', 'money'],
+          'pennies': ['coins', 'pennies', 'change', 'money'],
+        };
+        
+        // Check if required item has alternatives that match available items
+        const requiredAlternatives = alternatives[required] || [];
+        if (requiredAlternatives.some(alt => available.includes(alt.toLowerCase()))) return true;
+        
+        // Check if available item has alternatives that match required items
+        for (const [key, alts] of Object.entries(alternatives)) {
+          if (available.includes(key) && alts.some(alt => required.includes(alt.toLowerCase()))) {
+            return true;
+          }
+        }
+        
+        return false;
+      });
+    });
+  }
+
+  // Helper to check if user has enough of a specific material
+  private hasEnoughMaterial(availableItems: string[], materialName: string, quantityNeeded: number): boolean {
+    // For now, we assume if the user has the item, they have enough
+    // In the future, you could extend this to track quantities
+    return availableItems.some(item => 
+      item.toLowerCase().includes(materialName.toLowerCase()) ||
+      materialName.toLowerCase().includes(item.toLowerCase())
+    );
+  }
+
   // Session management
   createSession(gameMode: '1v1' | '2v2' | 'coop' | 'tournament'): GameSessionState {
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -210,12 +293,21 @@ class GameLogicServiceImpl implements GameLogicService {
           throw new Error('No cached games available for offline play. Please connect to internet first.');
         }
 
-        // Filter cached games based on criteria
-        const filteredGames = cachedGames.filter(game => 
-          game.maxPlayers >= 2 && 
-          game.minPlayers <= 2 &&
-          !game.isPremium
-        );
+        // Filter cached games based on criteria including available items
+        const filteredGames = [];
+        for (const game of cachedGames) {
+          if (
+            game.maxPlayers >= 2 && 
+            game.minPlayers <= 2 &&
+            !game.isPremium
+          ) {
+            // Use improved item matching logic
+            const matches = await this.doesGameMatchAvailableItems(game, this.currentSession.availableItems, 2);
+            if (matches) {
+              filteredGames.push(game);
+            }
+          }
+        }
 
         if (filteredGames.length === 0) {
           throw new Error('No suitable cached games found for 1v1 play.');
@@ -230,6 +322,31 @@ class GameLogicServiceImpl implements GameLogicService {
           const randomIndex = Math.floor(Math.random() * availableGames.length);
           selectedGames.push(availableGames.splice(randomIndex, 1)[0]);
         }
+      }
+
+      // Validation: Ensure all selected games can be played with available items
+      if (this.currentSession.availableItems.length > 0) {
+        const invalidGames = [];
+        for (const game of selectedGames) {
+          const matches = await this.doesGameMatchAvailableItems(game, this.currentSession.availableItems, 2);
+          if (!matches) {
+            invalidGames.push(game);
+          }
+        }
+        
+        if (invalidGames.length > 0) {
+          console.warn('⚠️ Some selected games require unavailable items:', invalidGames.map(g => g.title));
+          // Remove invalid games and try to find replacements
+          selectedGames = selectedGames.filter(game => !invalidGames.includes(game));
+          
+          if (selectedGames.length === 0) {
+            throw new Error('No games can be played with the selected items. Please select more items.');
+          }
+        }
+      }
+
+      if (selectedGames.length === 0) {
+        throw new Error('No suitable games found. Please check your item selection.');
       }
 
       this.currentSession.selectedGames = selectedGames.map(game => game.id);

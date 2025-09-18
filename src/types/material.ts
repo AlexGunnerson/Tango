@@ -7,6 +7,7 @@ export type AvailabilityScore =
 export interface Material {
   id: string;
   material: string;
+  isFeatured: boolean;
   alternative1?: string;
   alternative2?: string;
   alternative3?: string;
@@ -22,7 +23,20 @@ export interface GameConfigMaterial {
   gameConfigId: string;
   materialId: string;
   isRequired: boolean;
+  quantity: number;
+  quantityType: 'TOTAL' | 'PER_USER';
+  notes?: string;
   createdAt: string;
+}
+
+export interface GameMaterialAlternative {
+  id: string;
+  gameConfigMaterialId: string;
+  alternativeMaterialId: string;
+  isAcceptable: boolean;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface MaterialWithAlternatives {

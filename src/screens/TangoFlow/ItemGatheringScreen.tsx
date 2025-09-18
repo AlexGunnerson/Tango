@@ -25,13 +25,18 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [availableGamesCount, setAvailableGamesCount] = useState<number>(0);
+  const [loadingGamesCount, setLoadingGamesCount] = useState(false);
+  const [showingFeaturedOnly, setShowingFeaturedOnly] = useState(true);
+  const [loadingMoreItems, setLoadingMoreItems] = useState(false);
 
   // Fetch materials from Supabase on component mount
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
         setLoading(true);
-        const materials = await supabaseService.getMaterials();
+        // Start with featured materials only
+        const materials = await supabaseService.getFeaturedMaterials();
         
         // Transform database materials to Item format
         const transformedItems: Item[] = materials.map((material: DatabaseMaterial) => ({
@@ -67,14 +72,80 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
     fetchMaterials();
   }, []);
 
-  const toggleItem = (id: string) => {
-    setItems(prev => prev.map(item => 
-      item.id === id ? { ...item, checked: !item.checked } : item
-    ));
+  // Function to load additional non-featured materials
+  const loadMoreMaterials = async () => {
+    if (loadingMoreItems || !showingFeaturedOnly) return;
+    
+    try {
+      setLoadingMoreItems(true);
+      const allMaterials = await supabaseService.getAllMaterials();
+      
+      // Filter out materials we already have (featured ones)
+      const existingIds = new Set(items.map(item => item.id));
+      const newMaterials = allMaterials.filter(material => !existingIds.has(material.id));
+      
+      // Transform new materials to Item format
+      const newItems: Item[] = newMaterials.map((material: DatabaseMaterial) => ({
+        id: material.id,
+        name: material.material,
+        icon: material.icon || '📦',
+        checked: false, // New items start unchecked
+        alternatives: [
+          material.alternative_1,
+          material.alternative_2,
+          material.alternative_3
+        ].filter(Boolean) as string[],
+        availabilityScore: material.availability_score
+      }));
+      
+      setItems(prev => [...prev, ...newItems]);
+      setShowingFeaturedOnly(false);
+    } catch (err) {
+      console.error('Error loading additional materials:', err);
+      setError('Failed to load additional materials.');
+    } finally {
+      setLoadingMoreItems(false);
+    }
   };
 
+  // Function to update available games count based on selected items
+  const updateAvailableGamesCount = async (selectedItems: string[]) => {
+    try {
+      setLoadingGamesCount(true);
+      const count = await supabaseService.getAvailableGamesCountUnified(selectedItems);
+      setAvailableGamesCount(count);
+    } catch (err) {
+      console.error('Error fetching available games count:', err);
+      // Fallback to a reasonable estimate if the call fails
+      setAvailableGamesCount(Math.floor((selectedItems.length / 10) * 150));
+    } finally {
+      setLoadingGamesCount(false);
+    }
+  };
+
+  const toggleItem = (id: string) => {
+    setItems(prev => {
+      const updatedItems = prev.map(item => 
+        item.id === id ? { ...item, checked: !item.checked } : item
+      );
+      
+      // Update games count with the new selection
+      const selectedItems = updatedItems.filter(item => item.checked).map(item => item.name);
+      updateAvailableGamesCount(selectedItems);
+      
+      return updatedItems;
+    });
+  };
+
+  // Initial games count calculation when items are loaded
+  useEffect(() => {
+    if (items.length > 0) {
+      const selectedItems = items.filter(item => item.checked).map(item => item.name);
+      updateAvailableGamesCount(selectedItems);
+    }
+  }, [items.length]); // Only run when items are initially loaded
+
   const checkedCount = items.filter(item => item.checked).length;
-  const totalGames = Math.floor((checkedCount / items.length) * 150);
 
   if (loading) {
     return (
@@ -141,18 +212,38 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.addItemsContainer}>
+        <TouchableOpacity 
+          style={[styles.addItemsContainer, loadingMoreItems && styles.addItemsContainerDisabled]}
+          onPress={loadMoreMaterials}
+          disabled={loadingMoreItems || !showingFeaturedOnly}
+        >
           <View style={styles.addItemsContent}>
-            <Text style={styles.plusIcon}>+</Text>
-            <Text style={styles.addItemsText}>Add items to unlock more games</Text>
+            {loadingMoreItems ? (
+              <>
+                <ActivityIndicator size="small" color="#F66D3D" />
+                <Text style={styles.addItemsText}>Loading more items...</Text>
+              </>
+            ) : showingFeaturedOnly ? (
+              <>
+                <Text style={styles.plusIcon}>+</Text>
+                <Text style={styles.addItemsText}>Add items to unlock more games</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.checkIcon}>✓</Text>
+                <Text style={styles.addItemsText}>All items loaded</Text>
+              </>
+            )}
           </View>
         </TouchableOpacity>
 
         <View style={styles.progressSection}>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${(totalGames / 150) * 100}%` }]} />
+            <View style={[styles.progressFill, { width: `${(availableGamesCount / 150) * 100}%` }]} />
           </View>
-          <Text style={styles.progressText}>{totalGames} of 150 Games Available</Text>
+          <Text style={styles.progressText}>
+            {loadingGamesCount ? 'Calculating...' : `${availableGamesCount} of 150 Games Available`}
+          </Text>
         </View>
       </ScrollView>
 
@@ -282,6 +373,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  addItemsContainerDisabled: {
+    opacity: 0.6,
+  },
   addItemsContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -289,6 +383,12 @@ const styles = StyleSheet.create({
   plusIcon: {
     fontSize: 24,
     color: '#F66D3D',
+    marginRight: 16,
+    fontWeight: 'bold',
+  },
+  checkIcon: {
+    fontSize: 24,
+    color: '#4CAF50',
     marginRight: 16,
     fontWeight: 'bold',
   },

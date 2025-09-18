@@ -100,6 +100,7 @@ export interface DatabaseMatchHistory {
 export interface DatabaseMaterial {
   id: string;
   material: string;
+  is_featured: boolean;
   alternative_1?: string;
   alternative_2?: string;
   alternative_3?: string;
@@ -114,7 +115,36 @@ export interface DatabaseGameConfigMaterial {
   game_config_id: string;
   material_id: string;
   is_required: boolean;
+  quantity: number;
+  quantity_type: 'TOTAL' | 'PER_USER';
+  notes?: string;
   created_at: string;
+}
+
+export interface DatabaseGameMaterialAlternative {
+  id: string;
+  game_config_material_id: string;
+  alternative_material_id: string;
+  is_acceptable: boolean;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GameMaterialRequirement {
+  material_id: string;
+  material_name: string;
+  material_icon?: string;
+  quantity: number;
+  quantity_type: 'TOTAL' | 'PER_USER';
+  is_required: boolean;
+  notes?: string;
+  alternatives: {
+    id: string;
+    name: string;
+    icon?: string;
+    notes?: string;
+  }[];
 }
 
 // Filter interfaces
@@ -166,6 +196,89 @@ export interface PlayerStats {
 }
 
 class SupabaseService {
+  // Helper method for improved item matching logic with database alternatives
+  private async doesGameMatchAvailableItems(game: Game, availableItems: string[], playerCount: number = 2): Promise<boolean> {
+    if (availableItems.length === 0) return true;
+    
+    try {
+      // Get detailed material requirements for this game
+      const requirements = await this.getGameMaterialRequirements(game.id);
+      
+      return requirements.every(req => {
+        // Calculate total quantity needed
+        const totalQuantityNeeded = req.quantity_type === 'PER_USER' 
+          ? req.quantity * playerCount 
+          : req.quantity;
+        
+        // Check if user has the primary material
+        if (this.hasEnoughMaterial(availableItems, req.material_name, totalQuantityNeeded)) {
+          return true;
+        }
+        
+        // Check if user has any acceptable alternatives
+        return req.alternatives.some(alt => 
+          this.hasEnoughMaterial(availableItems, alt.name, totalQuantityNeeded)
+        );
+      });
+    } catch (error) {
+      console.error('Error checking game material requirements:', error);
+      // Fallback to legacy string-based matching
+      return this.doesGameMatchAvailableItemsLegacy(game, availableItems);
+    }
+  }
+
+  // Legacy matching logic as fallback
+  private doesGameMatchAvailableItemsLegacy(game: Game, availableItems: string[]): boolean {
+    if (availableItems.length === 0) return true;
+    
+    return game.requiredItems.every(requiredItem => {
+      return availableItems.some(availableItem => {
+        const required = requiredItem.toLowerCase().trim();
+        const available = availableItem.toLowerCase().trim();
+        
+        // Exact match
+        if (available === required) return true;
+        
+        // Partial match (current logic)
+        if (available.includes(required) || required.includes(available)) return true;
+        
+        // Handle common alternatives
+        const alternatives: { [key: string]: string[] } = {
+          'spoon': ['spoon', 'utensil', 'silverware', 'cutlery'],
+          'bowl': ['bowl', 'container', 'dish'],
+          'paper': ['paper', 'sheet', 'notebook', 'pad'],
+          'pen': ['pen', 'pencil', 'marker', 'writing utensil', 'something to write with'],
+          'pencil': ['pen', 'pencil', 'marker', 'writing utensil', 'something to write with'],
+          'coins': ['coins', 'pennies', 'change', 'money'],
+          'pennies': ['coins', 'pennies', 'change', 'money'],
+        };
+        
+        // Check if required item has alternatives that match available items
+        const requiredAlternatives = alternatives[required] || [];
+        if (requiredAlternatives.some(alt => available.includes(alt.toLowerCase()))) return true;
+        
+        // Check if available item has alternatives that match required items
+        for (const [key, alts] of Object.entries(alternatives)) {
+          if (available.includes(key) && alts.some(alt => required.includes(alt.toLowerCase()))) {
+            return true;
+          }
+        }
+        
+        return false;
+      });
+    });
+  }
+
+  // Helper to check if user has enough of a specific material
+  private hasEnoughMaterial(availableItems: string[], materialName: string, quantityNeeded: number): boolean {
+    // For now, we assume if the user has the item, they have enough
+    // In the future, you could extend this to track quantities
+    return availableItems.some(item => 
+      item.toLowerCase().includes(materialName.toLowerCase()) ||
+      materialName.toLowerCase().includes(item.toLowerCase())
+    );
+  }
+
   // Game Configuration Methods
   async getGameConfigs(): Promise<Game[]> {
     try {
@@ -256,15 +369,16 @@ class SupabaseService {
 
       let games = data.map(this.transformGameConfig);
 
-      // Filter by available items if provided
+      // Filter by available items if provided using improved matching logic
       if (filters.availableItems && filters.availableItems.length > 0) {
-        games = games.filter(game =>
-          game.requiredItems.every(item =>
-            filters.availableItems!.some(availableItem =>
-              availableItem.toLowerCase().includes(item.toLowerCase())
-            )
-          )
-        );
+        const filteredGames = [];
+        for (const game of games) {
+          const matches = await this.doesGameMatchAvailableItems(game, filters.availableItems, filters.maxPlayers || 2);
+          if (matches) {
+            filteredGames.push(game);
+          }
+        }
+        games = filteredGames;
       }
 
       return games;
@@ -284,6 +398,47 @@ class SupabaseService {
     } catch (error) {
       console.error('Error fetching random games:', error);
       throw error;
+    }
+  }
+
+  async getAvailableGamesCount(selectedItems: string[]): Promise<number> {
+    try {
+      const filters: GameFilters = {
+        maxPlayers: 2,
+        minPlayers: 2,
+        availableItems: selectedItems,
+        isPremium: false // For now, only count free games
+      };
+      
+      const games = await this.getGamesByFilters(filters);
+      return games.length;
+    } catch (error) {
+      console.error('Error fetching available games count:', error);
+      throw error;
+    }
+  }
+
+  async getAvailableGamesCountUnified(selectedItems: string[]): Promise<number> {
+    const { networkService } = await import('./networkService');
+    const { offlineStorageService } = await import('./offlineStorageService');
+    
+    try {
+      if (networkService.isOnline()) {
+        // Online: Use Supabase
+        return await this.getAvailableGamesCount(selectedItems);
+      } else {
+        // Offline: Use cached games
+        return await offlineStorageService.getCachedAvailableGamesCount(selectedItems);
+      }
+    } catch (error) {
+      console.error('Error fetching available games count (unified):', error);
+      // Fallback to offline cache if online fails
+      try {
+        return await offlineStorageService.getCachedAvailableGamesCount(selectedItems);
+      } catch (fallbackError) {
+        console.error('Fallback to cached games also failed:', fallbackError);
+        return 0;
+      }
     }
   }
 
@@ -605,12 +760,18 @@ class SupabaseService {
   }
 
   // Material Methods
-  async getMaterials(): Promise<DatabaseMaterial[]> {
+  async getMaterials(options?: { featuredOnly?: boolean }): Promise<DatabaseMaterial[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('materials')
-        .select('*')
-        .order('material');
+        .select('*');
+
+      // Filter by featured status if specified
+      if (options?.featuredOnly) {
+        query = query.eq('is_featured', true);
+      }
+
+      const { data, error } = await query.order('material');
 
       if (error) throw error;
       return data || [];
@@ -618,6 +779,14 @@ class SupabaseService {
       console.error('Error fetching materials:', error);
       throw error;
     }
+  }
+
+  async getFeaturedMaterials(): Promise<DatabaseMaterial[]> {
+    return this.getMaterials({ featuredOnly: true });
+  }
+
+  async getAllMaterials(): Promise<DatabaseMaterial[]> {
+    return this.getMaterials();
   }
 
   async getMaterialById(id: string): Promise<DatabaseMaterial | null> {
@@ -652,6 +821,90 @@ class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Error fetching materials by availability:', error);
+      throw error;
+    }
+  }
+
+  async getGameMaterialRequirements(gameId: string): Promise<GameMaterialRequirement[]> {
+    try {
+      const { data, error } = await supabase
+        .from('game_materials_detailed')
+        .select('*')
+        .eq('game_id', gameId);
+
+      if (error) throw error;
+
+      return (data || []).map(row => ({
+        material_id: row.material_id,
+        material_name: row.material_name,
+        material_icon: row.material_icon,
+        quantity: row.quantity,
+        quantity_type: row.quantity_type as 'TOTAL' | 'PER_USER',
+        is_required: row.is_required,
+        notes: row.requirement_notes,
+        alternatives: row.alternatives || []
+      }));
+    } catch (error) {
+      console.error('Error fetching game material requirements:', error);
+      throw error;
+    }
+  }
+
+  async addGameMaterialAlternative(
+    gameConfigMaterialId: string, 
+    alternativeMaterialId: string, 
+    notes?: string
+  ): Promise<DatabaseGameMaterialAlternative> {
+    try {
+      const { data, error } = await supabase
+        .from('game_material_alternatives')
+        .insert({
+          game_config_material_id: gameConfigMaterialId,
+          alternative_material_id: alternativeMaterialId,
+          is_acceptable: true,
+          notes
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error adding game material alternative:', error);
+      throw error;
+    }
+  }
+
+  async updateGameMaterialAlternative(
+    alternativeId: string, 
+    updates: Partial<Pick<DatabaseGameMaterialAlternative, 'is_acceptable' | 'notes'>>
+  ): Promise<DatabaseGameMaterialAlternative> {
+    try {
+      const { data, error } = await supabase
+        .from('game_material_alternatives')
+        .update(updates)
+        .eq('id', alternativeId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating game material alternative:', error);
+      throw error;
+    }
+  }
+
+  async removeGameMaterialAlternative(alternativeId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('game_material_alternatives')
+        .delete()
+        .eq('id', alternativeId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error removing game material alternative:', error);
       throw error;
     }
   }

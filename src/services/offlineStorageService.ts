@@ -39,6 +39,50 @@ export interface CachedPlayer {
 }
 
 class OfflineStorageService {
+  // Helper method for improved item matching logic (offline version)
+  private async doesGameMatchAvailableItems(game: Game, availableItems: string[], playerCount: number = 2): Promise<boolean> {
+    if (availableItems.length === 0) return true;
+    
+    // For offline mode, we fall back to the legacy string-based matching
+    // since we don't have access to the database alternatives
+    return game.requiredItems.every(requiredItem => {
+      return availableItems.some(availableItem => {
+        const required = requiredItem.toLowerCase().trim();
+        const available = availableItem.toLowerCase().trim();
+        
+        // Exact match
+        if (available === required) return true;
+        
+        // Partial match (current logic)
+        if (available.includes(required) || required.includes(available)) return true;
+        
+        // Handle common alternatives
+        const alternatives: { [key: string]: string[] } = {
+          'spoon': ['spoon', 'utensil', 'silverware', 'cutlery'],
+          'bowl': ['bowl', 'container', 'dish'],
+          'paper': ['paper', 'sheet', 'notebook', 'pad'],
+          'pen': ['pen', 'pencil', 'marker', 'writing utensil', 'something to write with'],
+          'pencil': ['pen', 'pencil', 'marker', 'writing utensil', 'something to write with'],
+          'coins': ['coins', 'pennies', 'change', 'money'],
+          'pennies': ['coins', 'pennies', 'change', 'money'],
+        };
+        
+        // Check if required item has alternatives that match available items
+        const requiredAlternatives = alternatives[required] || [];
+        if (requiredAlternatives.some(alt => available.includes(alt.toLowerCase()))) return true;
+        
+        // Check if available item has alternatives that match required items
+        for (const [key, alts] of Object.entries(alternatives)) {
+          if (available.includes(key) && alts.some(alt => required.includes(alt.toLowerCase()))) {
+            return true;
+          }
+        }
+        
+        return false;
+      });
+    });
+  }
+
   // Game Configuration Methods
   async cacheGames(games: Game[]): Promise<void> {
     try {
@@ -91,6 +135,37 @@ class OfflineStorageService {
     } catch (error) {
       console.error('Failed to get cached punishments:', error);
       return [];
+    }
+  }
+
+  async getCachedAvailableGamesCount(selectedItems: string[]): Promise<number> {
+    try {
+      const cachedGames = await this.getCachedGames();
+      
+      if (cachedGames.length === 0) {
+        return 0;
+      }
+
+      // Filter cached games based on criteria similar to online filtering
+      const filteredGames = [];
+      for (const game of cachedGames) {
+        if (
+          game.maxPlayers >= 2 && 
+          game.minPlayers <= 2 &&
+          !game.isPremium
+        ) {
+          // Use improved item matching logic
+          const matches = await this.doesGameMatchAvailableItems(game, selectedItems, 2);
+          if (matches) {
+            filteredGames.push(game);
+          }
+        }
+      }
+
+      return filteredGames.length;
+    } catch (error) {
+      console.error('Failed to get cached available games count:', error);
+      return 0;
     }
   }
 
