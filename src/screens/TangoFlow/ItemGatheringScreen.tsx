@@ -250,24 +250,50 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
       <TouchableOpacity 
         style={styles.itemsGatheredButton}
         onPress={async () => {
-          // Set available items in game logic service
-          const selectedItems = items.filter(item => item.checked).map(item => item.name);
-          setAvailableItems(selectedItems);
-          
-          // Select games based on available items
-          await selectGames();
-          
-          // Navigate to first game instructions screen
-          navigation.navigate('GameInstructionsScreen1', {
-            player1,
-            player2,
-            punishment,
-            availableItems: items.filter(item => item.checked),
-            originalPlayer1,
-            originalPlayer2,
-            player1Score,
-            player2Score
-          });
+          try {
+            // Set available items in game logic service
+            const selectedItems = items.filter(item => item.checked).map(item => item.name);
+            setAvailableItems(selectedItems);
+            
+            // Save materials to user_materials table for both players
+            // This enables persistent material tracking and efficient game matching
+            await Promise.all([
+              supabaseService.updateUserMaterialsByName(player1, selectedItems),
+              supabaseService.updateUserMaterialsByName(player2, selectedItems)
+            ]);
+            
+            // Select games based on available items
+            await selectGames();
+            
+            // Navigate to first game instructions screen
+            navigation.navigate('GameInstructionsScreen1', {
+              player1,
+              player2,
+              punishment,
+              availableItems: items.filter(item => item.checked),
+              originalPlayer1,
+              originalPlayer2,
+              player1Score,
+              player2Score
+            });
+          } catch (error) {
+            console.error('Error saving materials:', error);
+            // Continue with navigation even if saving fails
+            const selectedItems = items.filter(item => item.checked).map(item => item.name);
+            setAvailableItems(selectedItems);
+            await selectGames();
+            
+            navigation.navigate('GameInstructionsScreen1', {
+              player1,
+              player2,
+              punishment,
+              availableItems: items.filter(item => item.checked),
+              originalPlayer1,
+              originalPlayer2,
+              player1Score,
+              player2Score
+            });
+          }
         }}
       >
         <Image 

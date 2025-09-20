@@ -31,8 +31,8 @@ class GameLogicServiceImpl implements GameLogicService {
       return requirements.every(req => {
         // Calculate total quantity needed
         const totalQuantityNeeded = req.quantity_type === 'PER_USER' 
-          ? req.quantity * playerCount 
-          : req.quantity;
+          ? req.quantity_required * playerCount 
+          : req.quantity_required;
         
         // Check if user has the primary material
         if (this.hasEnoughMaterial(availableItems, req.material_name, totalQuantityNeeded)) {

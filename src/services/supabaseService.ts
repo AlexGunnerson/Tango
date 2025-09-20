@@ -70,7 +70,7 @@ export interface DatabaseGameSession {
 export interface DatabaseIndividualGame {
   id: string;
   session_id: string;
-  game_config_id: string;
+  game_id: string;
   round_number: number;
   winner_id?: string;
   player1_handicap?: any;
@@ -110,41 +110,36 @@ export interface DatabaseMaterial {
   updated_at: string;
 }
 
-export interface DatabaseGameConfigMaterial {
+export interface DatabaseGameMaterial {
   id: string;
-  game_config_id: string;
+  game_id: string;
   material_id: string;
-  is_required: boolean;
-  quantity: number;
+  quantity_required: number;
   quantity_type: 'TOTAL' | 'PER_USER';
   notes?: string;
+  alternative_1: boolean;
+  alternative_2: boolean;
+  alternative_3: boolean;
   created_at: string;
 }
 
-export interface DatabaseGameMaterialAlternative {
-  id: string;
-  game_config_material_id: string;
-  alternative_material_id: string;
-  is_acceptable: boolean;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
 
 export interface GameMaterialRequirement {
   material_id: string;
-  material_name: string;
+  material_name: string; // From JOIN to materials table - should be clean name like "Cup", not "2 cups"
   material_icon?: string;
-  quantity: number;
+  availability_score: string;
+  quantity_required: number;
   quantity_type: 'TOTAL' | 'PER_USER';
-  is_required: boolean;
   notes?: string;
-  alternatives: {
-    id: string;
-    name: string;
-    icon?: string;
-    notes?: string;
-  }[];
+  // Material alternatives from materials table
+  alternative_1?: string;
+  alternative_2?: string;
+  alternative_3?: string;
+  // Boolean flags controlling which alternatives are allowed for this game
+  alternative_1_allowed: boolean;
+  alternative_2_allowed: boolean;
+  alternative_3_allowed: boolean;
 }
 
 // Filter interfaces
@@ -196,7 +191,7 @@ export interface PlayerStats {
 }
 
 class SupabaseService {
-  // Helper method for improved item matching logic with database alternatives
+  // Helper method for improved item matching logic with boolean alternatives
   private async doesGameMatchAvailableItems(game: Game, availableItems: string[], playerCount: number = 2): Promise<boolean> {
     if (availableItems.length === 0) return true;
     
@@ -205,19 +200,31 @@ class SupabaseService {
       const requirements = await this.getGameMaterialRequirements(game.id);
       
       return requirements.every(req => {
+        // All materials are now required - check if user has enough of the primary material or allowed alternatives
         // Calculate total quantity needed
         const totalQuantityNeeded = req.quantity_type === 'PER_USER' 
-          ? req.quantity * playerCount 
-          : req.quantity;
+          ? req.quantity_required * playerCount 
+          : req.quantity_required;
         
-        // Check if user has the primary material
+        // Check if user has enough of the primary material
         if (this.hasEnoughMaterial(availableItems, req.material_name, totalQuantityNeeded)) {
           return true;
         }
         
-        // Check if user has any acceptable alternatives
-        return req.alternatives.some(alt => 
-          this.hasEnoughMaterial(availableItems, alt.name, totalQuantityNeeded)
+        // Check alternatives if they're allowed for this game
+        const allowedAlternatives = [];
+        if (req.alternative_1_allowed && req.alternative_1) {
+          allowedAlternatives.push(req.alternative_1);
+        }
+        if (req.alternative_2_allowed && req.alternative_2) {
+          allowedAlternatives.push(req.alternative_2);
+        }
+        if (req.alternative_3_allowed && req.alternative_3) {
+          allowedAlternatives.push(req.alternative_3);
+        }
+        
+        return allowedAlternatives.some(alt => 
+          this.hasEnoughMaterial(availableItems, alt, totalQuantityNeeded)
         );
       });
     } catch (error) {
@@ -283,7 +290,7 @@ class SupabaseService {
   async getGameConfigs(): Promise<Game[]> {
     try {
       const { data, error } = await supabase
-        .from('game_configs')
+        .from('games')
         .select('*')
         .eq('is_active', true)
         .order('title');
@@ -300,7 +307,7 @@ class SupabaseService {
   async getGameById(id: string): Promise<Game | null> {
     try {
       const { data, error } = await supabase
-        .from('game_configs')
+        .from('games')
         .select('*')
         .eq('id', id)
         .eq('is_active', true)
@@ -321,7 +328,7 @@ class SupabaseService {
   async getGameByTitle(title: string): Promise<Game | null> {
     try {
       const { data, error } = await supabase
-        .from('game_configs')
+        .from('games')
         .select('*')
         .eq('title', title)
         .eq('is_active', true)
@@ -343,7 +350,7 @@ class SupabaseService {
   async getGamesByFilters(filters: GameFilters): Promise<Game[]> {
     try {
       let query = supabase
-        .from('game_configs')
+        .from('games')
         .select('*')
         .eq('is_active', true);
 
@@ -828,21 +835,39 @@ class SupabaseService {
   async getGameMaterialRequirements(gameId: string): Promise<GameMaterialRequirement[]> {
     try {
       const { data, error } = await supabase
-        .from('game_materials_detailed')
-        .select('*')
+        .from('game_materials')
+        .select(`
+          *,
+          materials (
+            id,
+            material,
+            icon,
+            availability_score,
+            alternative_1,
+            alternative_2,
+            alternative_3
+          )
+        `)
         .eq('game_id', gameId);
 
       if (error) throw error;
 
       return (data || []).map(row => ({
         material_id: row.material_id,
-        material_name: row.material_name,
-        material_icon: row.material_icon,
-        quantity: row.quantity,
+        material_name: row.materials.material,
+        material_icon: row.materials.icon,
+        availability_score: row.materials.availability_score,
+        quantity_required: row.quantity_required,
         quantity_type: row.quantity_type as 'TOTAL' | 'PER_USER',
-        is_required: row.is_required,
-        notes: row.requirement_notes,
-        alternatives: row.alternatives || []
+        notes: row.notes,
+        // Material alternatives from materials table
+        alternative_1: row.materials.alternative_1,
+        alternative_2: row.materials.alternative_2,
+        alternative_3: row.materials.alternative_3,
+        // Boolean flags controlling which alternatives are allowed for this game
+        alternative_1_allowed: row.alternative_1,
+        alternative_2_allowed: row.alternative_2,
+        alternative_3_allowed: row.alternative_3
       }));
     } catch (error) {
       console.error('Error fetching game material requirements:', error);
@@ -850,61 +875,24 @@ class SupabaseService {
     }
   }
 
-  async addGameMaterialAlternative(
-    gameConfigMaterialId: string, 
-    alternativeMaterialId: string, 
-    notes?: string
-  ): Promise<DatabaseGameMaterialAlternative> {
-    try {
-      const { data, error } = await supabase
-        .from('game_material_alternatives')
-        .insert({
-          game_config_material_id: gameConfigMaterialId,
-          alternative_material_id: alternativeMaterialId,
-          is_acceptable: true,
-          notes
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error adding game material alternative:', error);
-      throw error;
+  // Alternative management is now handled through boolean flags in game_materials
+  async updateGameMaterialAlternatives(
+    gameConfigMaterialId: string,
+    alternatives: {
+      alternative_1?: boolean;
+      alternative_2?: boolean;
+      alternative_3?: boolean;
     }
-  }
-
-  async updateGameMaterialAlternative(
-    alternativeId: string, 
-    updates: Partial<Pick<DatabaseGameMaterialAlternative, 'is_acceptable' | 'notes'>>
-  ): Promise<DatabaseGameMaterialAlternative> {
-    try {
-      const { data, error } = await supabase
-        .from('game_material_alternatives')
-        .update(updates)
-        .eq('id', alternativeId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error updating game material alternative:', error);
-      throw error;
-    }
-  }
-
-  async removeGameMaterialAlternative(alternativeId: string): Promise<void> {
+  ): Promise<void> {
     try {
       const { error } = await supabase
-        .from('game_material_alternatives')
-        .delete()
-        .eq('id', alternativeId);
+        .from('game_materials')
+        .update(alternatives)
+        .eq('id', gameConfigMaterialId);
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error removing game material alternative:', error);
+      console.error('Error updating game material alternatives:', error);
       throw error;
     }
   }
@@ -912,7 +900,7 @@ class SupabaseService {
   async getGameMaterials(gameConfigId: string): Promise<DatabaseMaterial[]> {
     try {
       const { data, error } = await supabase
-        .from('game_config_materials')
+        .from('game_materials')
         .select(`
           materials!inner(*)
         `)
@@ -926,14 +914,13 @@ class SupabaseService {
     }
   }
 
-  async linkGameToMaterial(gameConfigId: string, materialId: string, isRequired: boolean = true): Promise<void> {
+  async linkGameToMaterial(gameConfigId: string, materialId: string): Promise<void> {
     try {
       const { error } = await supabase
-        .from('game_config_materials')
+        .from('game_materials')
         .insert([{
-          game_config_id: gameConfigId,
-          material_id: materialId,
-          is_required: isRequired
+          game_id: gameConfigId,
+          material_id: materialId
         }]);
 
       if (error) throw error;
@@ -947,13 +934,290 @@ class SupabaseService {
   async healthCheck(): Promise<boolean> {
     try {
       const { data, error } = await supabase
-        .from('game_configs')
+        .from('games')
         .select('count')
         .limit(1);
 
       return !error;
     } catch (error) {
       console.error('Supabase health check failed:', error);
+      return false;
+    }
+  }
+
+  // ===== USER MATERIALS MANAGEMENT =====
+
+  /**
+   * Get or create a player by name (for backwards compatibility)
+   */
+  async getOrCreatePlayerByName(playerName: string): Promise<string> {
+    try {
+      // First, try to find existing player
+      const { data: existingPlayer, error: findError } = await supabase
+        .from('players')
+        .select('id')
+        .eq('name', playerName)
+        .single();
+
+      if (existingPlayer) {
+        return existingPlayer.id;
+      }
+
+      // If not found, create new player
+      const { data: newPlayer, error: createError } = await supabase
+        .from('players')
+        .insert({ name: playerName })
+        .select('id')
+        .single();
+
+      if (createError) throw createError;
+      if (!newPlayer) throw new Error('Failed to create player');
+
+      return newPlayer.id;
+    } catch (error) {
+      console.error('Error getting/creating player:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add or update user's materials from the material selection screen
+   */
+  async updateUserMaterials(userId: string, selectedMaterials: string[], quantities?: Record<string, number>): Promise<void> {
+    try {
+      // First, clear existing materials for this user
+      await supabase
+        .from('user_materials')
+        .delete()
+        .eq('user_id', userId);
+
+      if (selectedMaterials.length === 0) {
+        return; // User selected no materials
+      }
+
+      // Get material IDs for the selected material names
+      const { data: materials, error: materialsError } = await supabase
+        .from('materials')
+        .select('id, material')
+        .in('material', selectedMaterials);
+
+      if (materialsError) throw materialsError;
+
+      // Prepare insert data
+      const userMaterialsData = materials?.map(material => ({
+        user_id: userId,
+        material_id: material.id,
+        quantity_available: quantities?.[material.material] || null // null = "has some"
+      })) || [];
+
+      // Insert new materials
+      const { error: insertError } = await supabase
+        .from('user_materials')
+        .insert(userMaterialsData);
+
+      if (insertError) throw insertError;
+
+      console.log(`Updated materials for user ${userId}:`, selectedMaterials);
+    } catch (error) {
+      console.error('Error updating user materials:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update user materials by player name (convenience method for current app structure)
+   */
+  async updateUserMaterialsByName(playerName: string, selectedMaterials: string[], quantities?: Record<string, number>): Promise<void> {
+    try {
+      const userId = await this.getOrCreatePlayerByName(playerName);
+      await this.updateUserMaterials(userId, selectedMaterials, quantities);
+    } catch (error) {
+      console.error('Error updating user materials by name:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user's current materials
+   */
+  async getUserMaterials(userId: string): Promise<Array<{
+    id: string;
+    materialId: string;
+    materialName: string;
+    quantityAvailable: number | null;
+    createdAt: string;
+  }>> {
+    try {
+      const { data, error } = await supabase
+        .from('user_materials')
+        .select(`
+          id,
+          material_id,
+          quantity_available,
+          created_at,
+          materials!inner(
+            material
+          )
+        `)
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      return (data || []).map((row: any) => ({
+        id: row.id,
+        materialId: row.material_id,
+        materialName: row.materials.material,
+        quantityAvailable: row.quantity_available,
+        createdAt: row.created_at
+      }));
+    } catch (error) {
+      console.error('Error fetching user materials:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Add a single material to user's inventory
+   */
+  async addUserMaterial(userId: string, materialName: string, quantity?: number): Promise<void> {
+    try {
+      // Get material ID
+      const { data: material, error: materialError } = await supabase
+        .from('materials')
+        .select('id')
+        .eq('material', materialName)
+        .single();
+
+      if (materialError) throw materialError;
+      if (!material) throw new Error(`Material "${materialName}" not found`);
+
+      // Insert or update user material
+      const { error } = await supabase
+        .from('user_materials')
+        .upsert({
+          user_id: userId,
+          material_id: material.id,
+          quantity_available: quantity || null
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding user material:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove a material from user's inventory
+   */
+  async removeUserMaterial(userId: string, materialName: string): Promise<void> {
+    try {
+      // Get material ID
+      const { data: material, error: materialError } = await supabase
+        .from('materials')
+        .select('id')
+        .eq('material', materialName)
+        .single();
+
+      if (materialError) throw materialError;
+      if (!material) throw new Error(`Material "${materialName}" not found`);
+
+      // Remove user material
+      const { error } = await supabase
+        .from('user_materials')
+        .delete()
+        .eq('user_id', userId)
+        .eq('material_id', material.id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error removing user material:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get available games for user with specific player count
+   */
+  async getAvailableGamesForUser(userId: string, playerCount: number): Promise<Array<{
+    gameId: string;
+    gameTitle: string;
+    gameDescription: string;
+    minPlayers: number;
+    maxPlayers: number;
+    canPlayWithPlayerCount: boolean;
+    materialsNeeded: number;
+    userHasMaterials: number;
+  }>> {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_available_games_for_user', {
+          p_user_id: userId,
+          p_player_count: playerCount
+        });
+
+      if (error) throw error;
+
+      return (data || []).map((row: any) => ({
+        gameId: row.game_id,
+        gameTitle: row.game_title,
+        gameDescription: row.game_description,
+        minPlayers: row.min_players,
+        maxPlayers: row.max_players,
+        canPlayWithPlayerCount: row.can_play_with_player_count,
+        materialsNeeded: row.materials_needed,
+        userHasMaterials: row.user_has_materials
+      }));
+    } catch (error) {
+      console.error('Error getting available games for user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get available games for user by player name (convenience method)
+   */
+  async getAvailableGamesForPlayerName(playerName: string, playerCount: number): Promise<Array<{
+    gameId: string;
+    gameTitle: string;
+    gameDescription: string;
+    minPlayers: number;
+    maxPlayers: number;
+    canPlayWithPlayerCount: boolean;
+    materialsNeeded: number;
+    userHasMaterials: number;
+  }>> {
+    try {
+      const userId = await this.getOrCreatePlayerByName(playerName);
+      return await this.getAvailableGamesForUser(userId, playerCount);
+    } catch (error) {
+      console.error('Error getting available games for player name:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Check if user can play a specific game with given player count
+   */
+  async canUserPlayGame(userId: string, gameId: string, playerCount: number): Promise<boolean> {
+    try {
+      const availableGames = await this.getAvailableGamesForUser(userId, playerCount);
+      return availableGames.some(game => game.gameId === gameId);
+    } catch (error) {
+      console.error('Error checking if user can play game:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Check if player can play a specific game by name (convenience method)
+   */
+  async canPlayerPlayGameByName(playerName: string, gameId: string, playerCount: number): Promise<boolean> {
+    try {
+      const userId = await this.getOrCreatePlayerByName(playerName);
+      return await this.canUserPlayGame(userId, gameId, playerCount);
+    } catch (error) {
+      console.error('Error checking if player can play game by name:', error);
       return false;
     }
   }

@@ -18,26 +18,19 @@ export interface Material {
   updatedAt: string;
 }
 
-export interface GameConfigMaterial {
+export interface GameMaterial {
   id: string;
-  gameConfigId: string;
+  gameId: string;
   materialId: string;
-  isRequired: boolean;
-  quantity: number;
+  quantityRequired: number;
   quantityType: 'TOTAL' | 'PER_USER';
   notes?: string;
+  alternative1: boolean;
+  alternative2: boolean;
+  alternative3: boolean;
   createdAt: string;
 }
 
-export interface GameMaterialAlternative {
-  id: string;
-  gameConfigMaterialId: string;
-  alternativeMaterialId: string;
-  isAcceptable: boolean;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface MaterialWithAlternatives {
   id: string;
@@ -46,4 +39,28 @@ export interface MaterialWithAlternatives {
   availabilityScore: AvailabilityScore;
   icon?: string;
   checked?: boolean;
+}
+
+export interface UserMaterial {
+  id: string;
+  userId: string;
+  materialId: string;
+  quantityAvailable: number | null; // null = "has some", number = exact quantity
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserMaterialWithDetails extends UserMaterial {
+  material: Material; // JOIN with materials table
+}
+
+export interface AvailableGame {
+  gameId: string;
+  gameTitle: string;
+  gameDescription: string;
+  minPlayers: number;
+  maxPlayers: number;
+  canPlayWithPlayerCount: boolean;
+  materialsNeeded: number;
+  userHasMaterials: number;
 }

@@ -14,47 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
-      game_config_materials: {
+      game_materials: {
         Row: {
+          alternative_1: boolean | null
+          alternative_2: boolean | null
+          alternative_3: boolean | null
           created_at: string | null
-          game_config_id: string
+          game_id: string
           id: string
-          is_required: boolean | null
           material_id: string
           notes: string | null
-          quantity: number
-          quantity_type: string
+          quantity_required: number | null
+          quantity_type: string | null
         }
         Insert: {
+          alternative_1?: boolean | null
+          alternative_2?: boolean | null
+          alternative_3?: boolean | null
           created_at?: string | null
-          game_config_id: string
+          game_id: string
           id?: string
-          is_required?: boolean | null
           material_id: string
           notes?: string | null
-          quantity?: number
-          quantity_type?: string
+          quantity_required?: number | null
+          quantity_type?: string | null
         }
         Update: {
+          alternative_1?: boolean | null
+          alternative_2?: boolean | null
+          alternative_3?: boolean | null
           created_at?: string | null
-          game_config_id?: string
+          game_id?: string
           id?: string
-          is_required?: boolean | null
           material_id?: string
           notes?: string | null
-          quantity?: number
-          quantity_type?: string
+          quantity_required?: number | null
+          quantity_type?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "game_config_materials_game_config_id_fkey"
-            columns: ["game_config_id"]
+            foreignKeyName: "game_materials_game_id_fkey"
+            columns: ["game_id"]
             isOneToOne: false
-            referencedRelation: "game_configs"
+            referencedRelation: "games"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "game_config_materials_material_id_fkey"
+            foreignKeyName: "game_materials_material_id_fkey"
             columns: ["material_id"]
             isOneToOne: false
             referencedRelation: "materials"
@@ -62,52 +68,7 @@ export type Database = {
           },
         ]
       }
-      game_material_alternatives: {
-        Row: {
-          alternative_material_id: string
-          created_at: string | null
-          game_config_material_id: string
-          id: string
-          is_acceptable: boolean | null
-          notes: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          alternative_material_id: string
-          created_at?: string | null
-          game_config_material_id: string
-          id?: string
-          is_acceptable?: boolean | null
-          notes?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          alternative_material_id?: string
-          created_at?: string | null
-          game_config_material_id?: string
-          id?: string
-          is_acceptable?: boolean | null
-          notes?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "game_material_alternatives_game_config_material_id_fkey"
-            columns: ["game_config_material_id"]
-            isOneToOne: false
-            referencedRelation: "game_config_materials"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "game_material_alternatives_alternative_material_id_fkey"
-            columns: ["alternative_material_id"]
-            isOneToOne: false
-            referencedRelation: "materials"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      game_configs: {
+      games: {
         Row: {
           created_at: string | null
           description: string
@@ -314,7 +275,7 @@ export type Database = {
         Row: {
           completed_at: string | null
           created_at: string | null
-          game_config_id: string
+          game_id: string
           gameplay_duration: number | null
           id: string
           notes: string | null
@@ -328,7 +289,7 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           created_at?: string | null
-          game_config_id: string
+          game_id: string
           gameplay_duration?: number | null
           id?: string
           notes?: string | null
@@ -342,7 +303,7 @@ export type Database = {
         Update: {
           completed_at?: string | null
           created_at?: string | null
-          game_config_id?: string
+          game_id?: string
           gameplay_duration?: number | null
           id?: string
           notes?: string | null
@@ -355,10 +316,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "individual_games_game_config_id_fkey"
-            columns: ["game_config_id"]
+            foreignKeyName: "individual_games_game_id_fkey"
+            columns: ["game_id"]
             isOneToOne: false
-            referencedRelation: "game_configs"
+            referencedRelation: "games"
             referencedColumns: ["id"]
           },
           {
@@ -602,6 +563,48 @@ export type Database = {
           win_rate?: number | null
         }
         Relationships: []
+      }
+      user_materials: {
+        Row: {
+          created_at: string | null
+          id: string
+          material_id: string
+          quantity_available: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          material_id: string
+          quantity_available?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          material_id?: string
+          quantity_available?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_materials_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       punishments: {
         Row: {
