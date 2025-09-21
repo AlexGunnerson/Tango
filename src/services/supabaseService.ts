@@ -346,6 +346,27 @@ class SupabaseService {
     }
   }
 
+  async getGameById(gameId: string): Promise<Game | null> {
+    try {
+      const { data, error } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', gameId)
+        .eq('is_active', true)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null; // Not found
+        throw error;
+      }
+
+      return this.transformGameConfig(data);
+    } catch (error) {
+      console.error('Error fetching game by ID:', error);
+      return null;
+    }
+  }
+
 
   async getGamesByFilters(filters: GameFilters): Promise<Game[]> {
     try {
@@ -945,6 +966,75 @@ class SupabaseService {
     }
   }
 
+  // ===== PLAYER MANAGEMENT =====
+
+  /**
+   * Create a new player
+   */
+  async createPlayer(playerData: { name: string; display_name?: string }): Promise<{
+    id: string;
+    name: string;
+    display_name: string | null;
+    created_at: string;
+  }> {
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .insert([playerData])
+        .select('id, name, display_name, created_at')
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create player');
+
+      return data;
+    } catch (error) {
+      console.error('Error creating player:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get player by ID
+   */
+  async getPlayer(playerId: string): Promise<{
+    id: string;
+    name: string;
+    display_name: string | null;
+    created_at: string;
+  } | null> {
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .select('id, name, display_name, created_at')
+        .eq('id', playerId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+      return data || null;
+    } catch (error) {
+      console.error('Error getting player:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update player information
+   */
+  async updatePlayer(playerId: string, updates: { name?: string; display_name?: string }): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('players')
+        .update(updates)
+        .eq('id', playerId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating player:', error);
+      throw error;
+    }
+  }
+
   // ===== USER MATERIALS MANAGEMENT =====
 
   /**
@@ -1033,6 +1123,18 @@ class SupabaseService {
       await this.updateUserMaterials(userId, selectedMaterials, quantities);
     } catch (error) {
       console.error('Error updating user materials by name:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update materials for the current persistent user (preferred method)
+   */
+  async updateCurrentUserMaterials(userId: string, selectedMaterials: string[], quantities?: Record<string, number>): Promise<void> {
+    try {
+      await this.updateUserMaterials(userId, selectedMaterials, quantities);
+    } catch (error) {
+      console.error('Error updating current user materials:', error);
       throw error;
     }
   }

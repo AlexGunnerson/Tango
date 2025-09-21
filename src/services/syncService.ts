@@ -184,10 +184,50 @@ class SyncService {
 
       for (const session of unsyncedSessions) {
         try {
+          // Check if players need to be created in Supabase first
+          let player1Id = session.sessionState.player1?.id;
+          let player2Id = session.sessionState.player2?.id;
+
+          // If player IDs are fallback IDs (contain timestamp pattern), create players in Supabase
+          const isFallbackId = (id: string) => id && (id.startsWith('player1_') || id.startsWith('player2_')) && id.includes('_') && id.length > 20;
+          
+          if (isFallbackId(player1Id || '')) {
+            console.log('🌐 Creating player 1 in Supabase for offline session sync...');
+            try {
+              const player1 = await supabaseService.createPlayer({
+                name: session.sessionState.player1?.name || 'Player 1'
+              });
+              player1Id = player1.id;
+              console.log(`✅ Player 1 created with ID: ${player1Id}`);
+            } catch (playerError) {
+              console.error('❌ Failed to create player 1 in Supabase:', playerError);
+              throw new Error(`Failed to create player 1: ${playerError}`);
+            }
+          }
+
+          if (isFallbackId(player2Id || '')) {
+            console.log('🌐 Creating player 2 in Supabase for offline session sync...');
+            try {
+              const player2 = await supabaseService.createPlayer({
+                name: session.sessionState.player2?.name || 'Player 2'
+              });
+              player2Id = player2.id;
+              console.log(`✅ Player 2 created with ID: ${player2Id}`);
+            } catch (playerError) {
+              console.error('❌ Failed to create player 2 in Supabase:', playerError);
+              throw new Error(`Failed to create player 2: ${playerError}`);
+            }
+          }
+
+          // Validate that we have valid player IDs before creating session
+          if (!player1Id || !player2Id) {
+            throw new Error('Missing valid player IDs for game session creation');
+          }
+
           // Create or update the session in Supabase
           const sessionData = {
-            player1_id: session.sessionState.player1?.id || '',
-            player2_id: session.sessionState.player2?.id || '',
+            player1_id: player1Id,
+            player2_id: player2Id,
             punishment_id: undefined, // TODO: Convert punishment string to ID
             player1_score: session.sessionState.player1?.score || 0,
             player2_score: session.sessionState.player2?.score || 0,
@@ -199,16 +239,9 @@ class SyncService {
             selected_games: session.sessionState.selectedGames || [],
           };
 
-          // Try to update first, then create if not exists
-          try {
-            await supabaseService.updateGameSession(session.id, sessionData);
-          } catch (updateError) {
-            // If update fails, try to create
-            await supabaseService.createGameSession({
-              ...sessionData,
-              id: session.id,
-            });
-          }
+          // Create new session in database (let it auto-generate UUID)
+          // Note: We don't try to update since local session IDs won't match database UUIDs
+          await supabaseService.createGameSession(sessionData);
 
           // Mark as synced
           const updatedSession: OfflineGameSession = {
@@ -221,6 +254,17 @@ class SyncService {
           console.log(`✅ Synced offline session: ${session.id}`);
         } catch (error) {
           console.error(`❌ Failed to sync session ${session.id}:`, error);
+          
+          // If it's a foreign key error, mark the session as synced to prevent infinite retry
+          if (error && typeof error === 'object' && 'code' in error && error.code === '23503') {
+            console.log(`🗑️ Marking problematic session as synced to prevent retry: ${session.id}`);
+            const updatedSession = {
+              ...session,
+              synced: true,
+              updatedAt: new Date().toISOString(),
+            };
+            await offlineStorageService.saveOfflineSession(updatedSession);
+          }
         }
       }
 

@@ -80,10 +80,10 @@ export const useGameLogic = () => {
     }
   }, []);
 
-  const selectGames = useCallback(async () => {
+  const selectGames = useCallback(async (userId?: string) => {
     try {
       setError(null);
-      return await gameLogicService.selectGames();
+      return await gameLogicService.selectGames(userId);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to select games');
       return [];

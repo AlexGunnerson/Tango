@@ -3,3 +3,4 @@ export * from './useGameSounds';
 export * from './useGameLogic';
 export * from './useSupabase';
 export * from './useOfflineMode';
+export * from './useUser';

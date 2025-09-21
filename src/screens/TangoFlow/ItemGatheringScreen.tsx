@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameLogic } from '../../hooks/useGameLogic';
+import { useUser } from '../../hooks/useUser';
 import { supabaseService, DatabaseMaterial } from '../../services/supabaseService';
 import { Material } from '../../types/material';
 
@@ -21,6 +22,9 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
   
   // Get game logic functions
   const { setAvailableItems, selectGames } = useGameLogic();
+  
+  // Get persistent user for player1
+  const { user, isLoading: userLoading, isInitialized } = useUser();
   
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -255,15 +259,17 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
             const selectedItems = items.filter(item => item.checked).map(item => item.name);
             setAvailableItems(selectedItems);
             
-            // Save materials to user_materials table for both players
+            // Save materials to user_materials table for the persistent user (player1)
             // This enables persistent material tracking and efficient game matching
-            await Promise.all([
-              supabaseService.updateUserMaterialsByName(player1, selectedItems),
-              supabaseService.updateUserMaterialsByName(player2, selectedItems)
-            ]);
+            if (user && user.id) {
+              await supabaseService.updateCurrentUserMaterials(user.id, selectedItems);
+            } else {
+              // Fallback to name-based method if user system isn't ready
+              await supabaseService.updateUserMaterialsByName(player1, selectedItems);
+            }
             
-            // Select games based on available items
-            await selectGames();
+            // Select games based on user materials in database
+            await selectGames(user?.id);
             
             // Navigate to first game instructions screen
             navigation.navigate('GameInstructionsScreen1', {
@@ -281,7 +287,7 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
             // Continue with navigation even if saving fails
             const selectedItems = items.filter(item => item.checked).map(item => item.name);
             setAvailableItems(selectedItems);
-            await selectGames();
+            await selectGames(user?.id);
             
             navigation.navigate('GameInstructionsScreen1', {
               player1,

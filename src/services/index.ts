@@ -7,3 +7,4 @@ export * from './supabaseService';
 export * from './networkService';
 export * from './offlineStorageService';
 export * from './syncService';
+export * from './userService';

@@ -13,6 +13,7 @@ import { supabaseService, GameFilters } from './supabaseService';
 import { networkService } from './networkService';
 import { offlineStorageService, OfflineGameSession } from './offlineStorageService';
 import { Game } from '../types/game';
+import { v4 as uuidv4 } from 'uuid';
 
 class GameLogicServiceImpl implements GameLogicService {
   private currentSession: GameSessionState | null = null;
@@ -103,9 +104,19 @@ class GameLogicServiceImpl implements GameLogicService {
     );
   }
 
+  // Utility method to shuffle an array
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
   // Session management
   createSession(gameMode: '1v1' | '2v2' | 'coop' | 'tournament'): GameSessionState {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const sessionId = uuidv4(); // Generate proper UUID instead of custom format
     
     this.currentSession = {
       sessionId,
@@ -260,7 +271,7 @@ class GameLogicServiceImpl implements GameLogicService {
     this.notifySubscribers();
   }
 
-  async selectGames(): Promise<string[]> {
+  async selectGames(userId?: string): Promise<string[]> {
     if (!this.currentSession) {
       throw new Error('No active session. Create a session first.');
     }
@@ -268,9 +279,28 @@ class GameLogicServiceImpl implements GameLogicService {
     try {
       let selectedGames: Game[] = [];
 
-      if (networkService.isOnline()) {
-        // Online: Use Supabase
-        console.log('🌐 Online: Selecting games from Supabase');
+      if (networkService.isOnline() && userId) {
+        // Online: Use database-driven game matching with user_materials table
+        console.log('🌐 Online: Selecting games from user materials database');
+        
+        // Get available games for user based on their materials in user_materials table
+        const availableGames = await supabaseService.getAvailableGamesForUser(userId, 2);
+        
+        // Convert to Game objects and randomly select up to 5 games
+        const gamePromises = availableGames.map(async (gameInfo) => {
+          const game = await supabaseService.getGameById(gameInfo.gameId);
+          return game;
+        }).filter(Boolean);
+        
+        const allAvailableGames = (await Promise.all(gamePromises)).filter(game => game !== null) as Game[];
+        
+        // Randomly select up to 5 games
+        selectedGames = this.shuffleArray(allAvailableGames).slice(0, 5);
+        
+        console.log(`🎯 Selected ${selectedGames.length} games based on user materials`);
+      } else if (networkService.isOnline()) {
+        // Fallback: Use old method with available items array
+        console.log('🌐 Online: Fallback to legacy item matching');
         const filters: GameFilters = {
           maxPlayers: 2,
           minPlayers: 2,
