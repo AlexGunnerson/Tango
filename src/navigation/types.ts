@@ -2,6 +2,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 // Root Stack Navigator parameter list
 export type RootStackParamList = {
+  Auth: undefined;
+  Profile: undefined;
   Home: undefined;
   GameLibrary: undefined;
   // 1v1 Tango Flow screens

@@ -1,11 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity, Text, Modal, View, Pressable, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, Modal, View, Pressable, StyleSheet, Image } from 'react-native';
 import { RootStackParamList } from './types';
+import { useAuth } from '../hooks/useAuth';
 // import DevNavigator from '../components/DevNavigator';
 
 // Import screens
+import AuthScreen from '../screens/AuthScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import HomeScreen from '../screens/HomeScreen';
 import GameLibraryScreen from '../screens/GameLibraryScreen';
 import PlayerSelectionScreen from '../screens/TangoFlow/PlayerSelectionScreen';
@@ -42,7 +45,7 @@ import GameplayScreenGame5Player2 from '../screens/TangoFlow/GameplayScreenGame5
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // Menu Modal Component
-const MenuModal = ({ visible, onClose, navigation }: { visible: boolean; onClose: () => void; navigation: any }) => (
+const MenuModal = ({ visible, onClose, navigation, user }: { visible: boolean; onClose: () => void; navigation: any; user: any }) => (
   <Modal
     visible={visible}
     transparent
@@ -51,16 +54,37 @@ const MenuModal = ({ visible, onClose, navigation }: { visible: boolean; onClose
   >
     <Pressable style={menuStyles.modalBackdrop} onPress={onClose}>
       <Pressable style={menuStyles.menuCard} onPress={(e) => e.stopPropagation()}>
+        {/* Profile Option - Always show but with different states */}
         <TouchableOpacity 
-          style={menuStyles.menuOption}
+          style={menuStyles.menuProfileOption}
           onPress={() => {
             onClose();
-            navigation.navigate('Home');
+            if (user) {
+              navigation.navigate('Profile');
+            } else {
+              navigation.navigate('Auth');
+            }
           }}
         >
-          <View style={menuStyles.menuOptionContent}>
-            <Text style={menuStyles.menuOptionIcon}>🏠</Text>
-            <Text style={menuStyles.menuOptionText}>End Game</Text>
+          <View style={menuStyles.menuProfileContent}>
+            {user ? (
+              <Image 
+                source={{ uri: user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.email || 'User')}&background=F66D3D&color=fff&size=40` }}
+                style={menuStyles.menuProfileImage}
+              />
+            ) : (
+              <View style={menuStyles.menuProfilePlaceholder}>
+                <Text style={menuStyles.menuProfilePlaceholderText}>👤</Text>
+              </View>
+            )}
+            <View style={menuStyles.menuProfileTextContainer}>
+              <Text style={menuStyles.menuProfileName}>
+                {user ? (user.user_metadata?.full_name || user.user_metadata?.username || 'User') : 'Sign in'}
+              </Text>
+              {user && (
+                <Text style={menuStyles.menuProfileSubtext}>View Profile</Text>
+              )}
+            </View>
           </View>
         </TouchableOpacity>
         
@@ -93,16 +117,28 @@ const createHomeButton = (navigation: any, showModal: () => void) => () => (
 );
 
 export default function RootNavigator() {
+  const { user, loading } = useAuth();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const navigationRef = useRef<any>(null);
   
   const showMenu = () => setIsMenuVisible(true);
   const hideMenu = () => setIsMenuVisible(false);
+
+  // Show loading screen while checking authentication
+  if (loading) {
+    return (
+      <NavigationContainer>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Loading...</Text>
+        </View>
+      </NavigationContainer>
+    );
+  }
   
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
-        initialRouteName="Home"
+        initialRouteName={user ? "Home" : "Auth"}
         screenOptions={{
           headerStyle: {
             backgroundColor: '#F5F5F5', // Same as main screen background
@@ -115,7 +151,28 @@ export default function RootNavigator() {
           headerShadowVisible: false, // Remove dividing line
         }}
       >
-        {/* Main screens */}
+        {/* Authentication screens */}
+        {!user && (
+          <Stack.Screen 
+            name="Auth" 
+            component={AuthScreen}
+            options={{ 
+              title: 'Welcome',
+              headerShown: false
+            }}
+          />
+        )}
+
+        {/* Profile screen - only for authenticated users */}
+        {user && (
+          <Stack.Screen 
+            name="Profile" 
+            component={ProfileScreen}
+            options={{ title: 'Profile' }}
+          />
+        )}
+        
+        {/* Main screens - accessible to all users */}
         <Stack.Screen 
           name="Home" 
           component={HomeScreen}
@@ -380,6 +437,7 @@ export default function RootNavigator() {
         visible={isMenuVisible} 
         onClose={hideMenu} 
         navigation={navigationRef.current}
+        user={user}
       />
       
       {/* Development Navigator - Disabled */}
@@ -393,9 +451,9 @@ const menuStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'flex-start',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     paddingTop: 100,
-    paddingRight: 20,
+    paddingLeft: 20,
   },
   menuCard: {
     backgroundColor: '#FFFFFF',
@@ -427,6 +485,62 @@ const menuStyles = StyleSheet.create({
     fontFamily: 'Nunito',
     fontWeight: '400',
     flex: 1,
+  },
+  menuOptionTextContainer: {
+    flex: 1,
+  },
+  menuOptionSubtext: {
+    fontSize: 13,
+    color: '#666666',
+    fontFamily: 'Nunito',
+    fontWeight: '400',
+    marginTop: 2,
+  },
+  // Profile-specific menu styles
+  menuProfileOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  menuProfileContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuProfileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  menuProfilePlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  menuProfilePlaceholderText: {
+    fontSize: 20,
+    color: '#666666',
+  },
+  menuProfileTextContainer: {
+    flex: 1,
+  },
+  menuProfileName: {
+    fontSize: 16,
+    color: '#000000',
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+  },
+  menuProfileSubtext: {
+    fontSize: 13,
+    color: '#666666',
+    fontFamily: 'Nunito',
+    fontWeight: '400',
+    marginTop: 2,
   },
 
 });

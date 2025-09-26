@@ -35,13 +35,15 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+    "scheme": "com.alexgunnerson.tango",
     "plugins": [
       [
         "expo-screen-orientation",
         {
           "initialOrientation": "PORTRAIT_UP"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

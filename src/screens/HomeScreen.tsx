@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Image, Modal, P
 import { useFocusEffect } from '@react-navigation/native';
 import type { RootStackScreenProps } from '../navigation/types';
 import { useGameLogic } from '../hooks/useGameLogic';
+import { useAuth } from '../hooks/useAuth';
 import OfflineIndicator from '../components/OfflineIndicator';
 
 type Props = RootStackScreenProps<'Home'>;
@@ -10,12 +11,16 @@ type Props = RootStackScreenProps<'Home'>;
 export default function HomeScreen({ navigation }: Props) {
   const [isOneVOneCardVisible, setIsOneVOneCardVisible] = useState(false);
   const [isPunishmentCardVisible, setIsPunishmentCardVisible] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [player2Name, setPlayer2Name] = useState('');
   const [isTextInputFocused, setIsTextInputFocused] = useState(false);
   const textInputRef = useRef<TextInput>(null);
 
   // Game logic service
   const { createSession, resetSession, setPlayers, setPunishment, setAvailableItems, selectGames } = useGameLogic();
+  
+  // Authentication
+  const { user } = useAuth();
 
   // Reset player name when returning to home screen
   useFocusEffect(
@@ -86,10 +91,15 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
       )} */}
       {/* Menu Icon */}
-      <Image 
-        source={require('../../assets/menu-red.png')} 
-        style={styles.menuIcon}
-      />
+      <TouchableOpacity 
+        onPress={() => setIsMenuVisible(true)}
+        style={styles.menuIconContainer}
+      >
+        <Image 
+          source={require('../../assets/menu-red.png')} 
+          style={styles.menuIcon}
+        />
+      </TouchableOpacity>
 
       {/* Logo */}
       <View style={styles.content}>
@@ -331,6 +341,66 @@ export default function HomeScreen({ navigation }: Props) {
               onPress={() => startGameWithPunishment(undefined)}
             >
               <Text style={styles.punishmentNameNone}>No Punishment</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Menu Modal */}
+      <Modal
+        visible={isMenuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsMenuVisible(false)}
+      >
+        <Pressable style={styles.menuModalBackdrop} onPress={() => setIsMenuVisible(false)}>
+          <Pressable style={styles.menuCard} onPress={(e) => e.stopPropagation()}>
+            {/* Profile Option - Always show but with different states */}
+            <TouchableOpacity 
+              style={styles.menuProfileOption}
+              onPress={() => {
+                setIsMenuVisible(false);
+                if (user) {
+                  navigation.navigate('Profile');
+                } else {
+                  navigation.navigate('Auth');
+                }
+              }}
+            >
+              <View style={styles.menuProfileContent}>
+                {user ? (
+                  <Image 
+                    source={{ uri: user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.email || 'User')}&background=F66D3D&color=fff&size=40` }}
+                    style={styles.menuProfileImage}
+                  />
+                ) : (
+                  <View style={styles.menuProfilePlaceholder}>
+                    <Text style={styles.menuProfilePlaceholderText}>👤</Text>
+                  </View>
+                )}
+            <View style={styles.menuProfileTextContainer}>
+              <Text style={styles.menuProfileName}>
+                {user ? (user.user_metadata?.full_name || user.user_metadata?.username || 'User') : 'Sign in'}
+              </Text>
+              {user && (
+                <Text style={styles.menuProfileSubtext}>View Profile</Text>
+              )}
+            </View>
+              </View>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.menuOption}
+              onPress={() => {
+                setIsMenuVisible(false);
+                // TODO: Navigate to Settings screen when created
+                console.log('Settings pressed');
+              }}
+            >
+              <View style={styles.menuOptionContent}>
+                <Text style={styles.menuOptionIcon}>⚙️</Text>
+                <Text style={styles.menuOptionText}>Settings</Text>
+              </View>
             </TouchableOpacity>
           </Pressable>
         </Pressable>
@@ -724,10 +794,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
   },
-  menuIcon: {
+  menuIconContainer: {
     position: 'absolute',
     left: 18,
     top: 86,
+    padding: 8,
+    zIndex: 1000,
+  },
+  menuIcon: {
     width: 35,
     height: 27,
   },
@@ -746,5 +820,101 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontFamily: 'Courier',
+  },
+  // Menu Modal Styles
+  menuModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    paddingTop: 100,
+    paddingLeft: 20,
+  },
+  menuCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 8,
+    minWidth: 220,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  menuOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  menuOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuOptionIcon: {
+    fontSize: 18,
+    marginRight: 16,
+    width: 20,
+  },
+  menuOptionText: {
+    fontSize: 17,
+    color: '#000000',
+    fontFamily: 'Nunito',
+    fontWeight: '400',
+    flex: 1,
+  },
+  menuOptionTextContainer: {
+    flex: 1,
+  },
+  menuOptionSubtext: {
+    fontSize: 13,
+    color: '#666666',
+    fontFamily: 'Nunito',
+    fontWeight: '400',
+    marginTop: 2,
+  },
+  // Profile-specific menu styles
+  menuProfileOption: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  menuProfileContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuProfileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  menuProfilePlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  menuProfilePlaceholderText: {
+    fontSize: 20,
+    color: '#666666',
+  },
+  menuProfileTextContainer: {
+    flex: 1,
+  },
+  menuProfileName: {
+    fontSize: 16,
+    color: '#000000',
+    fontFamily: 'Nunito',
+    fontWeight: '600',
+  },
+  menuProfileSubtext: {
+    fontSize: 13,
+    color: '#666666',
+    fontFamily: 'Nunito',
+    fontWeight: '400',
+    marginTop: 2,
   },
 });

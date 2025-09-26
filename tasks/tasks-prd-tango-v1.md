@@ -134,14 +134,14 @@
   - [ ] 8.8 Create game service for library management
   - [ ] 8.9 Write unit tests for GameLibrary components and services
 
-- [ ] 9.0 Authentication System (Google Auth, Apple Auth)
-  - [ ] 9.1 Configure Supabase Auth with Google and Apple providers
-  - [ ] 9.2 Create login/signup screens with social auth buttons
-  - [ ] 9.3 Implement authentication flow and session management
-  - [ ] 9.4 Create user profile screens and account management
-  - [ ] 9.5 Add authentication guards to protected features
-  - [ ] 9.6 Implement guest mode for trying the app without signup
-  - [ ] 9.7 Write unit tests for authentication components and flows
+- [x] 9.0 Authentication System (Google Auth, Apple Auth)
+  - [x] 9.1 Configure Supabase Auth with Google and Apple providers
+  - [x] 9.2 Create login/signup screens with social auth buttons
+  - [x] 9.3 Implement authentication flow and session management
+  - [x] 9.4 Create user profile screens and account management
+  - [x] 9.5 Add authentication guards to protected features
+  - [x] 9.6 Implement guest mode for trying the app without signup
+  - [x] 9.7 Write unit tests for authentication components and flows
 
 - [ ] 10.0 Premium Features & Monetization
   - [ ] 10.1 Integrate in-app purchase system (App Store/Google Play)
