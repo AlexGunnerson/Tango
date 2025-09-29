@@ -92,6 +92,20 @@ const MenuModal = ({ visible, onClose, navigation, user }: { visible: boolean; o
           style={menuStyles.menuOption}
           onPress={() => {
             onClose();
+            // Navigate to Home screen to end the current game
+            navigation.navigate('Home');
+          }}
+        >
+          <View style={menuStyles.menuOptionContent}>
+            <Text style={menuStyles.menuOptionIcon}>🏠</Text>
+            <Text style={menuStyles.menuOptionText}>End Game</Text>
+          </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={menuStyles.menuOption}
+          onPress={() => {
+            onClose();
             // TODO: Navigate to Settings screen when created
             console.log('Settings pressed');
           }}

@@ -227,7 +227,7 @@ class SupabaseService {
           allowedAlternatives.push(req.alternative_3);
         }
         
-        return allowedAlternatives.some(alt => 
+        return allowedAlternatives.length > 0 && allowedAlternatives.some(alt => 
           this.hasEnoughMaterial(availableItems, alt, totalQuantityNeeded)
         );
       });
@@ -284,10 +284,30 @@ class SupabaseService {
   private hasEnoughMaterial(availableItems: string[], materialName: string, quantityNeeded: number): boolean {
     // For now, we assume if the user has the item, they have enough
     // In the future, you could extend this to track quantities
-    return availableItems.some(item => 
-      item.toLowerCase().includes(materialName.toLowerCase()) ||
-      materialName.toLowerCase().includes(item.toLowerCase())
-    );
+    
+    const materialLower = materialName.toLowerCase().trim();
+    
+    return availableItems.some(item => {
+      const itemLower = item.toLowerCase().trim();
+      
+      // Exact match (most reliable)
+      if (itemLower === materialLower) return true;
+      
+      // Only allow "contains" matching if the shorter string is completely contained in the longer one
+      // AND the difference in length is reasonable (to avoid false positives like "Paper" matching "Paper Cup")
+      if (itemLower.includes(materialLower)) {
+        // User has "Plastic Cup", game needs "Cup" - allow this
+        return itemLower.length - materialLower.length <= 10;
+      }
+      
+      if (materialLower.includes(itemLower)) {
+        // User has "Paper", game needs "Paper Cup" - DON'T allow this (false positive)
+        // Only allow if the item is a reasonable substring (like "Cup" in "Paper Cup")
+        return materialLower.length - itemLower.length <= 3;
+      }
+      
+      return false;
+    });
   }
 
   // Game Configuration Methods
@@ -406,8 +426,20 @@ class SupabaseService {
     try {
       const games = await this.getGamesByFilters(filters || {});
       
-      // Shuffle array and return requested count
-      const shuffled = [...games].sort(() => 0.5 - Math.random());
+      if (games.length === 0) {
+        console.log('⚠️ No games found matching the filters');
+        return [];
+      }
+      
+      console.log(`🎮 Found ${games.length} games matching filters, selecting ${Math.min(count, games.length)} randomly`);
+      
+      // Use Fisher-Yates shuffle algorithm for better randomness
+      const shuffled = [...games];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      
       return shuffled.slice(0, Math.min(count, shuffled.length));
     } catch (error) {
       console.error('Error fetching random games:', error);

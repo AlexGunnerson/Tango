@@ -40,9 +40,20 @@ class GameLogicServiceImpl implements GameLogicService {
           return true;
         }
         
-        // Check if user has any acceptable alternatives
-        return req.alternatives.some(alt => 
-          this.hasEnoughMaterial(availableItems, alt.name, totalQuantityNeeded)
+        // Check alternatives if they're allowed for this game
+        const allowedAlternatives = [];
+        if (req.alternative_1_allowed && req.alternative_1) {
+          allowedAlternatives.push(req.alternative_1);
+        }
+        if (req.alternative_2_allowed && req.alternative_2) {
+          allowedAlternatives.push(req.alternative_2);
+        }
+        if (req.alternative_3_allowed && req.alternative_3) {
+          allowedAlternatives.push(req.alternative_3);
+        }
+        
+        return allowedAlternatives.length > 0 && allowedAlternatives.some(alt => 
+          this.hasEnoughMaterial(availableItems, alt, totalQuantityNeeded)
         );
       });
     } catch (error) {
@@ -98,10 +109,35 @@ class GameLogicServiceImpl implements GameLogicService {
   private hasEnoughMaterial(availableItems: string[], materialName: string, quantityNeeded: number): boolean {
     // For now, we assume if the user has the item, they have enough
     // In the future, you could extend this to track quantities
-    return availableItems.some(item => 
-      item.toLowerCase().includes(materialName.toLowerCase()) ||
-      materialName.toLowerCase().includes(item.toLowerCase())
-    );
+    
+    const materialLower = materialName.toLowerCase().trim();
+    
+    const result = availableItems.some(item => {
+      const itemLower = item.toLowerCase().trim();
+      
+      // Exact match (most reliable)
+      if (itemLower === materialLower) return true;
+      
+      // Only allow "contains" matching if the shorter string is completely contained in the longer one
+      // AND the difference in length is reasonable (to avoid false positives like "Paper" matching "Paper Cup")
+      if (itemLower.includes(materialLower)) {
+        // User has "Plastic Cup", game needs "Cup" - allow this
+        return itemLower.length - materialLower.length <= 10;
+      }
+      
+      if (materialLower.includes(itemLower)) {
+        // User has "Paper", game needs "Paper Cup" - DON'T allow this (false positive)
+        // Only allow if the item is a reasonable substring (like "Cup" in "Paper Cup")
+        return materialLower.length - itemLower.length <= 3;
+      }
+      
+      return false;
+    });
+    
+    // Debug logging
+    console.log(`🔍 hasEnoughMaterial: "${materialName}" in [${availableItems.join(', ')}] = ${result}`);
+    
+    return result;
   }
 
   // Utility method to shuffle an array
@@ -279,28 +315,11 @@ class GameLogicServiceImpl implements GameLogicService {
     try {
       let selectedGames: Game[] = [];
 
-      if (networkService.isOnline() && userId) {
-        // Online: Use database-driven game matching with user_materials table
-        console.log('🌐 Online: Selecting games from user materials database');
+      if (networkService.isOnline()) {
+        // Online: Use item-based filtering to select random games
+        console.log('🌐 Online: Selecting random games based on gathered items');
+        console.log('🎒 Available items:', this.currentSession.availableItems);
         
-        // Get available games for user based on their materials in user_materials table
-        const availableGames = await supabaseService.getAvailableGamesForUser(userId, 2);
-        
-        // Convert to Game objects and randomly select up to 5 games
-        const gamePromises = availableGames.map(async (gameInfo) => {
-          const game = await supabaseService.getGameById(gameInfo.gameId);
-          return game;
-        }).filter(Boolean);
-        
-        const allAvailableGames = (await Promise.all(gamePromises)).filter(game => game !== null) as Game[];
-        
-        // Randomly select up to 5 games
-        selectedGames = this.shuffleArray(allAvailableGames).slice(0, 5);
-        
-        console.log(`🎯 Selected ${selectedGames.length} games based on user materials`);
-      } else if (networkService.isOnline()) {
-        // Fallback: Use old method with available items array
-        console.log('🌐 Online: Fallback to legacy item matching');
         const filters: GameFilters = {
           maxPlayers: 2,
           minPlayers: 2,
@@ -308,22 +327,41 @@ class GameLogicServiceImpl implements GameLogicService {
           isPremium: false // For now, only use free games
         };
 
+        // Get all games that match the available items, then randomly select 5
         selectedGames = await supabaseService.getRandomGames(5, filters);
+        
+        // Get total count for user feedback
+        const totalAvailable = await supabaseService.getAvailableGamesCount(this.currentSession.availableItems);
+        console.log(`🎯 Selected ${selectedGames.length} random games from ${totalAvailable} available games:`, selectedGames.map(g => g.title));
+        
+        // Debug: Double-check each selected game immediately
+        console.log('🔍 Double-checking selected games:');
+        for (const game of selectedGames) {
+          const matches = await this.doesGameMatchAvailableItems(game, this.currentSession.availableItems, 2);
+          console.log(`  - ${game.title}: ${matches ? '✅ VALID' : '❌ INVALID'}`);
+          if (!matches) {
+            const requirements = await supabaseService.getGameMaterialRequirements(game.id);
+            console.log(`    Required: ${requirements.map(r => r.material_name).join(', ')}`);
+            console.log(`    Available: ${this.currentSession.availableItems.join(', ')}`);
+          }
+        }
 
         // Create Supabase session if not exists
         if (!this.supabaseSessionId) {
           await this.createSupabaseSession();
         }
       } else {
-        // Offline: Use cached games
-        console.log('📱 Offline: Selecting games from cache');
+        // Offline: Use cached games filtered by available items
+        console.log('📱 Offline: Selecting random games from cached games based on gathered items');
+        console.log('🎒 Available items:', this.currentSession.availableItems);
+        
         const cachedGames = await offlineStorageService.getCachedGames();
         
         if (cachedGames.length === 0) {
           throw new Error('No cached games available for offline play. Please connect to internet first.');
         }
 
-        // Filter cached games based on criteria including available items
+        // Filter cached games based on player count, premium status, and available items
         const filteredGames = [];
         for (const game of cachedGames) {
           if (
@@ -331,7 +369,7 @@ class GameLogicServiceImpl implements GameLogicService {
             game.minPlayers <= 2 &&
             !game.isPremium
           ) {
-            // Use improved item matching logic
+            // Check if game can be played with available items
             const matches = await this.doesGameMatchAvailableItems(game, this.currentSession.availableItems, 2);
             if (matches) {
               filteredGames.push(game);
@@ -340,18 +378,13 @@ class GameLogicServiceImpl implements GameLogicService {
         }
 
         if (filteredGames.length === 0) {
-          throw new Error('No suitable cached games found for 1v1 play.');
+          throw new Error(`No games available with the selected items: ${this.currentSession.availableItems.join(', ')}`);
         }
 
-        // Randomly select 5 games (or all if less than 5)
-        const numGames = Math.min(5, filteredGames.length);
-        selectedGames = [];
-        const availableGames = [...filteredGames];
+        // Randomly select up to 5 games from the filtered games
+        selectedGames = this.shuffleArray(filteredGames).slice(0, 5);
         
-        for (let i = 0; i < numGames; i++) {
-          const randomIndex = Math.floor(Math.random() * availableGames.length);
-          selectedGames.push(availableGames.splice(randomIndex, 1)[0]);
-        }
+        console.log(`🎯 Selected ${selectedGames.length} random games from ${filteredGames.length} available cached games:`, selectedGames.map(g => g.title));
       }
 
       // Validation: Ensure all selected games can be played with available items
@@ -361,6 +394,15 @@ class GameLogicServiceImpl implements GameLogicService {
           const matches = await this.doesGameMatchAvailableItems(game, this.currentSession.availableItems, 2);
           if (!matches) {
             invalidGames.push(game);
+            
+            // Debug: Show what materials this game actually requires
+            try {
+              const requirements = await supabaseService.getGameMaterialRequirements(game.id);
+              console.warn(`⚠️ Game "${game.title}" requires materials:`, requirements.map(r => r.material_name));
+              console.warn(`⚠️ User has items:`, this.currentSession.availableItems);
+            } catch (err) {
+              console.warn(`⚠️ Could not get requirements for "${game.title}"`);
+            }
           }
         }
         

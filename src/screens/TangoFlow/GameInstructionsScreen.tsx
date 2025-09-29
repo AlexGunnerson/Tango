@@ -13,16 +13,25 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle } = useGameLogic();
+  // Get timer duration and current game from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationByTitle, currentGameId } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        const game = await supabaseService.getGameByTitle('The Blind March');
+        
+        // Wait for the current game ID to be available
+        if (!currentGameId) {
+          console.log('🎮 GameInstructionsScreen - Waiting for current game ID...');
+          setIsLoading(false);
+          return;
+        }
+        
+        const game = await supabaseService.getGameById(currentGameId);
         setGameData(game);
+        console.log('🎮 GameInstructionsScreen - Loaded game:', game?.title);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen - Error fetching game data:', error);
       } finally {
@@ -31,7 +40,7 @@ export default function GameInstructionsScreen({ navigation, route }: Props) {
     };
 
     fetchGameData();
-  }, []);
+  }, [currentGameId]);
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;

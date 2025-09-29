@@ -12,18 +12,25 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
+  // Get timer duration and current game from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationById, currentGameId } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        // Don't Wet the TP! Game ID
-        const gameId = '4dc3b5cb-f1e1-4a0a-b613-0d5e535036db';
-        const game = await supabaseService.getGameById(gameId);
+        
+        // Wait for the current game ID to be available
+        if (!currentGameId) {
+          console.log('🎮 GameInstructionsScreen3 - Waiting for current game ID...');
+          setIsLoading(false);
+          return;
+        }
+        
+        const game = await supabaseService.getGameById(currentGameId);
         setGameData(game);
+        console.log('🎮 GameInstructionsScreen3 - Loaded game:', game?.title);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen3 - Error fetching game data:', error);
       } finally {
@@ -32,7 +39,7 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
     };
 
     fetchGameData();
-  }, []);
+  }, [currentGameId]);
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;

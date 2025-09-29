@@ -13,18 +13,25 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
+  // Get timer duration and current game from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationById, currentGameId } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        // Flip Cup Tic Tac Toe Game ID
-        const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
-        const game = await supabaseService.getGameById(gameId);
+        
+        // Wait for the current game ID to be available
+        if (!currentGameId) {
+          console.log('🎮 GameInstructionsScreen2 - Waiting for current game ID...');
+          setIsLoading(false);
+          return;
+        }
+        
+        const game = await supabaseService.getGameById(currentGameId);
         setGameData(game);
+        console.log('🎮 GameInstructionsScreen2 - Loaded game:', game?.title);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen2 - Error fetching game data:', error);
       } finally {
@@ -33,7 +40,7 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
     };
 
     fetchGameData();
-  }, []);
+  }, [currentGameId]);
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;

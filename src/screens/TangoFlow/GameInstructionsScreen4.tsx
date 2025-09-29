@@ -13,18 +13,25 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Get timer duration from game logic service
-  const { getCurrentGameTimerDuration, getGameTimerDurationById } = useGameLogic();
+  // Get timer duration and current game from game logic service
+  const { getCurrentGameTimerDuration, getGameTimerDurationById, currentGameId } = useGameLogic();
 
   // Fetch game data from Supabase
   useEffect(() => {
     const fetchGameData = async () => {
       try {
         setIsLoading(true);
-        // Stuck in the Middle Game ID
-        const gameId = '9c24c395-8eaf-4417-9e5d-9965346591aa';
-        const game = await supabaseService.getGameById(gameId);
+        
+        // Wait for the current game ID to be available
+        if (!currentGameId) {
+          console.log('🎮 GameInstructionsScreen4 - Waiting for current game ID...');
+          setIsLoading(false);
+          return;
+        }
+        
+        const game = await supabaseService.getGameById(currentGameId);
         setGameData(game);
+        console.log('🎮 GameInstructionsScreen4 - Loaded game:', game?.title);
       } catch (error) {
         console.error('🎮 GameInstructionsScreen4 - Error fetching game data:', error);
       } finally {
@@ -33,7 +40,7 @@ export default function GameInstructionsScreen4({ navigation, route }: Props) {
     };
 
     fetchGameData();
-  }, []);
+  }, [currentGameId]);
   
   // Check if there's a 2-game advantage (handicap condition)
   const currentPlayer1Score = player1Score || 0;
