@@ -117,9 +117,10 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
     try {
       setLoadingGamesCount(true);
       const count = await supabaseService.getAvailableGamesCountUnified(selectedItems);
+      
       setAvailableGamesCount(count);
     } catch (err) {
-      console.error('Error fetching available games count:', err);
+      console.error('❌ Error fetching available games count:', err);
       // Fallback to a reasonable estimate if the call fails
       setAvailableGamesCount(Math.floor((selectedItems.length / 10) * 150));
     } finally {

@@ -199,6 +199,10 @@ class SupabaseService {
       // Get detailed material requirements for this game
       const requirements = await this.getGameMaterialRequirements(game.id);
       
+      if (requirements.length === 0) {
+        return true;
+      }
+      
       return requirements.every(req => {
         // All materials are now required - check if user has enough of the primary material or allowed alternatives
         // Calculate total quantity needed
@@ -228,7 +232,7 @@ class SupabaseService {
         );
       });
     } catch (error) {
-      console.error('Error checking game material requirements:', error);
+      console.error(`❌ Error checking game material requirements for "${game.title}":`, error);
       // Fallback to legacy string-based matching
       return this.doesGameMatchAvailableItemsLegacy(game, availableItems);
     }
@@ -346,27 +350,6 @@ class SupabaseService {
     }
   }
 
-  async getGameById(gameId: string): Promise<Game | null> {
-    try {
-      const { data, error } = await supabase
-        .from('games')
-        .select('*')
-        .eq('id', gameId)
-        .eq('is_active', true)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
-      }
-
-      return this.transformGameConfig(data);
-    } catch (error) {
-      console.error('Error fetching game by ID:', error);
-      return null;
-    }
-  }
-
 
   async getGamesByFilters(filters: GameFilters): Promise<Game[]> {
     try {
@@ -379,10 +362,13 @@ class SupabaseService {
         query = query.eq('theme', filters.theme);
       }
       if (filters.maxPlayers) {
-        query = query.lte('max_players', filters.maxPlayers);
+        // Fix: For maxPlayers filter, we want games that can accommodate AT LEAST the number of players
+        // So if we have 2 players, we want games where min_players <= 2 (can start with 2 players)
+        query = query.lte('min_players', filters.maxPlayers);
       }
       if (filters.minPlayers) {
-        query = query.gte('min_players', filters.minPlayers);
+        // For minPlayers filter, we want games that can accommodate AT LEAST the minimum
+        query = query.gte('max_players', filters.minPlayers);
       }
       if (filters.isPremium !== undefined) {
         query = query.eq('is_premium', filters.isPremium);
@@ -439,9 +425,10 @@ class SupabaseService {
       };
       
       const games = await this.getGamesByFilters(filters);
+      
       return games.length;
     } catch (error) {
-      console.error('Error fetching available games count:', error);
+      console.error('❌ SupabaseService: Error fetching available games count:', error);
       throw error;
     }
   }
@@ -967,32 +954,6 @@ class SupabaseService {
   }
 
   // ===== PLAYER MANAGEMENT =====
-
-  /**
-   * Create a new player
-   */
-  async createPlayer(playerData: { name: string; display_name?: string }): Promise<{
-    id: string;
-    name: string;
-    display_name: string | null;
-    created_at: string;
-  }> {
-    try {
-      const { data, error } = await supabase
-        .from('players')
-        .insert([playerData])
-        .select('id, name, display_name, created_at')
-        .single();
-
-      if (error) throw error;
-      if (!data) throw new Error('Failed to create player');
-
-      return data;
-    } catch (error) {
-      console.error('Error creating player:', error);
-      throw error;
-    }
-  }
 
   /**
    * Get player by ID
