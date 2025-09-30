@@ -6,7 +6,7 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame5Player1'>;
 
 export default function GameplayScreenGame5Player1({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction, gameType } = route.params;
   const [timeLeft, setTimeLeft] = useState(timerDuration ?? 90); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
@@ -82,22 +82,37 @@ export default function GameplayScreenGame5Player1({ navigation, route }: Props)
       // Play time up sound
       playTimeUp();
       
-      // Player 1 finished, navigate to TimesUp screen for Player 2 to get ready
+      // For simultaneous games, skip TimesUp and Player2 screens, go directly to scoring
       setTimeout(() => {
-        navigation.navigate('TimesUp', {
-          player1,
-          player2,
-          punishment,
-          availableItems,
-          gameTitle: gameTitle,
-          currentPlayer: player1,
-          nextPlayer: player2,
-          originalPlayer1: displayPlayer1,
-          originalPlayer2: displayPlayer2,
-          player1Score,
-          player2Score,
-          playerAction
-        });
+        if (gameType === 'simultaneous') {
+          navigation.navigate('Scoring', {
+            player1,
+            player2,
+            punishment,
+            availableItems,
+            gameTitle: gameTitle,
+            originalPlayer1: displayPlayer1,
+            originalPlayer2: displayPlayer2,
+            player1Score,
+            player2Score
+          });
+        } else {
+          // Player 1 finished, navigate to TimesUp screen for Player 2 to get ready
+          navigation.navigate('TimesUp', {
+            player1,
+            player2,
+            punishment,
+            availableItems,
+            gameTitle: gameTitle,
+            currentPlayer: player1,
+            nextPlayer: player2,
+            originalPlayer1: displayPlayer1,
+            originalPlayer2: displayPlayer2,
+            player1Score,
+            player2Score,
+            playerAction
+          });
+        }
       }, 1000);
     }
   }, [timeLeft, isPlaying]);
@@ -146,7 +161,12 @@ export default function GameplayScreenGame5Player1({ navigation, route }: Props)
         <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player1} {playerAction || 'Go!'}</Text>
+        <Text style={styles.playerName}>
+          {gameType === 'simultaneous' ? 
+            `All players ${playerAction || 'Go!'}` : 
+            `${player1} ${playerAction || 'Go!'}`
+          }
+        </Text>
         
         {/* Timer Display */}
         <View style={styles.timerContainer}>

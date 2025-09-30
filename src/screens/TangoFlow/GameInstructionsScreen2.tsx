@@ -85,7 +85,11 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
         {/* Player Ready Section */}
         <View style={styles.playerReadySection}>
           <Text style={styles.playerReadyText}>
-            <Text style={styles.playerName}>{player1}</Text> get ready, you're up first!
+            {gameData?.gameType === 'simultaneous' ? (
+              <><Text style={styles.playerName}>{displayPlayer1}</Text> and <Text style={styles.playerName}>{displayPlayer2}</Text> get ready!</>
+            ) : (
+              <><Text style={styles.playerName}>{player1}</Text> get ready, you're up first!</>
+            )}
           </Text>
         </View>
 
@@ -100,7 +104,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
               const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
               const timerDuration = await getGameTimerDurationById(gameId);
               
-              // Navigate to GameplayScreenGame2Player1
+              // For simultaneous games, use the Player1 screen but it will handle both players
+              // For alternating games, use normal Player1 screen
               navigation.navigate('GameplayScreenGame2Player1', {
                 player1,
                 player2,
@@ -112,7 +117,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                 player1Score: currentPlayer1Score,
                 player2Score: currentPlayer2Score,
             timerDuration,
-            playerAction: gameData?.playerAction
+            playerAction: gameData?.playerAction,
+            gameType: gameData?.gameType
           });
             }
           }}
@@ -149,6 +155,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
               const timerDuration = await getGameTimerDurationById(gameId);
                 
                 setIsHandicapModalVisible(false);
+                // For simultaneous games, use the Player1 screen but it will handle both players
+                // For alternating games, use normal Player1 screen
                 navigation.navigate('GameplayScreenGame2Player1', {
                   player1,
                   player2,
@@ -160,7 +168,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                   player1Score: currentPlayer1Score,
                   player2Score: currentPlayer2Score,
             timerDuration,
-            playerAction: gameData?.playerAction
+            playerAction: gameData?.playerAction,
+            gameType: gameData?.gameType
           });
               }}
             >

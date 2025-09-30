@@ -6,7 +6,7 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame4'>;
 
 export default function GameplayScreenGame4({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, gameType } = route.params;
   const [timeLeft, setTimeLeft] = useState(timerDuration ?? 30); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
@@ -145,8 +145,18 @@ export default function GameplayScreenGame4({ navigation, route }: Props) {
         
         {/* Both Players Section */}
         <View style={styles.playersSection}>
-          <Text style={styles.playerName}>{player1} & {player2}</Text>
-          <Text style={styles.actionText}>Tear your Christmas trees!</Text>
+          <Text style={styles.playerName}>
+            {gameType === 'simultaneous' ? 
+              `${player1} & ${player2}` : 
+              `${player1}`
+            }
+          </Text>
+          <Text style={styles.actionText}>
+            {gameType === 'simultaneous' ? 
+              'Tear your Christmas trees!' : 
+              'Tear your Christmas tree!'
+            }
+          </Text>
         </View>
         
         {/* Timer Display */}

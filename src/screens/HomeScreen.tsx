@@ -244,7 +244,10 @@ export default function HomeScreen({ navigation }: Props) {
             {/* Player 2 Name Input Section */}
             <View style={styles.player2InputSection}>
               <Text style={styles.player2InputLabel}>PLAYER 2 NAME</Text>
-              <View style={styles.player2InputContainer}>
+              <Pressable 
+                style={styles.player2InputContainer}
+                onPress={() => textInputRef.current?.focus()}
+              >
                 <TextInput
                   ref={textInputRef}
                   style={styles.player2TextInput}
@@ -267,7 +270,7 @@ export default function HomeScreen({ navigation }: Props) {
                     textInputRef.current?.blur();
                   }}
                 />
-              </View>
+              </Pressable>
             </View>
 
             {/* Start Game Button */}

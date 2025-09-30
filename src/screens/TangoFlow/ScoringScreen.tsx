@@ -148,13 +148,6 @@ export default function ScoringScreen({ navigation, route }: Props) {
         {/* Times Up Message */}
         <Text style={styles.timesUpTitle}>Times Up!</Text>
         
-        {/* Instructions */}
-        <Text style={styles.instructionsText}>
-          {isLoading ? 'Loading instructions...' : 
-            (gameData?.timesUpInstruction?.split('.')[0] || 'Mark the spot') + '.'
-          }
-        </Text>
-        
         {/* Select Winner Section */}
         <Text style={styles.selectWinnerTitle}>Select the Winner</Text>
         

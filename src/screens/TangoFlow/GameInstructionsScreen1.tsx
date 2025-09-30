@@ -86,7 +86,11 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
         {/* Player Ready Section */}
         <View style={styles.playerReadySection}>
           <Text style={styles.playerReadyText}>
-            <Text style={styles.playerName}>{player1}</Text> get ready, you're up first!
+            {gameData?.gameType === 'simultaneous' ? (
+              <><Text style={styles.playerName}>{displayPlayer1}</Text> and <Text style={styles.playerName}>{displayPlayer2}</Text> get ready!</>
+            ) : (
+              <><Text style={styles.playerName}>{player1}</Text> get ready, you're up first!</>
+            )}
           </Text>
         </View>
 
@@ -113,7 +117,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                 player1Score: currentPlayer1Score,
                 player2Score: currentPlayer2Score,
                 timerDuration,
-                playerAction: gameData?.playerAction
+                playerAction: gameData?.playerAction,
+                gameType: gameData?.gameType
               });
             }
           }}
