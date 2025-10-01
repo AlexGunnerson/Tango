@@ -217,40 +217,39 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
           ))}
         </View>
 
-        <TouchableOpacity 
-          style={[styles.addItemsContainer, loadingMoreItems && styles.addItemsContainerDisabled]}
-          onPress={loadMoreMaterials}
-          disabled={loadingMoreItems || !showingFeaturedOnly}
-        >
-          <View style={styles.addItemsContent}>
-            {loadingMoreItems ? (
-              <>
-                <ActivityIndicator size="small" color="#F66D3D" />
-                <Text style={styles.addItemsText}>Loading more items...</Text>
-              </>
-            ) : showingFeaturedOnly ? (
-              <>
-                <Text style={styles.plusIcon}>+</Text>
-                <Text style={styles.addItemsText}>Add items to unlock more games</Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.checkIcon}>✓</Text>
-                <Text style={styles.addItemsText}>All items loaded</Text>
-              </>
-            )}
-          </View>
-        </TouchableOpacity>
+        {(loadingMoreItems || showingFeaturedOnly) && (
+          <TouchableOpacity 
+            style={[styles.addItemsContainer, loadingMoreItems && styles.addItemsContainerDisabled]}
+            onPress={loadMoreMaterials}
+            disabled={loadingMoreItems || !showingFeaturedOnly}
+          >
+            <View style={styles.addItemsContent}>
+              {loadingMoreItems ? (
+                <>
+                  <ActivityIndicator size="small" color="#F66D3D" />
+                  <Text style={styles.addItemsText}>Loading more items...</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.plusIcon}>+</Text>
+                  <Text style={styles.addItemsText}>Add items to unlock more games</Text>
+                </>
+              )}
+            </View>
+          </TouchableOpacity>
+        )}
 
-        <View style={styles.progressSection}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${(availableGamesCount / 150) * 100}%` }]} />
-          </View>
-          <Text style={styles.progressText}>
-            {loadingGamesCount ? 'Calculating...' : `${availableGamesCount} of 150 Games Available`}
-          </Text>
-        </View>
       </ScrollView>
+
+      {/* Fixed Games Counter - Always Visible */}
+      <View style={styles.progressSection}>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, { width: `${(availableGamesCount / 150) * 100}%` }]} />
+        </View>
+        <Text style={styles.progressText}>
+          {loadingGamesCount ? 'Calculating...' : `${availableGamesCount} of 150 Games Available`}
+        </Text>
+      </View>
 
       <TouchableOpacity 
         style={styles.itemsGatheredButton}
@@ -434,6 +433,7 @@ const styles = StyleSheet.create({
   progressSection: {
     marginTop: 12,
     marginBottom: 20,
+    marginHorizontal: 32,
     alignItems: 'center',
   },
   progressBar: {
