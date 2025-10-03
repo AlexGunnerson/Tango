@@ -101,8 +101,8 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
               setIsHandicapModalVisible(true);
             } else {
               // Get timer duration directly by game title to bypass session state issues
-              const gameId = 'c496d155-ab0f-46cd-812a-0823dbf213ef';
-              const timerDuration = await getGameTimerDurationById(gameId);
+              // Get timer duration from current game
+              const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
               
               // Navigate to GameplayScreenGame5Player1
               navigation.navigate('GameplayScreenGame5Player1', {
@@ -118,7 +118,8 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
                 player2Score: currentPlayer2Score,
                 timerDuration,
                 playerAction: gameData?.playerAction,
-                gameType: gameData?.gameType
+                gameType: gameData?.gameType,
+                hasTimer: gameData?.hasTimer
               });
             }
           }}
@@ -149,7 +150,10 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
 
             <TouchableOpacity 
               style={styles.handicapTangoButton}
-              onPress={() => {
+              onPress={async () => {
+                // Get timer duration from current game
+                const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
+                
                 setIsHandicapModalVisible(false);
                 navigation.navigate('GameplayScreenGame5Player1', {
                   player1,
@@ -162,7 +166,10 @@ export default function GameInstructionsScreen5({ navigation, route }: Props) {
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
                   player2Score: currentPlayer2Score,
-                  gameType: gameData?.gameType
+                  timerDuration,
+                  playerAction: gameData?.playerAction,
+                  gameType: gameData?.gameType,
+                  hasTimer: gameData?.hasTimer
                 });
               }}
             >

@@ -100,9 +100,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Get timer duration directly by game title to bypass session state issues
-              const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
-              const timerDuration = await getGameTimerDurationById(gameId);
+              // Get timer duration from current game
+              const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
               
               // For simultaneous games, use the Player1 screen but it will handle both players
               // For alternating games, use normal Player1 screen
@@ -116,10 +115,11 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                 originalPlayer2,
                 player1Score: currentPlayer1Score,
                 player2Score: currentPlayer2Score,
-            timerDuration,
-            playerAction: gameData?.playerAction,
-            gameType: gameData?.gameType
-          });
+                timerDuration,
+                playerAction: gameData?.playerAction,
+                gameType: gameData?.gameType,
+                hasTimer: gameData?.hasTimer
+              });
             }
           }}
         >
@@ -150,9 +150,8 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
             <TouchableOpacity 
               style={styles.handicapTangoButton}
               onPress={async () => {
-                // Get timer duration from current game config
-                const gameId = '20f23925-27a5-4c0a-bf41-56c245a6a59c';
-              const timerDuration = await getGameTimerDurationById(gameId);
+                // Get timer duration from current game
+                const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
                 
                 setIsHandicapModalVisible(false);
                 // For simultaneous games, use the Player1 screen but it will handle both players
@@ -167,10 +166,11 @@ export default function GameInstructionsScreen2({ navigation, route }: Props) {
                   originalPlayer2,
                   player1Score: currentPlayer1Score,
                   player2Score: currentPlayer2Score,
-            timerDuration,
-            playerAction: gameData?.playerAction,
-            gameType: gameData?.gameType
-          });
+                  timerDuration,
+                  playerAction: gameData?.playerAction,
+                  gameType: gameData?.gameType,
+                  hasTimer: gameData?.hasTimer
+                });
               }}
             >
               <Text style={styles.handicapTangoButtonText}>Tango!</Text>

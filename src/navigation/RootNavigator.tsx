@@ -36,7 +36,6 @@ import GameplayScreenGame2Player1 from '../screens/TangoFlow/GameplayScreenGame2
 import GameplayScreenGame2Player2 from '../screens/TangoFlow/GameplayScreenGame2Player2';
 import GameplayScreenGame3Player1 from '../screens/TangoFlow/GameplayScreenGame3Player1';
 import GameplayScreenGame3Player2 from '../screens/TangoFlow/GameplayScreenGame3Player2';
-import GameplayScreenGame4 from '../screens/TangoFlow/GameplayScreenGame4';
 import GameplayScreenGame4Player1 from '../screens/TangoFlow/GameplayScreenGame4Player1';
 import GameplayScreenGame4Player2 from '../screens/TangoFlow/GameplayScreenGame4Player2';
 import GameplayScreenGame5Player1 from '../screens/TangoFlow/GameplayScreenGame5Player1';
@@ -394,15 +393,6 @@ export default function RootNavigator() {
         <Stack.Screen 
           name="GameplayScreenGame3Player2" 
           component={GameplayScreenGame3Player2}
-          options={({ navigation }) => ({ 
-            title: '',
-            headerBackTitle: 'Back',
-            headerRight: createHomeButton(navigation, showMenu)
-          })}
-        />
-        <Stack.Screen 
-          name="GameplayScreenGame4" 
-          component={GameplayScreenGame4}
           options={({ navigation }) => ({ 
             title: '',
             headerBackTitle: 'Back',

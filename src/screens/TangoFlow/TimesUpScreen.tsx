@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   timesUpTitle: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     color: '#333333',
     marginBottom: 16,
     fontFamily: 'Nunito',

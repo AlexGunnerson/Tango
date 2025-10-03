@@ -56,7 +56,6 @@ const mockTangoFlowScreens = [
   'GameplayScreenGame1',
   'GameplayScreenGame2',
   'GameplayScreenGame3',
-  'GameplayScreenGame4',
   'GameplayScreenGame5Player1',
   'GameplayScreenGame5Player2',
   'GameplayScreenGame6',

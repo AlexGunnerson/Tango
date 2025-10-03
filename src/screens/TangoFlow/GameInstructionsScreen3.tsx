@@ -97,8 +97,8 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
           style={styles.tangoButton}
           onPress={async () => {
             // Get timer duration directly by game title to bypass session state issues
-            const gameId = '4dc3b5cb-f1e1-4a0a-b613-0d5e535036db';
-            const timerDuration = await getGameTimerDurationById(gameId);
+            // Get timer duration from current game
+            const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
             
             // Navigate directly to GameplayScreenGame3Player1 (handicap logic moved to TimesUpScreen)
             navigation.navigate('GameplayScreenGame3Player1', {
@@ -112,7 +112,9 @@ export default function GameInstructionsScreen3({ navigation, route }: Props) {
               player1Score: currentPlayer1Score,
               player2Score: currentPlayer2Score,
               timerDuration,
-              gameType: gameData?.gameType
+              playerAction: gameData?.playerAction,
+              gameType: gameData?.gameType,
+              hasTimer: gameData?.hasTimer
             });
           }}
         >

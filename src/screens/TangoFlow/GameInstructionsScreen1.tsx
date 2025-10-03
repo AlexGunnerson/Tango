@@ -101,9 +101,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
             if (hasHandicap) {
               setIsHandicapModalVisible(true);
             } else {
-              // Get timer duration directly by game ID to bypass session state issues
-              const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
-              const timerDuration = await getGameTimerDurationById(gameId);
+              // Get timer duration from current game
+              const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
               
               // Navigate to GameplayScreenGame1Player1
               navigation.navigate('GameplayScreenGame1Player1', {
@@ -118,7 +117,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                 player2Score: currentPlayer2Score,
                 timerDuration,
                 playerAction: gameData?.playerAction,
-                gameType: gameData?.gameType
+                gameType: gameData?.gameType,
+                hasTimer: gameData?.hasTimer
               });
             }
           }}
@@ -150,9 +150,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
             <TouchableOpacity 
               style={styles.handicapTangoButton}
               onPress={async () => {
-                // Get timer duration from current game config
-                const gameId = '5a8276ca-6440-4d3a-8c2c-4c400327a97a';
-                const timerDuration = await getGameTimerDurationById(gameId);
+                // Get timer duration from current game
+                const timerDuration = gameData?.timerDuration ?? await getCurrentGameTimerDuration();
                 
                 setIsHandicapModalVisible(false);
                 navigation.navigate('GameplayScreenGame1Player1', {
@@ -166,7 +165,8 @@ export default function GameInstructionsScreen1({ navigation, route }: Props) {
                   player1Score: currentPlayer1Score,
                   player2Score: currentPlayer2Score,
                   timerDuration,
-                  playerAction: gameData?.playerAction
+                  playerAction: gameData?.playerAction,
+                  hasTimer: gameData?.hasTimer
                 });
               }}
             >

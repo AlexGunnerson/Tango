@@ -84,6 +84,7 @@ export type RootStackParamList = {
     timerDuration?: number;
     playerAction?: string;
     gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame1Player2: { 
     player1: string; 
@@ -97,6 +98,7 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame2Player1: { 
     player1: string; 
@@ -111,6 +113,7 @@ export type RootStackParamList = {
     timerDuration?: number;
     playerAction?: string;
     gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame2Player2: { 
     player1: string; 
@@ -124,6 +127,7 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame3Player1: { 
     player1: string; 
@@ -138,6 +142,7 @@ export type RootStackParamList = {
     timerDuration?: number;
     playerAction?: string;
     gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame3Player2: { 
     player1: string; 
@@ -151,6 +156,8 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
+    gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame4Player1: { 
     player1: string; 
@@ -164,6 +171,8 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
+    gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame4Player2: { 
     player1: string; 
@@ -177,20 +186,8 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
-  };
-  GameplayScreenGame4: { 
-    player1: string; 
-    player2: string; 
-    punishment?: string;
-    availableItems: any[];
-    gameTitle?: string;
-    originalPlayer1?: string;
-    originalPlayer2?: string;
-    player1Score?: number;
-    player2Score?: number;
-    timerDuration?: number;
-    playerAction?: string;
     gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame5Player1: { 
     player1: string; 
@@ -205,6 +202,7 @@ export type RootStackParamList = {
     timerDuration?: number;
     playerAction?: string;
     gameType?: string;
+    hasTimer?: boolean;
   };
   GameplayScreenGame5Player2: { 
     player1: string; 
@@ -218,6 +216,8 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
+    gameType?: string;
+    hasTimer?: boolean;
   };
   
   // Keep legacy screens for backward compatibility

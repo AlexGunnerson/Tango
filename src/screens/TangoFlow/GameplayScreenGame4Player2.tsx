@@ -6,7 +6,7 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame4Player2'>;
 
 export default function GameplayScreenGame4Player2({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction, gameType, hasTimer } = route.params;
   const [timeLeft, setTimeLeft] = useState(timerDuration ?? 90); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
@@ -19,7 +19,7 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
 
   // Countdown logic - runs first when screen loads
   useEffect(() => {
-    if (soundsLoaded && showCountdown) {
+    if (soundsLoaded && showCountdown && hasTimer !== false) {
       // Play countdown sound and start visual countdown
       playFiveSecondCountdown();
       
@@ -40,6 +40,10 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
           return prevCount - 1;
         });
       }, 1000);
+    } else if (hasTimer === false) {
+      // For games without timer, skip countdown and just play game start sound
+      setShowCountdown(false);
+      playGameStart();
     }
 
     return () => {
@@ -48,11 +52,11 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
         countdownRef.current = null;
       }
     };
-  }, [soundsLoaded]); // Only depend on soundsLoaded, not countdownValue
+  }, [soundsLoaded, hasTimer]); // Depend on both soundsLoaded and hasTimer
 
-  // Timer logic
+  // Timer logic - only run if game has timer
   useEffect(() => {
-    if (isPlaying && timeLeft > 0) {
+    if (hasTimer !== false && isPlaying && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
@@ -74,7 +78,7 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
         clearInterval(intervalRef.current);
       }
     };
-  }, [isPlaying, timeLeft]);
+  }, [isPlaying, timeLeft, hasTimer]);
 
   // Navigation logic when timer ends
   useEffect(() => {
@@ -145,27 +149,31 @@ export default function GameplayScreenGame4Player2({ navigation, route }: Props)
         {/* Player Name */}
         <Text style={styles.playerName}>{player2} Tear!</Text>
         
-        {/* Timer Display */}
-        <View style={styles.timerContainer}>
-          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-        </View>
+        {/* Timer Display - only show if game has timer */}
+        {hasTimer !== false && (
+          <View style={styles.timerContainer}>
+            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+          </View>
+        )}
         
-        {/* Control Buttons */}
-        <View style={styles.controlsContainer}>
-          <TouchableOpacity 
-            style={styles.controlButton}
-            onPress={handleRestart}
-          >
-            <Text style={styles.controlButtonText}>↺</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.controlButton}
-            onPress={handlePlayPause}
-          >
-            <Text style={styles.controlButtonText}>{isPlaying ? '||' : '▶'}</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Control Buttons - only show if game has timer */}
+        {hasTimer !== false && (
+          <View style={styles.controlsContainer}>
+            <TouchableOpacity 
+              style={styles.controlButton}
+              onPress={handleRestart}
+            >
+              <Text style={styles.controlButtonText}>↺</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.controlButton}
+              onPress={handlePlayPause}
+            >
+              <Text style={styles.controlButtonText}>{isPlaying ? '||' : '▶'}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Score Display */}
         <View style={styles.scoreSection}>

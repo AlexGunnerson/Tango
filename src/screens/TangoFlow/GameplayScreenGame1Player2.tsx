@@ -6,7 +6,7 @@ import { useGameSounds } from '../../hooks/useGameSounds';
 type Props = RootStackScreenProps<'GameplayScreenGame1Player2'>;
 
 export default function GameplayScreenGame1Player2({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score, player2Score, timerDuration, playerAction, hasTimer } = route.params;
   const [timeLeft, setTimeLeft] = useState(timerDuration ?? 90); // Use dynamic timer duration from game config
   const [isPlaying, setIsPlaying] = useState(false);
   const [showCountdown, setShowCountdown] = useState(true);
@@ -19,7 +19,7 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
 
   // Countdown logic - runs first when screen loads
   useEffect(() => {
-    if (soundsLoaded && showCountdown) {
+    if (soundsLoaded && showCountdown && hasTimer !== false) {
       // Play countdown sound and start visual countdown
       playFiveSecondCountdown();
       
@@ -40,6 +40,10 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
           return prevCount - 1;
         });
       }, 1000);
+    } else if (hasTimer === false) {
+      // For games without timer, skip countdown and just play game start sound
+      setShowCountdown(false);
+      playGameStart();
     }
 
     return () => {
@@ -48,11 +52,11 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
         countdownRef.current = null;
       }
     };
-  }, [soundsLoaded]); // Only depend on soundsLoaded, not countdownValue
+  }, [soundsLoaded, hasTimer]); // Depend on both soundsLoaded and hasTimer
 
-  // Timer logic
+  // Timer logic - only run if game has timer
   useEffect(() => {
-    if (isPlaying && timeLeft > 0) {
+    if (hasTimer !== false && isPlaying && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
@@ -74,11 +78,11 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
         clearInterval(intervalRef.current);
       }
     };
-  }, [isPlaying, timeLeft]);
+  }, [isPlaying, timeLeft, hasTimer]);
 
-  // Navigation logic when timer ends
+  // Navigation logic when timer ends - only for games with timer
   useEffect(() => {
-    if (timeLeft === 0 && !isPlaying) {
+    if (hasTimer !== false && timeLeft === 0 && !isPlaying) {
       // Play time up sound
       playTimeUp();
       
@@ -126,18 +130,20 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
         </View>
       )}
 
-      {/* Countdown Modal */}
-      <Modal
-        visible={showCountdown}
-        transparent={true}
-        animationType="fade"
-      >
-        <View style={styles.countdownModalBackdrop}>
-          <View style={styles.countdownContainer}>
-            <Text style={styles.countdownNumber}>{countdownValue}</Text>
+      {/* Countdown Modal - only show for games with timer */}
+      {hasTimer !== false && (
+        <Modal
+          visible={showCountdown}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.countdownModalBackdrop}>
+            <View style={styles.countdownContainer}>
+              <Text style={styles.countdownNumber}>{countdownValue}</Text>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
       <View style={styles.content}>
         {/* Game Title */}
         <Text style={styles.gameTitle}>{gameTitle}</Text>
@@ -145,13 +151,16 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
         {/* Player Name */}
         <Text style={styles.playerName}>{player2} {playerAction || 'Go!'}</Text>
         
-        {/* Timer Display */}
-        <View style={styles.timerContainer}>
-          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-        </View>
+        {/* Timer Display - only show for games with timer */}
+        {hasTimer !== false && (
+          <View style={styles.timerContainer}>
+            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+          </View>
+        )}
         
-        {/* Control Buttons */}
-        <View style={styles.controlsContainer}>
+        {/* Control Buttons - only show for games with timer */}
+        {hasTimer !== false && (
+          <View style={styles.controlsContainer}>
           <TouchableOpacity 
             style={styles.controlButton}
             onPress={handleRestart}
@@ -165,7 +174,31 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
           >
             <Text style={styles.controlButtonText}>{isPlaying ? '||' : '▶'}</Text>
           </TouchableOpacity>
-        </View>
+          </View>
+        )}
+
+        {/* Continue Button - only show for games without timer */}
+        {hasTimer === false && (
+          <TouchableOpacity 
+            style={[styles.controlButton, styles.continueButton]}
+            onPress={() => {
+              // Navigate to scoring screen for Player 2
+              navigation.navigate('Scoring', {
+                player1,
+                player2,
+                punishment,
+                availableItems,
+                gameTitle: gameTitle,
+                originalPlayer1: displayPlayer1,
+                originalPlayer2: displayPlayer2,
+                player1Score,
+                player2Score
+              });
+            }}
+          >
+            <Text style={styles.controlButtonText}>Continue</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
@@ -196,7 +229,7 @@ const styles = StyleSheet.create({
   },
   playerName: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     color: '#333333',
     marginBottom: 60,
     fontFamily: 'Nunito',
@@ -236,6 +269,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  continueButton: {
+    width: 280,
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 130,
+    alignSelf: 'center',
   },
   scoreSection: {
     position: 'absolute',
