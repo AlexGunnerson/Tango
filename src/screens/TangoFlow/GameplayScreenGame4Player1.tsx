@@ -149,7 +149,12 @@ export default function GameplayScreenGame4Player1({ navigation, route }: Props)
         <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player1} {playerAction || 'Go!'}</Text>
+        <Text style={styles.playerName}>
+          {gameType === 'simultaneous' ? 
+            `${player1} and ${player2} ${playerAction}` : 
+            `${player1} ${playerAction}`
+          }
+        </Text>
         
         {/* Timer Display - only show if game has timer */}
         {hasTimer !== false && (
@@ -243,6 +248,7 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 30,
     fontFamily: 'Nunito',
+    textAlign: 'center',
   },
   playerName: {
     fontSize: 24,
@@ -302,8 +308,8 @@ const styles = StyleSheet.create({
   // DEV: Screen indicator styles
   devScreenIndicator: {
     position: 'absolute',
-    top: 90,
-    left: 10,
+    bottom: 10,
+    right: 10,
     backgroundColor: 'rgba(0,0,0,0.7)',
     paddingHorizontal: 8,
     paddingVertical: 4,

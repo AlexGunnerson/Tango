@@ -176,8 +176,8 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
         {/* Player Name */}
         <Text style={styles.playerName}>
           {gameType === 'simultaneous' ? 
-            `All players ${playerAction || 'Go!'}` : 
-            `${player1} ${playerAction || 'Go!'}`
+            `${player1} and ${player2} ${playerAction}` : 
+            `${player1} ${playerAction}`
           }
         </Text>
         
@@ -339,8 +339,8 @@ const styles = StyleSheet.create({
   // DEV: Screen indicator styles
   devScreenIndicator: {
     position: 'absolute',
-    top: 90,
-    left: 10,
+    bottom: 10,
+    right: 10,
     backgroundColor: 'rgba(0,0,0,0.7)',
     paddingHorizontal: 8,
     paddingVertical: 4,

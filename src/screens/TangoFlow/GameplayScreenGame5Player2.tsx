@@ -147,7 +147,7 @@ export default function GameplayScreenGame5Player2({ navigation, route }: Props)
         <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player2} {playerAction || 'Go!'}</Text>
+        <Text style={styles.playerName}>{player2} {playerAction}</Text>
         
         {/* Timer Display - only show if game has timer */}
         {hasTimer !== false && (
@@ -283,8 +283,8 @@ const styles = StyleSheet.create({
   // DEV: Screen indicator styles
   devScreenIndicator: {
     position: 'absolute',
-    top: 90,
-    left: 10,
+    bottom: 10,
+    right: 10,
     backgroundColor: 'rgba(0,0,0,0.7)',
     paddingHorizontal: 8,
     paddingVertical: 4,
