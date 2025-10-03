@@ -166,8 +166,8 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
         {/* Player Name */}
         <Text style={styles.playerName}>
           {gameType === 'simultaneous' ? 
-            'All players Draw!' : 
-            `${player1} Draw!`
+            `All players ${playerAction || 'Go!'}` : 
+            `${player1} ${playerAction || 'Go!'}`
           }
         </Text>
         
@@ -195,6 +195,46 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
               <Text style={styles.controlButtonText}>{isPlaying ? '||' : '▶'}</Text>
             </TouchableOpacity>
           </View>
+        )}
+
+        {/* Continue Button - only show for games without timer */}
+        {hasTimer === false && (
+          <TouchableOpacity 
+            style={[styles.controlButton, styles.continueButton]}
+            onPress={() => {
+              // Navigate to next screen based on game type
+              if (gameType === 'simultaneous') {
+                navigation.navigate('Scoring', {
+                  player1,
+                  player2,
+                  punishment,
+                  availableItems,
+                  gameTitle: gameTitle,
+                  originalPlayer1: displayPlayer1,
+                  originalPlayer2: displayPlayer2,
+                  player1Score,
+                  player2Score
+                });
+              } else {
+                navigation.navigate('TimesUp', {
+                  player1,
+                  player2,
+                  punishment,
+                  availableItems,
+                  gameTitle: gameTitle,
+                  currentPlayer: player1,
+                  nextPlayer: player2,
+                  originalPlayer1: displayPlayer1,
+                  originalPlayer2: displayPlayer2,
+                  player1Score,
+                  player2Score,
+                  playerAction
+                });
+              }
+            }}
+          >
+            <Text style={styles.controlButtonText}>Continue</Text>
+          </TouchableOpacity>
         )}
 
         {/* Score Display */}
@@ -314,5 +354,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     textAlign: 'center',
     zIndex: 1000,
+  },
+  continueButton: {
+    width: 280,
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 130,
+    alignSelf: 'center',
   },
 });

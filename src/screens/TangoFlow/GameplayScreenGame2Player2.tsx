@@ -155,7 +155,7 @@ export default function GameplayScreenGame2Player2({ navigation, route }: Props)
         <Text style={styles.gameTitle}>{gameTitle}</Text>
         
         {/* Player Name */}
-        <Text style={styles.playerName}>{player2} {playerAction || 'Go!'}!</Text>
+        <Text style={styles.playerName}>{player2} {playerAction || 'Go!'}</Text>
         
         {/* Timer Display - only show for games with timer */}
         {hasTimer !== false && (

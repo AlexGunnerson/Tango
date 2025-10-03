@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 40,
     fontFamily: 'Nunito',
+    textAlign: 'center',
   },
   timesUpTitle: {
     fontSize: 26,

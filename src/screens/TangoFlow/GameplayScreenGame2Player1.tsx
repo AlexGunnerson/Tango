@@ -209,44 +209,42 @@ export default function GameplayScreenGame2Player1({ navigation, route }: Props)
 
         {/* Continue Button - only show for games without timer */}
         {hasTimer === false && (
-          <View style={styles.controlsContainer}>
-            <TouchableOpacity 
-              style={[styles.controlButton, styles.continueButton]}
-              onPress={() => {
-                // Navigate to next screen based on game type
-                if (gameType === 'simultaneous') {
-                  navigation.navigate('Scoring', {
-                    player1,
-                    player2,
-                    punishment,
-                    availableItems,
-                    gameTitle: gameTitle,
-                    originalPlayer1: displayPlayer1,
-                    originalPlayer2: displayPlayer2,
-                    player1Score,
-                    player2Score
-                  });
-                } else {
-                  navigation.navigate('TimesUp', {
-                    player1,
-                    player2,
-                    punishment,
-                    availableItems,
-                    gameTitle: gameTitle,
-                    currentPlayer: player1,
-                    nextPlayer: player2,
-                    originalPlayer1: displayPlayer1,
-                    originalPlayer2: displayPlayer2,
-                    player1Score,
-                    player2Score,
-                    playerAction
-                  });
-                }
-              }}
-            >
-              <Text style={styles.controlButtonText}>Continue</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity 
+            style={[styles.controlButton, styles.continueButton]}
+            onPress={() => {
+              // Navigate to next screen based on game type
+              if (gameType === 'simultaneous') {
+                navigation.navigate('Scoring', {
+                  player1,
+                  player2,
+                  punishment,
+                  availableItems,
+                  gameTitle: gameTitle,
+                  originalPlayer1: displayPlayer1,
+                  originalPlayer2: displayPlayer2,
+                  player1Score,
+                  player2Score
+                });
+              } else {
+                navigation.navigate('TimesUp', {
+                  player1,
+                  player2,
+                  punishment,
+                  availableItems,
+                  gameTitle: gameTitle,
+                  currentPlayer: player1,
+                  nextPlayer: player2,
+                  originalPlayer1: displayPlayer1,
+                  originalPlayer2: displayPlayer2,
+                  player1Score,
+                  player2Score,
+                  playerAction
+                });
+              }
+            }}
+          >
+            <Text style={styles.controlButtonText}>Continue</Text>
+          </TouchableOpacity>
         )}
 
         {/* Score Display */}
