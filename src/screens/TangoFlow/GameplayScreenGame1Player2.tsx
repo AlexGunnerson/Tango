@@ -97,7 +97,8 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
           originalPlayer1: displayPlayer1,
           originalPlayer2: displayPlayer2,
           player1Score,
-          player2Score
+          player2Score,
+          hasTimer
         });
       }, 1000);
     }
@@ -192,7 +193,8 @@ export default function GameplayScreenGame1Player2({ navigation, route }: Props)
                 originalPlayer1: displayPlayer1,
                 originalPlayer2: displayPlayer2,
                 player1Score,
-                player2Score
+                player2Score,
+                hasTimer
               });
             }}
           >

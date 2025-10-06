@@ -244,6 +244,7 @@ export type RootStackParamList = {
     player2Score?: number;
     timerDuration?: number;
     playerAction?: string;
+    hasTimer?: boolean;
   };
   TimesUp: {
     player1: string; 
@@ -269,6 +270,7 @@ export type RootStackParamList = {
     originalPlayer2?: string;
     player1Score?: number;
     player2Score?: number;
+    hasTimer?: boolean;
   };
   Winner: {
     winner: string;

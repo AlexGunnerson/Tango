@@ -5,7 +5,7 @@ import type { RootStackScreenProps } from '../../navigation/types';
 type Props = RootStackScreenProps<'Gameplay'>;
 
 export default function GameplayScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, isSecondPlayerTurn, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, isSecondPlayerTurn, originalPlayer1, originalPlayer2, player1Score, player2Score, hasTimer } = route.params;
   const [timeRemaining, setTimeRemaining] = useState(3); // 3 seconds for testing
   const [isRunning, setIsRunning] = useState(false);
 
@@ -42,7 +42,8 @@ export default function GameplayScreen({ navigation, route }: Props) {
           originalPlayer1,
           originalPlayer2,
           player1Score,
-          player2Score
+          player2Score,
+          hasTimer
         });
       } else {
         // First player finished, navigate to times up screen for second player

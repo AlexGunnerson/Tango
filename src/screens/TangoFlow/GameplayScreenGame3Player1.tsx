@@ -98,7 +98,8 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
             originalPlayer1: displayPlayer1,
             originalPlayer2: displayPlayer2,
             player1Score,
-            player2Score
+            player2Score,
+            hasTimer
           });
         } else {
           // Player 1 finished, navigate to TimesUp screen for Player 2 to get ready
@@ -213,7 +214,8 @@ export default function GameplayScreenGame3Player1({ navigation, route }: Props)
                   originalPlayer1: displayPlayer1,
                   originalPlayer2: displayPlayer2,
                   player1Score,
-                  player2Score
+                  player2Score,
+                  hasTimer
                 });
               } else {
                 navigation.navigate('TimesUp', {

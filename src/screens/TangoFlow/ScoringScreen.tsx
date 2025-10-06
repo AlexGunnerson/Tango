@@ -9,7 +9,7 @@ import { Game } from '../../types/game';
 type Props = RootStackScreenProps<'Scoring'>;
 
 export default function ScoringScreen({ navigation, route }: Props) {
-  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score: initialPlayer1Score, player2Score: initialPlayer2Score } = route.params;
+  const { player1, player2, punishment, availableItems, gameTitle, originalPlayer1, originalPlayer2, player1Score: initialPlayer1Score, player2Score: initialPlayer2Score, hasTimer } = route.params;
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -147,11 +147,13 @@ export default function ScoringScreen({ navigation, route }: Props) {
           {isLoading ? 'Loading...' : (gameData?.title || gameTitle || 'The Blind March')}
         </Text>
         
-        {/* Times Up Message */}
-        <Text style={styles.timesUpTitle}>Times Up!</Text>
+        {/* Times Up Message - Only show if game had a timer */}
+        {hasTimer !== false && (
+          <Text style={styles.timesUpTitle}>Times Up!</Text>
+        )}
         
         {/* Select Winner Section */}
-        <Text style={styles.selectWinnerTitle}>Select the Winner</Text>
+        <Text style={[styles.selectWinnerTitle, hasTimer === false && styles.selectWinnerTitleNoTimer]}>Select the Winner</Text>
         
         {/* Winner Selection Buttons */}
         <View style={styles.winnersContainer}>
@@ -274,6 +276,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
     alignSelf: 'stretch',
     textAlign: 'center',
+  },
+  selectWinnerTitleNoTimer: {
+    marginTop: 100, // Add more space when there's no "Times Up!" message
   },
   winnersContainer: {
     flexDirection: 'row',

@@ -198,7 +198,8 @@ export default function GameplayScreenGame4Player1({ navigation, route }: Props)
                   originalPlayer1: displayPlayer1,
                   originalPlayer2: displayPlayer2,
                   player1Score,
-                  player2Score
+                  player2Score,
+                  hasTimer
                 });
               } else {
                 navigation.navigate('TimesUp', {
