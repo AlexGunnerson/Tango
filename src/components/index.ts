@@ -5,3 +5,4 @@ export * from './GameLibrary';
 export * from './GameModes';
 export * from './TangoFlow';
 export * from './ReplayLibrary';
+export * from './GameRandomizer';

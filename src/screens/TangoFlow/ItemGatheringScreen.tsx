@@ -5,6 +5,7 @@ import { useGameLogic } from '../../hooks/useGameLogic';
 import { useUser } from '../../hooks/useUser';
 import { supabaseService, DatabaseMaterial } from '../../services/supabaseService';
 import { Material } from '../../types/material';
+import { GameRandomizerPopup } from '../../components/GameRandomizer';
 
 type Props = RootStackScreenProps<'ItemGathering'>;
 
@@ -33,6 +34,8 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
   const [loadingGamesCount, setLoadingGamesCount] = useState(false);
   const [showingFeaturedOnly, setShowingFeaturedOnly] = useState(true);
   const [loadingMoreItems, setLoadingMoreItems] = useState(false);
+  const [showRandomizer, setShowRandomizer] = useState(false);
+  const [selectedGamesForPopup, setSelectedGamesForPopup] = useState<Array<{ id: string; title: string }>>([]);
 
   // Fetch materials from Supabase on component mount
   useEffect(() => {
@@ -269,19 +272,35 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
             }
             
             // Select games based on user materials in database
-            await selectGames(user?.id);
+            const selectedGameIds = await selectGames(user?.id);
             
-            // Navigate to first game instructions screen
-            navigation.navigate('GameInstructionsScreen1', {
-              player1,
-              player2,
-              punishment,
-              availableItems: items.filter(item => item.checked),
-              originalPlayer1,
-              originalPlayer2,
-              player1Score,
-              player2Score
-            });
+            // Fetch game details for the popup
+            if (selectedGameIds && selectedGameIds.length > 0) {
+              const gameDetails = await Promise.all(
+                selectedGameIds.map(async (gameId) => {
+                  const game = await supabaseService.getGameById(gameId);
+                  return game ? { id: game.id, title: game.title } : null;
+                })
+              );
+              
+              const validGames = gameDetails.filter((g): g is { id: string; title: string } => g !== null);
+              setSelectedGamesForPopup(validGames);
+              
+              // Show the randomizer popup
+              setShowRandomizer(true);
+            } else {
+              // If no games found, navigate directly
+              navigation.navigate('GameInstructionsScreen1', {
+                player1,
+                player2,
+                punishment,
+                availableItems: items.filter(item => item.checked),
+                originalPlayer1,
+                originalPlayer2,
+                player1Score,
+                player2Score
+              });
+            }
           } catch (error) {
             console.error('Error saving materials:', error);
             // Continue with navigation even if saving fails
@@ -309,6 +328,36 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
         />
         <Text style={styles.itemsGatheredText}>Items Gathered</Text>
       </TouchableOpacity>
+
+      {/* Game Randomizer Popup */}
+      <GameRandomizerPopup
+        visible={showRandomizer}
+        games={selectedGamesForPopup}
+        onComplete={(selectedGame) => {
+          console.log('🎬 ItemGatheringScreen: onComplete called with game:', selectedGame);
+          
+          // Navigate to first game instructions screen immediately
+          console.log('📍 Navigating to GameInstructionsScreen1...');
+          navigation.navigate('GameInstructionsScreen1', {
+            player1,
+            player2,
+            punishment,
+            availableItems: items.filter(item => item.checked),
+            originalPlayer1,
+            originalPlayer2,
+            player1Score,
+            player2Score
+          });
+          
+          // Close the modal after a short delay to ensure navigation completes
+          setTimeout(() => {
+            setShowRandomizer(false);
+          }, 100);
+        }}
+        onClose={() => {
+          setShowRandomizer(false);
+        }}
+      />
     </SafeAreaView>
   );
 }
