@@ -71,24 +71,25 @@ export default function GameRandomizerPopup({
     setTimeout(() => {
       // Start shuffling the cards by moving them
       let shuffleCount = 0;
+      let currentScrollValue = 0; // Track scroll position manually
       const maxShuffles = 30; // Number of times to shuffle
       
       // Function to calculate shuffle speed - starts fast, ends slow
       const getShuffleSpeed = (count: number, max: number): number => {
         const progress = count / max;
         
-        // Keep first 50% of shuffles at maximum speed, then slow down dramatically
-        if (progress < 0.5) {
-          return 50; // Super fast for first half
+        // Keep first 60% of shuffles at maximum speed for excitement, then slow down
+        if (progress < 0.6) {
+          return 70; // Fast for first 60%
         }
         
-        // For second half, use exponential slowdown
-        const adjustedProgress = (progress - 0.5) * 2; // Normalize to 0-1 for second half
-        const easeFactor = Math.pow(adjustedProgress, 3);
+        // For final 40%, use smooth exponential slowdown
+        const adjustedProgress = (progress - 0.6) / 0.4; // Normalize to 0-1 for final portion
+        const easeFactor = Math.pow(adjustedProgress, 2.5); // Smoother curve
         
-        // Speed ranges from fast to very slow (only for second half)
-        const startSpeed = 50;   // Where we continue from first half
-        const endSpeed = 600;    // Final slow speed
+        // Speed ranges from fast to very slow (only for final portion)
+        const startSpeed = 70;   // Where we continue from first portion
+        const endSpeed = 500;    // Final slow speed
         
         return startSpeed + (easeFactor * (endSpeed - startSpeed));
       };
@@ -121,20 +122,18 @@ export default function GameRandomizerPopup({
 
         // Calculate current shuffle speed based on progress
         const currentSpeed = getShuffleSpeed(shuffleCount, maxShuffles);
-
-        // Animate scroll position from 0 to 1 (one card width)
-        // Use linear easing for first half (fast), ease-out for second half (slow)
-        const useLinear = shuffleCount < maxShuffles / 2;
         
+        // Continuously increase scroll position (no reset!)
+        // This creates smooth continuous motion: 0 → 1 → 2 → 3...
+        currentScrollValue += 1;
         Animated.timing(scrollPosition, {
-          toValue: 1,
+          toValue: currentScrollValue,
           duration: currentSpeed,
-          easing: useLinear ? Easing.linear : Easing.out(Easing.cubic),
+          easing: Easing.linear, // Linear for perfectly smooth constant-speed flow
           useNativeDriver: true,
         }).start(() => {
-          // Move to next card
+          // Update card index AFTER animation completes (not before!)
           setCurrentCenterIndex((prev) => (prev + 1) % games.length);
-          scrollPosition.setValue(0);
           shuffleCount++;
           animateNextCard();
         });
@@ -181,42 +180,45 @@ export default function GameRandomizerPopup({
   };
 
   const renderCard = (game: GameCard, cardIndex: number) => {
-    // Calculate card's relative position to center (static part)
-    const relativePosition = (cardIndex - currentCenterIndex + games.length) % games.length;
-    const normalizedPosition = relativePosition > games.length / 2 
-      ? relativePosition - games.length 
-      : relativePosition;
-    
     // Card spacing - distance between cards
     const cardSpacing = width * 0.35;
     
-    // Create animated position that combines static position with scroll
-    const animatedPosition = Animated.subtract(normalizedPosition, scrollPosition);
+    // Calculate animated position: cardIndex - currentCenterIndex - scrollPosition
+    // This creates continuous motion as scrollPosition increases
+    const rawPosition = cardIndex - currentCenterIndex;
+    const animatedPosition = Animated.subtract(rawPosition, scrollPosition);
+    
+    // Use modulo to wrap position for circular carousel
+    const wrappedPosition = Animated.modulo(
+      Animated.add(animatedPosition, games.length * 100), // Add large offset to avoid negative numbers
+      games.length
+    );
+    
+    // Normalize to [-games.length/2, games.length/2] range for proper wrapping
+    const normalizedPosition = wrappedPosition.interpolate({
+      inputRange: [0, games.length / 2, games.length],
+      outputRange: [0, games.length / 2, -games.length / 2],
+    });
     
     // Interpolate translateX: cards move from right to left
-    const translateX = Animated.multiply(animatedPosition, cardSpacing);
+    const translateX = Animated.multiply(normalizedPosition, cardSpacing);
     
     // Interpolate scale: center card (position 0) has scale 1.0, sides are smaller
-    const animatedScale = animatedPosition.interpolate({
+    const animatedScale = normalizedPosition.interpolate({
       inputRange: [-2, -1, 0, 1, 2],
       outputRange: [0.7, 0.85, 1.0, 0.85, 0.7],
       extrapolate: 'clamp',
     });
     
     // Interpolate opacity: center card (position 0) is fully visible, sides are faded
-    const animatedOpacity = animatedPosition.interpolate({
+    const animatedOpacity = normalizedPosition.interpolate({
       inputRange: [-2, -1, 0, 1, 2],
       outputRange: [0.3, 0.6, 1.0, 0.6, 0.3],
       extrapolate: 'clamp',
     });
     
-    // Z-index: center card should be on top
-    const zIndex = Math.round(10 - Math.abs(normalizedPosition) * 5);
-    
-    // Only render cards that are visible (within reasonable range)
-    if (Math.abs(normalizedPosition) > 2.5) {
-      return null;
-    }
+    // Z-index: use cardIndex for stable layering
+    const zIndex = cardIndex;
 
     return (
       <Animated.View
