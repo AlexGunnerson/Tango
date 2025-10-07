@@ -77,16 +77,20 @@ export default function GameRandomizerPopup({
       const getShuffleSpeed = (count: number, max: number): number => {
         const progress = count / max;
         
-        // Ease-out curve: fast at start (0), slow at end (1)
-        // Using quadratic easing for smooth deceleration
-        const easeFactor = 1 - Math.pow(1 - progress, 2);
+        // Keep first 50% of shuffles at maximum speed, then slow down dramatically
+        if (progress < 0.5) {
+          return 50; // Super fast for first half
+        }
         
-        // Speed ranges from fast to slow
-        const minSpeed = 50;   // Fastest speed at start
-        const maxSpeed = 300;  // Slowest speed at end
+        // For second half, use exponential slowdown
+        const adjustedProgress = (progress - 0.5) * 2; // Normalize to 0-1 for second half
+        const easeFactor = Math.pow(adjustedProgress, 3);
         
-        // Start fast, end slow
-        return minSpeed + (easeFactor * (maxSpeed - minSpeed));
+        // Speed ranges from fast to very slow (only for second half)
+        const startSpeed = 50;   // Where we continue from first half
+        const endSpeed = 600;    // Final slow speed
+        
+        return startSpeed + (easeFactor * (endSpeed - startSpeed));
       };
       
       const animateNextCard = () => {
@@ -119,10 +123,13 @@ export default function GameRandomizerPopup({
         const currentSpeed = getShuffleSpeed(shuffleCount, maxShuffles);
 
         // Animate scroll position from 0 to 1 (one card width)
+        // Use linear easing for first half (fast), ease-out for second half (slow)
+        const useLinear = shuffleCount < maxShuffles / 2;
+        
         Animated.timing(scrollPosition, {
           toValue: 1,
           duration: currentSpeed,
-          easing: Easing.out(Easing.ease),
+          easing: useLinear ? Easing.linear : Easing.out(Easing.cubic),
           useNativeDriver: true,
         }).start(() => {
           // Move to next card
