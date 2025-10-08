@@ -39,7 +39,6 @@ export default function GameRandomizerPopup({
   onComplete,
   onClose,
 }: GameRandomizerPopupProps) {
-  const [currentCenterIndex, setCurrentCenterIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameCard | null>(null);
 
@@ -50,7 +49,6 @@ export default function GameRandomizerPopup({
 
   useEffect(() => {
     if (visible && games.length > 0) {
-      setCurrentCenterIndex(0);
       startRandomization();
     }
   }, [visible, games.length]);
@@ -59,6 +57,27 @@ export default function GameRandomizerPopup({
     setIsAnimating(true);
     scrollPosition.setValue(0);
     nameOpacity.setValue(0); // Start with name invisible
+    
+    // Batch 1: Pre-calculate the winning game
+    // Randomly select target game index
+    const targetGameIndex = Math.floor(Math.random() * games.length);
+    const chosenGame = games[targetGameIndex];
+    
+    // Calculate total scroll distance:
+    // (3-4 full rotations * games.length) + targetGameIndex
+    // NOTE: No extraOffset! We need scrollPosition to land exactly on targetGameIndex
+    // For centering to work: cardIndex - scrollPosition = 0, so scrollPosition must equal targetGameIndex (mod games.length)
+    const fullRotations = Math.floor(3 + Math.random()); // 3 or 4 full rotations
+    const totalScrollDistance = (fullRotations * games.length) + targetGameIndex;
+    
+    // Log the calculated values
+    console.log('🎯 Batch 1 - Pre-calculated values:');
+    console.log('  Games array:', games.map((g, i) => `${i}: ${g.title}`));
+    console.log('  Target game index:', targetGameIndex);
+    console.log('  Chosen game:', chosenGame.title);
+    console.log('  Full rotations:', fullRotations);
+    console.log('  Total scroll distance:', totalScrollDistance);
+    console.log('  Expected centered card:', targetGameIndex, '=', totalScrollDistance % games.length);
     
     // Fade in the popup
     Animated.timing(cardOpacity, {
@@ -69,77 +88,46 @@ export default function GameRandomizerPopup({
 
     // Wait for initial delay before starting shuffle
     setTimeout(() => {
-      // Start shuffling the cards by moving them
-      let shuffleCount = 0;
-      let currentScrollValue = 0; // Track scroll position manually
-      const maxShuffles = 30; // Number of times to shuffle
+      // Batch 2: Single animation from 0 to totalScrollDistance
+      console.log('🎬 Batch 2 - Starting single animation to:', totalScrollDistance);
       
-      // Function to calculate shuffle speed - starts fast, ends slow
-      const getShuffleSpeed = (count: number, max: number): number => {
-        const progress = count / max;
+      Animated.timing(scrollPosition, {
+        toValue: totalScrollDistance,
+        duration: 3000,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start(() => {
+        // Batch 5: Animation complete - use pre-calculated chosenGame from Batch 1
+        console.log('✅ Batch 5 - Animation complete at scrollPosition:', totalScrollDistance);
+        console.log('🎯 Using pre-calculated game:', chosenGame.title, 'at index:', targetGameIndex);
         
-        // Keep first 60% of shuffles at maximum speed for excitement, then slow down
-        if (progress < 0.6) {
-          return 70; // Fast for first 60%
-        }
+        // DEBUG: Calculate which card should be centered based on the formula
+        const centeredIndex = Math.round(totalScrollDistance) % games.length;
+        console.log('🔍 DEBUG - Card that should be centered:');
+        console.log('  Centered index (from math):', centeredIndex);
+        console.log('  Centered game (from math):', games[centeredIndex].title);
+        console.log('  Match?', centeredIndex === targetGameIndex ? '✅ YES' : '❌ NO - MISMATCH!');
         
-        // For final 40%, use smooth exponential slowdown
-        const adjustedProgress = (progress - 0.6) / 0.4; // Normalize to 0-1 for final portion
-        const easeFactor = Math.pow(adjustedProgress, 2.5); // Smoother curve
+        // Call debug helper to show all card positions
+        debugCenteredCard(totalScrollDistance);
         
-        // Speed ranges from fast to very slow (only for final portion)
-        const startSpeed = 70;   // Where we continue from first portion
-        const endSpeed = 500;    // Final slow speed
+        setSelectedGame(chosenGame);
         
-        return startSpeed + (easeFactor * (endSpeed - startSpeed));
-      };
-      
-      const animateNextCard = () => {
-        if (shuffleCount >= maxShuffles) {
-          // Final selection - select random game
-          const finalIndex = Math.floor(Math.random() * games.length);
-          const chosenGame = games[finalIndex];
-          console.log('🎲 Final game selected:', chosenGame);
-          setCurrentCenterIndex(finalIndex);
-          setSelectedGame(chosenGame);
-          
-          // Show game name with fade in
-          Animated.timing(nameOpacity, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }).start(() => {
-            console.log('✅ Game name faded in, waiting for navigation delay...');
-            setIsAnimating(false);
-            // Delay before navigating to next screen
-            setTimeout(() => {
-              console.log('⏰ Navigation delay complete, calling handleComplete with game:', chosenGame);
-              handleComplete(chosenGame);
-            }, POST_SELECTION_DELAY);
-          });
-          return;
-        }
-
-        // Calculate current shuffle speed based on progress
-        const currentSpeed = getShuffleSpeed(shuffleCount, maxShuffles);
-        
-        // Continuously increase scroll position (no reset!)
-        // This creates smooth continuous motion: 0 → 1 → 2 → 3...
-        currentScrollValue += 1;
-        Animated.timing(scrollPosition, {
-          toValue: currentScrollValue,
-          duration: currentSpeed,
-          easing: Easing.linear, // Linear for perfectly smooth constant-speed flow
+        // Show game name with fade in
+        Animated.timing(nameOpacity, {
+          toValue: 1,
+          duration: 500,
           useNativeDriver: true,
         }).start(() => {
-          // Update card index AFTER animation completes (not before!)
-          setCurrentCenterIndex((prev) => (prev + 1) % games.length);
-          shuffleCount++;
-          animateNextCard();
+          console.log('✅ Game name faded in, waiting for navigation delay...');
+          setIsAnimating(false);
+          // Delay before navigating to next screen
+          setTimeout(() => {
+            console.log('⏰ Navigation delay complete, calling handleComplete with game:', chosenGame);
+            handleComplete(chosenGame);
+          }, POST_SELECTION_DELAY);
         });
-      };
-
-      animateNextCard();
+      });
     }, INITIAL_DELAY);
   };
 
@@ -174,19 +162,29 @@ export default function GameRandomizerPopup({
     cardOpacity.setValue(0);
     nameOpacity.setValue(0);
     scrollPosition.setValue(0);
-    setCurrentCenterIndex(0);
     setSelectedGame(null);
     setIsAnimating(false);
+  };
+
+  // Debug helper to check which card should be centered for a given scrollPosition
+  const debugCenteredCard = (scrollPos: number) => {
+    console.log('🔍 DEBUG - Testing each card position:');
+    games.forEach((game, idx) => {
+      const rawPos = idx - scrollPos;
+      const wrapped = ((rawPos % games.length) + games.length) % games.length;
+      const normalized = wrapped <= games.length / 2 ? wrapped : wrapped - games.length;
+      const isCentered = Math.abs(normalized) < 0.1;
+      console.log(`  Card ${idx} (${game.title}): rawPos=${rawPos.toFixed(2)}, wrapped=${wrapped.toFixed(2)}, normalized=${normalized.toFixed(2)} ${isCentered ? '🎯 CENTERED' : ''}`);
+    });
   };
 
   const renderCard = (game: GameCard, cardIndex: number) => {
     // Card spacing - distance between cards
     const cardSpacing = width * 0.35;
     
-    // Calculate animated position: cardIndex - currentCenterIndex - scrollPosition
-    // This creates continuous motion as scrollPosition increases
-    const rawPosition = cardIndex - currentCenterIndex;
-    const animatedPosition = Animated.subtract(rawPosition, scrollPosition);
+    // Batch 3 & 4: Simplified position calculation using only cardIndex and scrollPosition
+    // Calculate animated position: cardIndex - scrollPosition
+    const animatedPosition = Animated.subtract(cardIndex, scrollPosition);
     
     // Use modulo to wrap position for circular carousel
     const wrappedPosition = Animated.modulo(
@@ -195,9 +193,13 @@ export default function GameRandomizerPopup({
     );
     
     // Normalize to [-games.length/2, games.length/2] range for proper wrapping
+    // For 5 items: wrapped [0,1,2,3,4] -> normalized [0,1,2,-2,-1]
+    // Split at halfLength: [0, 2.5] stays positive, (2.5, 5) becomes negative
+    const halfLength = games.length / 2;
     const normalizedPosition = wrappedPosition.interpolate({
-      inputRange: [0, games.length / 2, games.length],
-      outputRange: [0, games.length / 2, -games.length / 2],
+      inputRange: [0, halfLength, halfLength + 0.001, games.length],
+      outputRange: [0, halfLength, -games.length + halfLength + 0.001, 0],
+      extrapolate: 'clamp',
     });
     
     // Interpolate translateX: cards move from right to left
@@ -207,13 +209,6 @@ export default function GameRandomizerPopup({
     const animatedScale = normalizedPosition.interpolate({
       inputRange: [-2, -1, 0, 1, 2],
       outputRange: [0.7, 0.85, 1.0, 0.85, 0.7],
-      extrapolate: 'clamp',
-    });
-    
-    // Interpolate opacity: center card (position 0) is fully visible, sides are faded
-    const animatedOpacity = normalizedPosition.interpolate({
-      inputRange: [-2, -1, 0, 1, 2],
-      outputRange: [0.3, 0.6, 1.0, 0.6, 0.3],
       extrapolate: 'clamp',
     });
     
@@ -228,7 +223,6 @@ export default function GameRandomizerPopup({
           {
             width: CARD_WIDTH,
             height: CARD_HEIGHT,
-            opacity: animatedOpacity,
             transform: [
               { translateX },
               { scale: animatedScale },
