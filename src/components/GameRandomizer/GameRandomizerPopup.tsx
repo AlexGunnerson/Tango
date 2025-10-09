@@ -212,8 +212,15 @@ export default function GameRandomizerPopup({
       extrapolate: 'clamp',
     });
     
-    // Z-index: use cardIndex for stable layering
-    const zIndex = cardIndex;
+    // Z-index and elevation: Use scale-based values to ensure centered card appears on top
+    // Dramatically increase elevation/shadow differences to create strong visual layering
+    const animatedElevation = Animated.multiply(animatedScale, 200);
+    const animatedShadowOpacity = Animated.multiply(animatedScale, 0.6);
+    const animatedShadowRadius = Animated.multiply(animatedScale, 30);
+    
+    // Dynamic z-index based on distance from center position
+    // Cards closer to center get higher z-index values
+    const zIndex = games.length * 100 - Math.abs(cardIndex - Math.round((scrollPosition as any).__getValue())) % games.length;
 
     return (
       <Animated.View
@@ -228,6 +235,9 @@ export default function GameRandomizerPopup({
               { scale: animatedScale },
             ],
             zIndex,
+            elevation: animatedElevation, // Android: larger cards have much more elevation
+            shadowOpacity: animatedShadowOpacity, // iOS: larger cards have much darker shadows
+            shadowRadius: animatedShadowRadius, // iOS: larger cards have much bigger shadows
           },
         ]}
       >
@@ -353,9 +363,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 10,
+    // shadowOpacity, shadowRadius, and elevation are set dynamically in renderCard
   },
   cardBackground: {
     flex: 1,
