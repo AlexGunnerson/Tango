@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   playerName: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     color: '#333333',
     marginBottom: 60,
     fontFamily: 'Nunito',

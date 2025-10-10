@@ -145,7 +145,9 @@ export default function ScoringScreen({ navigation, route }: Props) {
           const remainingGameIds = session?.selectedGames || [];
           const currentGameIndex = session?.currentGameIndex ?? 0;
           
+          const totalGamesPlayed = updatedPlayer1Score + updatedPlayer2Score;
           console.log('🔍 ScoringScreen - Session details:');
+          console.log('  Total games played so far:', totalGamesPlayed);
           console.log('  All selected games:', remainingGameIds);
           console.log('  Current game index:', currentGameIndex);
           console.log('  Session status:', session?.status);
@@ -155,6 +157,7 @@ export default function ScoringScreen({ navigation, route }: Props) {
           
           console.log('  Remaining games to play:', remainingPreSelectedIds);
           console.log('  Should show randomizer?', remainingPreSelectedIds.length > 0);
+          console.log('  Next game will be:', totalGamesPlayed === 1 ? 'Game 2' : totalGamesPlayed === 2 ? 'Game 3' : totalGamesPlayed === 3 ? 'Game 4' : 'Game 5');
           
           // Fetch ALL available games based on user's materials
           if (remainingPreSelectedIds && remainingPreSelectedIds.length > 0) {
