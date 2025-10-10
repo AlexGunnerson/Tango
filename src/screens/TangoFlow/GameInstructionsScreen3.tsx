@@ -211,8 +211,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F66D3D',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 100,
     alignSelf: 'center',
-    marginBottom: 40,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -226,6 +227,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito',
   },
   scoreSection: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
     alignItems: 'center',
   },
   scoreText: {

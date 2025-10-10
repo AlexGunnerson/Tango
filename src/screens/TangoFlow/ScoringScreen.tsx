@@ -19,6 +19,7 @@ export default function ScoringScreen({ navigation, route }: Props) {
   const [selectedGamesForPopup, setSelectedGamesForPopup] = useState<Array<{ id: string; title: string }>>([]);
   const [targetGameId, setTargetGameId] = useState<string | undefined>(undefined);
   const [pendingNavigation, setPendingNavigation] = useState<{screen: string, params: any} | null>(null);
+  const [isProcessingRound, setIsProcessingRound] = useState(false);
   
   // Fetch game data from Supabase
   useEffect(() => {
@@ -63,8 +64,9 @@ export default function ScoringScreen({ navigation, route }: Props) {
   const displayPlayer2 = originalPlayer2 || player2;
 
   // Calculate preview scores based on selection
-  const previewPlayer1Score = selectedWinner === displayPlayer1 ? player1Score + 1 : player1Score;
-  const previewPlayer2Score = selectedWinner === displayPlayer2 ? player2Score + 1 : player2Score;
+  // Don't add preview +1 if we're already processing the round (to avoid double increment)
+  const previewPlayer1Score = (selectedWinner === displayPlayer1 && !isProcessingRound) ? player1Score + 1 : player1Score;
+  const previewPlayer2Score = (selectedWinner === displayPlayer2 && !isProcessingRound) ? player2Score + 1 : player2Score;
 
   // Sound effects
   const { playButtonClick } = useGameSounds();
@@ -96,6 +98,9 @@ export default function ScoringScreen({ navigation, route }: Props) {
     
     // Determine winner ID for game logic service
     const winnerId = selectedWinner === displayPlayer1 ? 'player1' : 'player2';
+    
+    // Set flag to prevent double increment during re-render
+    setIsProcessingRound(true);
     
     try {
       // Complete the round in the game logic service - this will update scores and sync to database
@@ -217,6 +222,8 @@ export default function ScoringScreen({ navigation, route }: Props) {
       }
     } catch (error) {
       console.error('Error completing round:', error);
+      // Reset processing flag on error
+      setIsProcessingRound(false);
       // Fallback to local state management if service fails
     }
   };
@@ -311,7 +318,7 @@ export default function ScoringScreen({ navigation, route }: Props) {
 
         {/* Score Display */}
         <View style={styles.scoreSection}>
-          <Text style={styles.scoreText}>{displayPlayer1}: {player1Score} | {displayPlayer2}: {player2Score}</Text>
+          <Text style={styles.scoreText}>{displayPlayer1}: {previewPlayer1Score} | {displayPlayer2}: {previewPlayer2Score}</Text>
         </View>
       </View>
 
