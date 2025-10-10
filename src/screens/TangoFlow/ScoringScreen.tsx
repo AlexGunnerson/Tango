@@ -3,8 +3,10 @@ import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, Image } from 'r
 import type { RootStackScreenProps } from '../../navigation/types';
 import { useGameSounds } from '../../hooks/useGameSounds';
 import { useGameLogic } from '../../hooks/useGameLogic';
+import { useUser } from '../../hooks/useUser';
 import { supabaseService } from '../../services/supabaseService';
 import { Game } from '../../types/game';
+import { GameRandomizerPopup } from '../../components/GameRandomizer';
 
 type Props = RootStackScreenProps<'Scoring'>;
 
@@ -13,6 +15,10 @@ export default function ScoringScreen({ navigation, route }: Props) {
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
   const [gameData, setGameData] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showRandomizer, setShowRandomizer] = useState(false);
+  const [selectedGamesForPopup, setSelectedGamesForPopup] = useState<Array<{ id: string; title: string }>>([]);
+  const [targetGameId, setTargetGameId] = useState<string | undefined>(undefined);
+  const [pendingNavigation, setPendingNavigation] = useState<{screen: string, params: any} | null>(null);
   
   // Fetch game data from Supabase
   useEffect(() => {
@@ -31,6 +37,9 @@ export default function ScoringScreen({ navigation, route }: Props) {
     fetchGameData();
   }, [gameTitle]);
 
+  // Get persistent user
+  const { user } = useUser();
+  
   // Game logic integration
   const { sessionState, completeRound, isGameComplete, winner, getNextGameInstructions, service, createSession, setPlayers } = useGameLogic();
   
@@ -115,16 +124,92 @@ export default function ScoringScreen({ navigation, route }: Props) {
           // Use game logic service to get the next screen
           const nextScreen = getNextGameInstructions();
           
-          navigation.navigate(nextScreen as any, {
+          // Get updated scores after completing the round
+          const updatedPlayer1Score = sessionState?.player1?.score ?? 0;
+          const updatedPlayer2Score = sessionState?.player2?.score ?? 0;
+          
+          // Store navigation params for after randomizer completes
+          const navParams = {
             player1,
             player2,
             punishment,
             availableItems,
             originalPlayer1,
             originalPlayer2,
-            player1Score: sessionState?.player1?.score ?? 0,
-            player2Score: sessionState?.player2?.score ?? 0
-          });
+            player1Score: updatedPlayer1Score,
+            player2Score: updatedPlayer2Score
+          };
+          
+          // Get remaining pre-selected game IDs from the game logic service
+          const session = service.getSession();
+          const remainingGameIds = session?.selectedGames || [];
+          const currentGameIndex = session?.currentGameIndex ?? 0;
+          
+          console.log('🔍 ScoringScreen - Session details:');
+          console.log('  All selected games:', remainingGameIds);
+          console.log('  Current game index:', currentGameIndex);
+          console.log('  Session status:', session?.status);
+          
+          // Get remaining games (those not yet played)
+          const remainingPreSelectedIds = remainingGameIds.slice(currentGameIndex);
+          
+          console.log('  Remaining games to play:', remainingPreSelectedIds);
+          console.log('  Should show randomizer?', remainingPreSelectedIds.length > 0);
+          
+          // Fetch ALL available games based on user's materials
+          if (remainingPreSelectedIds && remainingPreSelectedIds.length > 0) {
+            try {
+              // Get current game ID to filter it out
+              const currentGameId = gameData?.id;
+              
+              console.log('📥 Fetching available games based on materials:', availableItems);
+              
+              // Fetch all available games based on the materials from availableItems
+              // Use the same approach as ItemGatheringScreen - fetch by materials not user ID
+              const materialNames = availableItems?.map((item: any) => item.name || item) || [];
+              
+              // Fetch games using the game logic service which checks materials
+              const allGames = await supabaseService.getGamesByFilters({
+                minPlayers: 2,
+                maxPlayers: 2,
+                availableItems: materialNames
+              });
+              
+              console.log('📊 Fetched games data:', allGames.length, 'games');
+            
+            // Transform to the format needed for the randomizer and filter out current game
+            const allGamesForDisplay = allGames
+              .filter((game: any) => game.id !== currentGameId)
+              .map((game: any) => ({ id: game.id, title: game.title }));
+            
+            // Randomly pick one of the remaining pre-selected games as the target
+            const randomIndex = Math.floor(Math.random() * remainingPreSelectedIds.length);
+            const targetId = remainingPreSelectedIds[randomIndex];
+            
+            console.log('🎮 All available games for display:', allGamesForDisplay.length);
+            console.log('🎯 Target game ID (from pre-selected):', targetId);
+            console.log('📋 Remaining pre-selected games:', remainingPreSelectedIds);
+            console.log('🔍 Current game ID to filter out:', currentGameId);
+            
+            if (allGamesForDisplay.length > 0) {
+              console.log('✅ Showing randomizer with', allGamesForDisplay.length, 'games');
+              setSelectedGamesForPopup(allGamesForDisplay);
+              setTargetGameId(targetId);
+              setPendingNavigation({ screen: nextScreen, params: navParams });
+              setShowRandomizer(true);
+              return;
+            } else {
+              console.log('❌ No games to display in randomizer, navigating directly');
+            }
+            } catch (fetchError) {
+              console.error('❌ Error fetching available games:', fetchError);
+              // Continue to fallback navigation
+            }
+          }
+          
+          // Fallback: navigate directly if no games to show in randomizer
+          console.log('⚠️ Fallback: Navigating directly without randomizer');
+          navigation.navigate(nextScreen as any, navParams);
         }
       }
     } catch (error) {
@@ -226,6 +311,53 @@ export default function ScoringScreen({ navigation, route }: Props) {
           <Text style={styles.scoreText}>{displayPlayer1}: {player1Score} | {displayPlayer2}: {player2Score}</Text>
         </View>
       </View>
+
+      {/* Game Randomizer Popup */}
+      <GameRandomizerPopup
+        visible={showRandomizer}
+        games={selectedGamesForPopup}
+        targetGameId={targetGameId}
+        onComplete={(selectedGame) => {
+          console.log('🎬 ScoringScreen: onComplete called with game:', selectedGame);
+          
+          // Update the session to ensure the selected game is the next game to play
+          const session = service.getSession();
+          if (session && selectedGame.id) {
+            const currentIndex = session.currentGameIndex;
+            const selectedGameIndex = session.selectedGames.indexOf(selectedGame.id);
+            
+            console.log('🔄 Reordering games - Current index:', currentIndex, 'Selected game index:', selectedGameIndex);
+            
+            if (selectedGameIndex > currentIndex) {
+              // Swap the selected game with the game at currentGameIndex
+              const newGameOrder = [...session.selectedGames];
+              [newGameOrder[currentIndex], newGameOrder[selectedGameIndex]] = [newGameOrder[selectedGameIndex], newGameOrder[currentIndex]];
+              
+              // Update the session with new game order
+              session.selectedGames = newGameOrder;
+              console.log('✅ Updated game order:', newGameOrder);
+            }
+          }
+          
+          // Navigate to the next game instructions screen
+          if (pendingNavigation) {
+            console.log('📍 Navigating to', pendingNavigation.screen);
+            navigation.navigate(pendingNavigation.screen as any, pendingNavigation.params);
+          }
+          
+          // Close the modal after a short delay to ensure navigation completes
+          setTimeout(() => {
+            setShowRandomizer(false);
+            setPendingNavigation(null);
+            setTargetGameId(undefined);
+          }, 100);
+        }}
+        onClose={() => {
+          setShowRandomizer(false);
+          setPendingNavigation(null);
+          setTargetGameId(undefined);
+        }}
+      />
     </SafeAreaView>
   );
 }

@@ -22,7 +22,7 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
   const { player1, player2, punishment, originalPlayer1, originalPlayer2, player1Score, player2Score } = route.params;
   
   // Get game logic functions
-  const { setAvailableItems, selectGames } = useGameLogic();
+  const { setAvailableItems, selectGames, service } = useGameLogic();
   
   // Get persistent user for player1
   const { user, isLoading: userLoading, isInitialized } = useUser();
@@ -335,6 +335,25 @@ export default function ItemGatheringScreen({ navigation, route }: Props) {
         games={selectedGamesForPopup}
         onComplete={(selectedGame) => {
           console.log('🎬 ItemGatheringScreen: onComplete called with game:', selectedGame);
+          
+          // Update the session to ensure the selected game is the first game to play
+          const session = service.getSession();
+          if (session && selectedGame.id) {
+            const currentIndex = session.currentGameIndex;
+            const selectedGameIndex = session.selectedGames.indexOf(selectedGame.id);
+            
+            console.log('🔄 Reordering games - Current index:', currentIndex, 'Selected game index:', selectedGameIndex);
+            
+            if (selectedGameIndex >= 0 && selectedGameIndex !== currentIndex) {
+              // Swap the selected game with the game at currentGameIndex
+              const newGameOrder = [...session.selectedGames];
+              [newGameOrder[currentIndex], newGameOrder[selectedGameIndex]] = [newGameOrder[selectedGameIndex], newGameOrder[currentIndex]];
+              
+              // Update the session with new game order
+              session.selectedGames = newGameOrder;
+              console.log('✅ Updated game order:', newGameOrder);
+            }
+          }
           
           // Navigate to first game instructions screen immediately
           console.log('📍 Navigating to GameInstructionsScreen1...');

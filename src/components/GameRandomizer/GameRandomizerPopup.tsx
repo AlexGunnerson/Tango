@@ -24,6 +24,7 @@ interface GameRandomizerPopupProps {
   games: GameCard[];
   onComplete: (selectedGame: GameCard) => void;
   onClose?: () => void;
+  targetGameId?: string; // Optional: If provided, randomizer will land on this specific game
 }
 
 const CARD_WIDTH = width * 0.6;
@@ -38,6 +39,7 @@ export default function GameRandomizerPopup({
   games,
   onComplete,
   onClose,
+  targetGameId,
 }: GameRandomizerPopupProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectedGame, setSelectedGame] = useState<GameCard | null>(null);
@@ -59,9 +61,26 @@ export default function GameRandomizerPopup({
     nameOpacity.setValue(0); // Start with name invisible
     
     // Batch 1: Pre-calculate the winning game
-    // Randomly select target game index
-    const targetGameIndex = Math.floor(Math.random() * games.length);
-    const chosenGame = games[targetGameIndex];
+    // If targetGameId is provided, find that game's index; otherwise randomly select
+    let targetGameIndex: number;
+    let chosenGame: GameCard;
+    
+    if (targetGameId) {
+      // Find the index of the target game
+      targetGameIndex = games.findIndex(g => g.id === targetGameId);
+      if (targetGameIndex === -1) {
+        // Target game not found in array, fall back to random
+        console.warn('⚠️ Target game not found in games array, selecting random game');
+        targetGameIndex = Math.floor(Math.random() * games.length);
+      }
+      chosenGame = games[targetGameIndex];
+      console.log('🎯 Using provided target game:', chosenGame.title, 'at index:', targetGameIndex);
+    } else {
+      // Randomly select target game index
+      targetGameIndex = Math.floor(Math.random() * games.length);
+      chosenGame = games[targetGameIndex];
+      console.log('🎲 Randomly selected game:', chosenGame.title, 'at index:', targetGameIndex);
+    }
     
     // Calculate total scroll distance:
     // (3-4 full rotations * games.length) + targetGameIndex
